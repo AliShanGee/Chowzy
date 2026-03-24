@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Button, Modal, Form, ListGroup } from 'react-bootstrap';
+import { Button, Form, ListGroup } from 'react-bootstrap';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import ChatHistory from './ChatHistory';
 
