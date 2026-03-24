@@ -11,6 +11,17 @@ app.use(cors());
 // Middleware to parse JSON bodies
 app.use(express.json());
 
+// Ensure DB is connected before handling requests (for serverless)
+app.use(async (req, res, next) => {
+  try {
+    await mongoDB();
+    next();
+  } catch (err) {
+    console.error("DB connection middleware error:", err);
+    res.status(500).json({ error: "Database connection failed" });
+  }
+});
+
 // API Routes
 app.use('/api', require("./Routes/CreateUser"));
 app.use('/api', require("./Routes/DisplayData"));
@@ -23,12 +34,12 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-// Connect to DB first, then start server
-mongoDB().then(() => {
+// Only start the server when running locally (not on Vercel)
+if (process.env.VERCEL !== '1') {
   app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
   });
-}).catch((err) => {
-  console.error("Failed to connect to DB", err);
-  process.exit(1);
-});
+}
+
+// Export the app for Vercel serverless
+module.exports = app;
