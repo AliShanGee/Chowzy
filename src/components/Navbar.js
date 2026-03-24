@@ -1,0 +1,211 @@
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import Badge from 'react-bootstrap/Badge';
+import Container from 'react-bootstrap/Container';
+import { useCart, useDispatchCart } from './ContextReducer';
+import Lottie from "lottie-react";
+import shoppingCartAnimation from "../animations/shopping cart.json";
+import helloChatBotAnimation from "../animations/Hello Chat Bot.json";
+import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
+import { Dropdown, Card, Button } from 'react-bootstrap';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { IoIosLogOut } from "react-icons/io";
+import { BsPersonCircle } from "react-icons/bs";
+import { gsap } from 'gsap';
+import Carousel from './Carousel'; // Import the Carousel component
+import Modal from './Modal';
+import Cart from '../screens/cart';
+import ChatHistory from './ChatHistory';
+import Chatbot from './Chatbot';
+
+function NavScrollExample() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  let data = useCart();
+  const dispatchCart = useDispatchCart();
+  const [cartView, setCartView] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showChatbot, setShowChatbot] = useState(false);
+  const lottieRef = useRef();
+
+  const handleLogout = () => {
+    // Clear user data from localStorage and state
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    // Clear any cart items so the next logged-in user sees their own cart
+    if (dispatchCart) {
+      dispatchCart({ type: "DROP" });
+    }
+    setUser(null);
+    navigate("/login");
+  }
+
+  const navbarRef = useRef(null);
+  const logoRef = useRef(null);
+  const [search, setSearch] = useState(''); // Add search state for the carousel
+
+  useLayoutEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser && storedUser !== 'undefined') {
+      setUser(JSON.parse(storedUser));
+    }
+    // Animate logo on initial load
+    if (logoRef.current) {
+      const letters = logoRef.current.children;
+      // Use set to ensure visibility then from to animate
+      gsap.set(letters, { y: 0, opacity: 1 });
+      gsap.from(letters, {
+        y: 20,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.07,
+        ease: 'power3.out'
+      });
+    }
+
+    // Add hover animations to nav links
+    const links = navbarRef.current.querySelectorAll('.nav-link');
+
+    links.forEach(link => {
+      link.addEventListener('mouseenter', () => {
+        gsap.to(link, { scale: 1.1, duration: 0.3, ease: 'power1.out' });
+      });
+      link.addEventListener('mouseleave', () => {
+        gsap.to(link, { scale: 1, duration: 0.3, ease: 'power1.out' });
+      });
+    });
+
+    // Add hover animation to the logo
+    const logo = logoRef.current;
+    logo.addEventListener('mouseenter', () => {
+      gsap.to(logo.children, { y: -5, stagger: 0.05, duration: 0.2, ease: 'power1.out' });
+    });
+    logo.addEventListener('mouseleave', () => {
+      gsap.to(logo.children, { y: 0, stagger: { from: "end", amount: 0.05 }, duration: 0.2, ease: 'power1.in' });
+    });
+
+  }, [location]); // Re-run on location change to update user state if needed
+
+  // Play animation when cart items change
+  useEffect(() => {
+    if (lottieRef.current && data.length > 0) {
+      lottieRef.current.goToAndPlay(0, true);
+    }
+  }, [data.length]);
+
+  const toggleChatbot = () => {
+    setShowChatbot(!showChatbot);
+  }
+
+  return (
+    <>
+      <Navbar ref={navbarRef} expand="lg" style={{ backgroundColor: '#FFE13C' }} sticky="top">
+        <Container fluid>
+          <Navbar.Brand
+            as={Link}
+            to="/"
+            style={{ fontWeight: 'bold', fontSize: '1.8rem', display: 'flex', overflow: 'hidden' }}
+            ref={logoRef}
+            onClick={() => {
+              if (logoRef.current) {
+                gsap.fromTo(logoRef.current.children,
+                  { scale: 1 },
+                  { scale: 1.2, duration: 0.1, yoyo: true, repeat: 1, stagger: 0.02 }
+                );
+              }
+            }}
+          >
+            {'Chowzy'.split('').map((char, index) => (
+              <span key={index} style={{
+                display: 'inline-block',
+                color: ['#ff6b6b', '#f94d63', '#f7971e', '#ffd700', '#08C1FF', '#FF4DC2'][index % 6]
+              }}>
+                {char}
+              </span>
+            ))}
+          </Navbar.Brand>
+          <div style={{ cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center" }} onClick={toggleChatbot}>
+            <Lottie
+                animationData={helloChatBotAnimation}
+                loop={true}
+                autoplay={true}
+            />
+          </div>
+          <Navbar.Toggle aria-controls="navbarScroll" />
+          <Navbar.Collapse id="navbarScroll">
+            <Nav
+              className="me-auto my-2 my-lg-0"
+              navbarScroll
+            >
+              {/* The brand logo serves as the home link */}
+            </Nav>
+            {(!localStorage.getItem("authToken")) ?
+              <Nav>
+                {location.pathname !== '/login' && (
+                  <Nav.Link as={Link} to="/login" className="btn btn-success text-black mx-1" style={{ border: '2px solid green ', backgroundColor: 'white' }} >
+                    Login
+                  </Nav.Link>
+                )}
+                {location.pathname !== '/signup' && (
+                  <Nav.Link as={Link} to="/signup" className="btn text-success mx-1" style={{ border: '2px solid green', backgroundColor: 'white' }}>
+                    Sign Up
+                  </Nav.Link>
+                )}
+              </Nav>
+              :
+              <div className='d-flex align-items-center'>
+                <div className="btn bg-white text-success mx-2 d-flex align-items-center" onClick={() => { setCartView(true) }}>
+                  <div style={{ width: "30px", height: "30px" }}>
+                    <Lottie
+                      lottieRef={lottieRef}
+                      animationData={shoppingCartAnimation}
+                      loop={false}
+                      autoplay={false}
+                    />
+                  </div>
+                  <span className="ms-1">Cart</span>
+                  <Badge pill bg="danger" className='ms-2'>{data.length}</Badge>
+                </div>
+                {cartView ? <Modal onClose={() => setCartView(false)}><Cart /></Modal> : null}
+                {showHistory && <ChatHistory show={showHistory} handleClose={() => setShowHistory(false)} />}
+                <Dropdown>
+                  <Dropdown.Toggle variant="light" id="dropdown-profile" className="d-flex align-items-center">
+                    <BsPersonCircle size={24} className="me-2" />
+                    Profile
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu align="end" className="p-0 border-0 shadow-lg">
+                    <Card style={{ width: '18rem' }}>
+                      <Card.Body>
+                        <div className="text-center mb-3">
+                          <BsPersonCircle size={48} className="text-secondary" />
+                        </div>
+                        <Card.Title className="text-center mb-3">{user ? user.name : 'Guest'}</Card.Title>
+                        <hr />
+                        <Card.Text as="div">
+                          <p><strong>Email:</strong> {user ? user.email : 'N/A'}</p>
+                          <p><strong>Location:</strong> {user ? user.location : 'N/A'}</p>
+                        </Card.Text>
+                        <Button variant="outline-danger" className="w-100 mt-3" onClick={handleLogout}>
+                          <IoIosLogOut className="me-2" /> Logout
+                        </Button>
+                      </Card.Body>
+                    </Card>.
+                  </Dropdown.Menu>
+                </Dropdown>
+              </div>}
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+      {location.pathname === '/' && <Carousel search={search} setSearch={setSearch} />}
+      {showChatbot &&
+        <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000 }}>
+          <Chatbot />
+        </div>
+      }
+    </>
+  );
+}
+
+export default NavScrollExample;

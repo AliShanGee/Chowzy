@@ -1,25 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import Navbar from './components/Navbar';
+import Home from './screens/Home';
+import Login from './screens/Login';
+import SignUp from './screens/SignUp';
+import MyOrder from './screens/MyOrder';
+import NotFound from './screens/NotFound';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { CartProvider } from './components/ContextReducer';
+import AdminPanel from './screens/AdminPanel';
 
-function App() {
+const AppContent = () => {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {!isAdminRoute && <Navbar />}
+      <Routes>
+        <Route exact path="/" element={<Home />} />
+        <Route exact path="/login" element={<Login />} />
+        <Route exact path="/signup" element={<SignUp />} />
+        <Route exact path="/myOrder" element={<MyOrder />} />
+        <Route path="/admin/*" element={
+          localStorage.getItem("admin_auth") ? <AdminPanel /> : <Navigate to="/login" />
+        } />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </div>
   );
-}
+};
 
-export default App;
+export default function App() {
+  return (
+    <CartProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </CartProvider>
+  );
+}

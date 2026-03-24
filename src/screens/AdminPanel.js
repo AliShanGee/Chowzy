@@ -1,0 +1,21 @@
+import React from 'react';
+import { Admin, Resource } from 'react-admin';
+import dataProvider from '../dataProvider';
+import authProvider from '../admin/authProvider';
+import { OrderList, OrderCreate, OrderShow } from '../admin/orders';
+import { UserList, UserEdit, UserCreate, UserShow } from '../admin/users';
+import { FoodCategoryList, FoodCategoryEdit, FoodCategoryCreate } from '../admin/foodCategories';
+import { FoodItemList, FoodItemEdit, FoodItemCreate } from '../admin/foodItems';
+import Dashboard from '../admin/Dashboard';
+import MyLayout from '../admin/MyLayout';
+
+export default function AdminPanel() {
+  return (
+    <Admin basename="/admin" dataProvider={dataProvider} authProvider={authProvider} layout={MyLayout} dashboard={Dashboard}>
+      <Resource name="foodItems" list={FoodItemList} edit={FoodItemEdit} create={FoodItemCreate} />
+      <Resource name="foodCategories" list={FoodCategoryList} edit={FoodCategoryEdit} create={FoodCategoryCreate} />
+      <Resource name="orders" list={OrderList} create={OrderCreate} show={OrderShow} />
+      <Resource name="users" list={UserList} edit={UserEdit} create={UserCreate} show={UserShow} />
+    </Admin>
+  );
+}
