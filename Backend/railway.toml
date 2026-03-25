@@ -1,0 +1,8 @@
+[build]
+watchPatterns = ["Backend/**"]
+
+[deploy]
+startCommand = "node index.js"  # or whatever your entry point is
+
+[[services]]
+rootDirectory = "Backend"
