@@ -60,7 +60,7 @@ Ensure you have Node.js and npm (or Yarn) installed:
 
     ```
     # Example .env content (adjust as per your backend requirements)
-    REACT_APP_API_BASE_URL=http://localhost:5000/api
+    REACT_APP_API_URL=http://localhost:5000
     PORT=3000
     # Add any other necessary environment variables here
     ```

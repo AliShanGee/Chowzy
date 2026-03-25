@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
 import Lottie from 'lottie-react';
 import animationData from '../animations/Gradient Dots Background.json';
+import API_BASE_URL from '../config';
 
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
