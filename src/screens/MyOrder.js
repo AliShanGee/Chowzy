@@ -14,7 +14,7 @@ export default function MyOrder() {
     }
 
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/myOrderData`, {
+      const res = await fetch('http://localhost:5000/api/myOrderData', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

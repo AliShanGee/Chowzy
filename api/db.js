@@ -1,16 +1,10 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-const mongoURL = process.env.MONGODB_URI;
-
-// Cache the connection state to avoid reconnecting on every serverless invocation
-let isConnected = false;
+// It's a good practice to hide your credentials, you can use environment variables for this.
+const mongoURL = process.env.MONGODB_URI ;
 
 const mongoDB = async () => {
-  if (isConnected && mongoose.connection.readyState === 1) {
-    return; // Already connected, reuse
-  }
-
   try {
     console.log("Attempting to connect to MongoDB...");
     await mongoose.connect(mongoURL, {
@@ -20,7 +14,6 @@ const mongoDB = async () => {
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
     });
-    isConnected = true;
     console.log("Connected to MongoDB successfully");
 
     // Fetch food items
@@ -42,7 +35,6 @@ const mongoDB = async () => {
     global.food_items = foodItemsData;
     global.foodCategory = catData;
   } catch (error) {
-    isConnected = false;
     console.error("Error connecting to MongoDB:", error.message);
     if (error.code === "ECONNREFUSED") {
       console.error(
@@ -54,7 +46,8 @@ const mongoDB = async () => {
       );
     }
     console.error("Full error details:", error);
-    throw error; // Throw instead of process.exit (serverless-safe)
+    // Exit process with failure
+    process.exit(1);
   }
 };
 
