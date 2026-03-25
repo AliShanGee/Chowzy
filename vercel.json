@@ -3,6 +3,11 @@
   "buildCommand": "npm run build",
   "outputDirectory": "build",
   "framework": "create-react-app",
+  "functions": {
+    "api/index.js": {
+      "runtime": "nodejs24.x"
+    }
+  },
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]

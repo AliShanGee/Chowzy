@@ -28,11 +28,19 @@ app.get('/', (req, res) => {
 });
 
 // Start server immediately to pass health checks
-app.listen(port, "0.0.0.0", () => {
-  console.log(`Example app listening on port ${port}`);
-});
+// app.listen(port, "0.0.0.0", () => {
+//   console.log(`Example app listening on port ${port}`);
+// });
 
 // Connect to DB asynchronously
 mongoDB().catch((err) => {
   console.error("Failed to connect to DB", err);
 });
+
+if (require.main === module) {
+  app.listen(port, "0.0.0.0", () => {
+    console.log(`Example app listening on port ${port}`);
+  });
+}
+
+module.exports = app;
