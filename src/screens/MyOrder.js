@@ -15,7 +15,7 @@ export default function MyOrder() {
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/myOrderData`, {
+      const res = await fetch(`${API_BASE_URL}/api/myOrderData`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
