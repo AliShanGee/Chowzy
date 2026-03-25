@@ -20,15 +20,15 @@ app.use('/api', require("./Routes/AskGemini"));
 // Add other routes here as you create them
 
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  res.send('Hello World! Server is running.');
 });
 
-// Connect to DB first, then start server
-mongoDB().then(() => {
-  app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
-  });
-}).catch((err) => {
+// Start server immediately to pass health checks
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Example app listening on port ${port}`);
+});
+
+// Connect to DB asynchronously
+mongoDB().catch((err) => {
   console.error("Failed to connect to DB", err);
-  process.exit(1);
 });
