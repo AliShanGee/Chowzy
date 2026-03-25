@@ -1,6 +1,6 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm install --prefix Backend"
 
 [deploy]
-startCommand = "npm start --prefix Backend"
+startCommand = "cd Backend && npm start"
+healthcheckPath = "/"
