@@ -4,8 +4,8 @@
   "outputDirectory": "build",
   "framework": "create-react-app",
   "functions": {
-    "api/index.js": {
-      "runtime": "nodejs20.x"
+    "api/**/*.js": {
+      "runtime": "@vercel/node@5.6.20"
     }
   },
   "rewrites": [
