@@ -3,6 +3,7 @@ import Lottie from "lottie-react";
 import animationData from "../animations/Order success.json";
 import { useCart, useDispatchCart } from '../components/ContextReducer';
 import { BsTrash } from 'react-icons/bs';
+import API_BASE_URL from '../config';
 
 export default function Cart() {
     const [showSuccess, setShowSuccess] = useState(false);
@@ -42,7 +43,7 @@ export default function Cart() {
             userEmail = userObj.email;
         }
 
-        const response = await fetch("http://localhost:5000/api/orderData", {
+        const response = await fetch(`${API_BASE_URL}/api/orderData`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

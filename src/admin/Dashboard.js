@@ -15,6 +15,7 @@ import {
     Typography
 } from '@mui/material';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import API_BASE_URL from '../config';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#a4de6c', '#d0ed57', '#ffc658', '#ff7300'];
 
@@ -62,7 +63,7 @@ const Dashboard = () => {
 
         const fetchStats = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/admin/stats');
+                const response = await fetch(`${API_BASE_URL}/api/admin/stats`);
 
                 if (!response.ok) {
                     throw new Error(`Failed to fetch dashboard stats: ${response.status}`);

@@ -6,13 +6,15 @@ import Card from '../components/Card'
 import Lottie from 'lottie-react'
 import homeBg from '../animations/YDT9GjiZWg.json'
 
+import API_BASE_URL from '../config'
+
 export default function Home() {
   const [search, setSearch] = useState('');
   const [foodCat,setFoodCat] = useState([]);
   const [foodItem,setFoodItem] = useState([]);
 
   const loadData = async ()=>{
-    let response = await fetch("http://localhost:5000/api/foodData",{
+    let response = await fetch(`${API_BASE_URL}/api/foodData`,{
         method:"GET",
         headers:{
             "Content-Type":"application/json"

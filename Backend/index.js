@@ -3,10 +3,14 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 5000;
 const mongoDB = require('./db');
-const cors = require('cors'); // Import the cors package
+const cors = require('cors');
 
-// Use the cors middleware to handle Cross-Origin Resource Sharing
-app.use(cors());
+// CORS configuration to allow Vercel frontend
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 
 // Middleware to parse JSON bodies
 app.use(express.json());

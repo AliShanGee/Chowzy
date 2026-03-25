@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button, Form, ListGroup } from 'react-bootstrap';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import ChatHistory from './ChatHistory';
+import API_BASE_URL from '../config';
 
 const Chatbot = () => {
   const [messages, setMessages] = useState([
@@ -23,7 +24,7 @@ const Chatbot = () => {
   useEffect(() => {
     const fetchFoodData = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/foodData');
+        const response = await fetch(`${API_BASE_URL}/api/foodData`);
         const data = await response.json();
         if (Array.isArray(data) && data.length > 0) {
           setFoodItems(data[0]); // food items
@@ -47,7 +48,7 @@ const Chatbot = () => {
       const foodList = foodItems.map(item => `${item.name}: ${item.description || 'Delicious food item'}`).join(', ');
       const systemPrompt = `You are a helpful food assistant for a food delivery app. Answer questions related to food ingredients, diet, health, and nutrition. Do not give personal advice or use "@" in responses. Focus on general information about food. Available food items: ${foodList}. User question: ${input}`;
       
-      const response = await fetch('http://localhost:5000/api/ask', {
+      const response = await fetch(`${API_BASE_URL}/api/ask`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
