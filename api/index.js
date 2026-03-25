@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const serverless = require('serverless-http');
 const app = express();
 const port = process.env.PORT || 5000;
 const mongoDB = require('./db');
@@ -43,4 +44,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = app;
+module.exports = serverless(app);

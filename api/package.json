@@ -23,6 +23,7 @@
     "mongodb": "^7.1.0",
     "mongoose": "^8.19.0",
     "nodemon": "^3.1.10",
-    "retry": "^0.13.1"
+    "retry": "^0.13.1",
+    "serverless-http": "^4.0.0"
   }
 }
