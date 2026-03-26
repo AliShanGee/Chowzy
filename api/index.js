@@ -24,6 +24,11 @@ app.use('/api', require("./Routes/AdminRoutes"));
 app.use('/api', require("./Routes/AskGemini"));
 // Add other routes here as you create them
 
+// API fallback for undefined /api/* routes (avoid HTML fallback from front-end router)
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ error: 'API route not found', path: req.originalUrl });
+});
+
 app.get('/', (req, res) => {
   res.send('Hello World! Server is running.');
 });

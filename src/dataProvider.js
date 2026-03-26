@@ -27,17 +27,13 @@ const dataProvider = {
         const url = `${getResourceUrl(resource)}?${stringify(query)}`;
 
         return httpClient(url).then(({ headers, json }) => {
-            if (!headers.has('content-range')) {
-                return {
-                    data: json,
-                    total: json.length,
-                };
-            }
-            const contentRange = headers.get('content-range').split('/');
-            const total = parseInt(contentRange.pop(), 10);
+            const dataArray = Array.isArray(json) ? json : [];
+            const total = headers.has('content-range')
+                ? parseInt(headers.get('content-range').split('/').pop(), 10)
+                : dataArray.length;
             return {
-                data: json,
-                total: total,
+                data: dataArray,
+                total,
             };
         });
     },
