@@ -5,6 +5,7 @@ import { useCart, useDispatchCart } from './ContextReducer';
 import Lottie from "lottie-react";
 import shoppingCartAnimation from "../animations/shopping cart.json";
 import helloChatBotAnimation from "../animations/Hello Chat Bot.json";
+import historyAnimation from "../animations/History.json";
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { Dropdown, Card, Button } from 'react-bootstrap';
@@ -13,18 +14,18 @@ import { IoIosLogOut } from "react-icons/io";
 import { BsPersonCircle } from "react-icons/bs";
 import { gsap } from 'gsap';
 import Carousel from './Carousel'; // Import the Carousel component
-import Modal from './Modal';
-import Cart from '../screens/cart';
 import ChatHistory from './ChatHistory';
 import Chatbot from './Chatbot';
+import ThemeToggle from './ThemeToggle';
+import { useTheme } from 'next-themes';
 
 function NavScrollExample() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { setTheme } = useTheme();
   const [user, setUser] = useState(null);
   let data = useCart();
   const dispatchCart = useDispatchCart();
-  const [cartView, setCartView] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showChatbot, setShowChatbot] = useState(false);
   const lottieRef = useRef();
@@ -38,6 +39,9 @@ function NavScrollExample() {
       dispatchCart({ type: "DROP" });
     }
     setUser(null);
+    setShowChatbot(false);
+    // Switch to light mode on logout
+    setTheme('light');
     navigate("/login");
   }
 
@@ -125,20 +129,23 @@ function NavScrollExample() {
               </span>
             ))}
           </Navbar.Brand>
-          <div style={{ cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center" }} onClick={toggleChatbot}>
-            <Lottie
-                animationData={helloChatBotAnimation}
-                loop={true}
-                autoplay={true}
-            />
-          </div>
           <Navbar.Toggle aria-controls="navbarScroll" />
           <Navbar.Collapse id="navbarScroll">
             <Nav
               className="me-auto my-2 my-lg-0"
               navbarScroll
             >
-              {/* The brand logo serves as the home link */}
+              {(localStorage.getItem("authToken") && location.pathname !== '/orderhistory') ?
+                <Nav.Link as={Link} to="/orderhistory" className="d-flex align-items-center" style={{ textDecoration: 'none' }}>
+                  <div style={{ width: "40px", height: "40px" }}>
+                    <Lottie
+                      animationData={historyAnimation}
+                      loop={true}
+                      autoplay={true}
+                    />
+                  </div>
+                </Nav.Link>
+                : ""}
             </Nav>
             {(!localStorage.getItem("authToken")) ?
               <Nav>
@@ -155,7 +162,15 @@ function NavScrollExample() {
               </Nav>
               :
               <div className='d-flex align-items-center'>
-                <div className="btn bg-white text-success mx-2 d-flex align-items-center" onClick={() => { setCartView(true) }}>
+                <ThemeToggle />
+                <div style={{ cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px" }} onClick={toggleChatbot}>
+                  <Lottie
+                      animationData={helloChatBotAnimation}
+                      loop={true}
+                      autoplay={true}
+                  />
+                </div>
+                <Link className="btn bg-white text-success mx-2 d-flex align-items-center" to="/cart" style={{ textDecoration: 'none' }}>
                   <div style={{ width: "30px", height: "30px" }}>
                     <Lottie
                       lottieRef={lottieRef}
@@ -166,8 +181,7 @@ function NavScrollExample() {
                   </div>
                   <span className="ms-1">Cart</span>
                   <Badge pill bg="danger" className='ms-2'>{data.length}</Badge>
-                </div>
-                {cartView ? <Modal onClose={() => setCartView(false)}><Cart /></Modal> : null}
+                </Link>
                 {showHistory && <ChatHistory show={showHistory} handleClose={() => setShowHistory(false)} />}
                 <Dropdown>
                   <Dropdown.Toggle variant="light" id="dropdown-profile" className="d-flex align-items-center">

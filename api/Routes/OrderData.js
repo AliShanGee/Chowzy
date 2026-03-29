@@ -40,6 +40,8 @@ router.post('/orderData',async (req,res)=>{
     }
 });
 
+module.exports = router;
+
 // --- Admin endpoints ---
 
 // Get all orders for admin panel
@@ -77,4 +79,13 @@ router.put('/admin/orders/:id/schedule', async (req, res) => {
   }
 });
 
-module.exports = router;
+
+
+router.post('/myOrderData', async (req, res) => {
+    try {
+        let myData = await Order.findOne({ 'email': req.body.email });
+        res.json({ orderData: myData });
+    } catch (error) {
+        res.status(500).send("Server Error: " + error.message);
+    }
+});

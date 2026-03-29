@@ -1,8 +1,9 @@
 import * as React from "react";
-import { List, Datagrid, TextField, FunctionField, Filter, SearchInput, Create, SimpleForm, TextInput, DateInput, ArrayInput, SimpleFormIterator, ShowButton, DeleteButton, Show, SimpleShowLayout, Edit, AutocompleteInput, useRecordContext } from 'react-admin';
-import { Box, Button, Chip, Typography } from '@mui/material';
+import { List, Datagrid, TextField, FunctionField, Filter, SearchInput, Create, SimpleForm, TextInput, DateInput, ArrayInput, SimpleFormIterator, ShowButton, DeleteButton, Show, SimpleShowLayout, Edit, useRecordContext } from 'react-admin';
+import { Box, Button, Chip, Typography, TextField as MuiTextField } from '@mui/material';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import addNotification from 'react-push-notification';
 
 const STATUS_COLORS = {
     pending: 'default',
@@ -50,12 +51,22 @@ const DeliveryScheduleForm = () => {
                 })
             });
             if (response.ok) {
-                alert('Delivery scheduled successfully!');
+                addNotification({
+                    title: 'Delivery Scheduled! 🚚',
+                    message: `Order scheduled for ${deliveryDate} at ${deliveryTime}`,
+                    duration: 4000,
+                    native: true,
+                });
                 window.location.reload();
             }
         } catch (error) {
             console.error('Error scheduling delivery:', error);
-            alert('Failed to schedule delivery');
+            addNotification({
+                title: 'Error!',
+                message: 'Failed to schedule delivery',
+                duration: 4000,
+                native: true,
+            });
         }
         setLoading(false);
     };
@@ -88,7 +99,7 @@ const DeliveryScheduleForm = () => {
                     fullWidth
                 />
                 
-                <TextInput
+                <MuiTextField
                     label="Delivery Date"
                     type="date"
                     value={deliveryDate}

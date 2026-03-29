@@ -5,10 +5,12 @@ import Footer from '../components/Footer'
 import Card from '../components/Card'
 import Lottie from 'lottie-react'
 import homeBg from '../animations/YDT9GjiZWg.json'
+import { useTheme } from 'next-themes'
 
 import API_BASE_URL from '../config'
 
 export default function Home() {
+  const { theme } = useTheme();
   const [search, setSearch] = useState('');
   const [foodCat,setFoodCat] = useState([]);
   const [foodItem,setFoodItem] = useState([]);
@@ -35,15 +37,17 @@ export default function Home() {
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', backgroundColor: '#000' }}>
-        <Lottie
-          animationData={homeBg}
-          loop
-          autoplay
-          rendererSettings={{ preserveAspectRatio: 'xMidYMid slice', progressiveLoad: true, clearCanvas: false }}
-          style={{ width: '100%', height: '100%' }}
-        />
-      </div>
+      {theme !== 'dark' && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', backgroundColor: '#000' }}>
+          <Lottie
+            animationData={homeBg}
+            loop
+            autoplay
+            rendererSettings={{ preserveAspectRatio: 'xMidYMid slice', progressiveLoad: true, clearCanvas: false }}
+            style={{ width: '100%', height: '100%' }}
+          />
+        </div>
+      )}
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div className="container">
           {/* Search Bar */}

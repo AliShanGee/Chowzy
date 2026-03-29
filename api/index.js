@@ -21,11 +21,12 @@ app.use('/api', require("./Routes/CreateUser"));
 app.use('/api', require("./Routes/DisplayData"));
 app.use('/api', require("./Routes/OrderData"));
 app.use('/api', require("./Routes/AdminRoutes"));
+app.use('/api', require("./Routes/AdminAuth"));
 app.use('/api', require("./Routes/AskGemini"));
 // Add other routes here as you create them
 
 // API fallback for undefined /api/* routes (avoid HTML fallback from front-end router)
-app.use('/api/*', (req, res) => {
+app.use(/\/api\/.*/, (req, res) => {
   res.status(404).json({ error: 'API route not found', path: req.originalUrl });
 });
 

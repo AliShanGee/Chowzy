@@ -1,10 +1,23 @@
+import API_BASE_URL from '../config';
+
 const authProvider = {
-    login: ({ username, password }) => {
-        if (username === 'alishan1@gmail.com' && password === '123456') {
-            localStorage.setItem('admin_auth', username);
+    login: async ({ username, password }) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
+                method: 'POST',
+                body: JSON.stringify({ email: username, password }),
+                headers: new Headers({ 'Content-Type': 'application/json' }),
+            });
+            if (response.status < 200 || response.status >= 300) {
+                const error = await response.json();
+                throw new Error(error.message || response.statusText);
+            }
+            const { authToken } = await response.json();
+            localStorage.setItem('admin_auth', authToken);
             return Promise.resolve();
+        } catch (error) {
+            return Promise.reject(error);
         }
-        return Promise.reject(new Error('Invalid admin credentials'));
     },
     logout: () => {
         localStorage.removeItem('admin_auth');

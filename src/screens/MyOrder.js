@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Footer from '../components/Footer';
-import Navbar from '../components/Navbar';
 import API_BASE_URL from '../config';
+import { useNavigate } from 'react-router-dom';
 
 export default function MyOrder() {
   const [orders, setOrders] = useState([]);
+  const navigate = useNavigate();
 
   const fetchMyOrder = async () => {
     let userEmail = '';
@@ -61,10 +62,13 @@ export default function MyOrder() {
 
   return (
     <div>
-      <Navbar />
-
       <div className="container my-4">
-        <h3 className="text-white mb-4">My Orders</h3>
+        <div className="d-flex align-items-center mb-4">
+          <button className="btn btn-secondary me-3" onClick={() => navigate(-1)}>
+            &larr; Back
+          </button>
+          <h3 className="m-0" style={{ color: 'var(--text-color, white)' }}>My Orders</h3>
+        </div>
 
         {orders.length === 0 ? (
           <div className="text-center text-white">

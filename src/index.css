@@ -1,0 +1,67 @@
+/* index.css */
+
+body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.dark body {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+}
+
+html.dark .card {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+    border-color: #333 !important;
+}
+
+html.dark .card-header,
+html.dark .card-footer {
+    background-color: #2a2a2a !important;
+    border-color: #333 !important;
+}
+
+html.dark .bg-white {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+    border-color: #333 !important;
+}
+
+html.dark .text-dark,
+html.dark .text-black,
+html.dark .text-muted {
+    color: #dddddd !important;
+}
+
+html.dark .modal-content {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+}
+
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6 {
+    color: #ffffff !important;
+}
+
+html.dark .navbar {
+    background-color: #1f1f1f !important;
+}
+
+html.dark .nav-link,
+html.dark .navbar-brand {
+    color: #ffffff !important;
+}
+
+html.dark input.form-control {
+    background-color: #2c2c2c !important;
+    color: #ffffff !important;
+    border-color: #444 !important;
+}
+
+html.dark input.form-control::placeholder {
+    color: #888 !important;
+}

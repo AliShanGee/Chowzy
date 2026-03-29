@@ -24,16 +24,30 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (credentials.email === "alishan1@gmail.com" && credentials.password === "123456") {
-      localStorage.setItem("admin_auth", "alishan1@gmail.com");
-      await Swal.fire({
-        icon: 'success',
-        title: 'Logged in as Admin!',
-        showConfirmButton: false,
-        timer: 1500
-      });
-      navigate('/admin');
-      return;
+    // Check for admin login attempt
+    if (credentials.email === "alishan1@gmail.com") {
+      try {
+        const adminResponse = await fetch(`${API_BASE_URL}/api/admin/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: credentials.email, password: credentials.password })
+        });
+
+        const adminJson = await adminResponse.json();
+        if (adminJson.success) {
+          localStorage.setItem("admin_auth", adminJson.authToken);
+          await Swal.fire({
+            icon: 'success',
+            title: 'Logged in as Admin!',
+            showConfirmButton: false,
+            timer: 1500
+          });
+          navigate('/admin');
+          return;
+        }
+      } catch (error) {
+        console.error("Admin login check failed:", error);
+      }
     }
 
     try {

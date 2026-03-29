@@ -14,7 +14,7 @@ let data = useCart();
 
     const handleAddToCart = async () => {
         // Logic for adding to cart will go here
-        await dispatch({type:"ADD",id:props.foodItem._id,name:props.foodItem.name,price:finalPrice,qty:qty,size:size})
+        await dispatch({type:"ADD",id:props.foodItem._id,name:props.foodItem.name,price:finalPrice,qty:qty,size:size,img:props.foodItem.img})
         console.log(data)
     };
 

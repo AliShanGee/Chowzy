@@ -29,6 +29,21 @@ const mongoDB = async () => {
       mongoose.connection.db.collection("foodCategory");
     const catData = await foodCategoryCollection.find({}).toArray();
 
+    // Seed Admin user if collection is empty
+    const Admin = require('./models/Admin');
+    const bcrypt = require('bcryptjs');
+    const adminCount = await Admin.countDocuments();
+    if (adminCount === 0) {
+      console.log("Seeding initial admin user...");
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash("123456", salt); // Initial password
+      await Admin.create({
+        email: "alishan1@gmail.com",
+        password: hashedPassword
+      });
+      console.log("Initial admin user created successfully");
+    }
+
     if (foodItemsData.length === 0) {
       console.warn("Warning: 'food_items' collection is empty. Check database content.");
     } else {

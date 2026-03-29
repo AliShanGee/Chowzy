@@ -1,11 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Alert,
-    Box,
+    Button,
     Card,
     CardContent,
     CardHeader,
-    CircularProgress,
     Grid,
     List,
     ListItem,
@@ -14,10 +13,10 @@ import {
     Stack,
     Typography
 } from '@mui/material';
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../config';
+import { motion } from 'framer-motion';
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#a4de6c', '#d0ed57', '#ffc658', '#ff7300'];
 
 const defaultSummary = {
     totalUsers: 0,
@@ -52,10 +51,9 @@ const SummaryCard = ({ title, value, subtitle }) => (
 );
 
 const Dashboard = () => {
+    const navigate = useNavigate();
     const [summary, setSummary] = useState(defaultSummary);
-    const [stats, setStats] = useState([]);
     const [topSellingItems, setTopSellingItems] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     useEffect(() => {
@@ -71,14 +69,11 @@ const Dashboard = () => {
 
                 const data = await response.json();
                 setSummary(data.summary || defaultSummary);
-                setStats(data.pieChartData || []);
                 setTopSellingItems(data.topSellingItems || []);
                 setError('');
             } catch (fetchError) {
                 console.error('Error fetching stats', fetchError);
                 setError(fetchError.message || 'Unable to load dashboard stats');
-            } finally {
-                setLoading(false);
             }
         };
 
@@ -88,7 +83,6 @@ const Dashboard = () => {
         return () => clearInterval(intervalId);
     }, []);
 
-    const pieData = useMemo(() => stats.filter((item) => item.value > 0), [stats]);
 
     return (
         <Card sx={{ mt: 3, p: 2 }}>
@@ -125,47 +119,42 @@ const Dashboard = () => {
                 </Grid>
 
                 <Grid container spacing={3}>
-                    <Grid item xs={12} md={8}>
-                        <Paper elevation={3} sx={{ p: 2, height: '100%' }}>
-                            <Typography variant="h6" sx={{ mb: 2 }}>
-                                Most Sold Items
-                            </Typography>
-
-                            {loading ? (
-                                <Box sx={{ minHeight: 360, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <CircularProgress />
-                                </Box>
-                            ) : pieData.length > 0 ? (
-                                <Box sx={{ width: '100%', height: 500 }}>
-                                    <ResponsiveContainer>
-                                        <PieChart>
-                                            <Pie
-                                                data={pieData}
-                                                cx="50%"
-                                                cy="50%"
-                                                labelLine={false}
-                                                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                                outerRadius={200}
-                                                fill="#8884d8"
-                                                dataKey="value"
-                                            >
-                                                {pieData.map((entry, index) => (
-                                                    <Cell key={`cell-${entry.name}-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip formatter={(value) => [`${value} qty`, 'Sold']} />
-                                            <Legend />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                </Box>
-                            ) : (
-                                <Alert severity="info">No order data available to render the pie chart yet.</Alert>
-                            )}
+                    <Grid item xs={12}>
+                        <Paper elevation={3} sx={{ p: 4, textAlign: 'center', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
+                            <motion.div
+                                initial={{ scale: 0.9, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ duration: 0.5 }}
+                            >
+                                <Typography variant="h4" sx={{ mb: 2, fontWeight: 'bold' }}>
+                                    Visual Insights & Analytics
+                                </Typography>
+                                <Typography variant="body1" sx={{ mb: 4, opacity: 0.9 }}>
+                                    View detailed charts and sales distributions for your food items.
+                                </Typography>
+                                <Button
+                                    variant="contained"
+                                    size="large"
+                                    onClick={() => navigate('/admin/analytics')}
+                                    sx={{
+                                        backgroundColor: 'white',
+                                        color: '#764ba2',
+                                        fontWeight: 'bold',
+                                        '&:hover': {
+                                            backgroundColor: '#f0f0f0',
+                                            transform: 'scale(1.05)',
+                                        },
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                >
+                                    Check Sales Charts
+                                </Button>
+                            </motion.div>
                         </Paper>
                     </Grid>
 
-                    <Grid item xs={12} md={4}>
-                        <Paper elevation={3} sx={{ p: 2, height: '100%' }}>
+                    <Grid item xs={12} md={6}>
+                         <Paper elevation={3} sx={{ p: 2, height: '100%' }}>
                             <Stack spacing={1}>
                                 <Typography variant="h6">Top Selling Items</Typography>
                                 <Typography variant="body2" color="text.secondary">

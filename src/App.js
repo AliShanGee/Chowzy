@@ -7,11 +7,13 @@ import MyOrder from './screens/MyOrder';
 import NotFound from './screens/NotFound';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { CartProvider } from './components/ContextReducer';
+import Cart from './screens/cart';
 import AdminPanel from './screens/AdminPanel';
+import { ThemeProvider } from 'next-themes';
 
 const AppContent = () => {
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isAdminRoute = location.pathname.toLowerCase().startsWith('/admin');
 
   return (
     <div>
@@ -21,6 +23,8 @@ const AppContent = () => {
         <Route exact path="/login" element={<Login />} />
         <Route exact path="/signup" element={<SignUp />} />
         <Route exact path="/myOrder" element={<MyOrder />} />
+        <Route exact path="/orderhistory" element={<MyOrder />} />
+        <Route exact path="/cart" element={<Cart />} />
         <Route path="/admin/*" element={
           localStorage.getItem("admin_auth") ? <AdminPanel /> : <Navigate to="/login" />
         } />
@@ -32,10 +36,12 @@ const AppContent = () => {
 
 export default function App() {
   return (
-    <CartProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </CartProvider>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+      <CartProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </CartProvider>
+    </ThemeProvider>
   );
 }
