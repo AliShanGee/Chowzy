@@ -57,7 +57,9 @@
     "server-dev": "nodemon api/index.js",
     "build": "CI=false react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "npm run build && wrangler deploy",
+    "preview": "npm run build && wrangler dev"
   },
   "engines": {
     "node": "20.x"
@@ -81,6 +83,7 @@
     ]
   },
   "devDependencies": {
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "wrangler": "^4.78.0"
   }
 }
