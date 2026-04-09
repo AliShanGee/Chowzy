@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import Footer from '../components/Footer'
-import Card from '../components/Card'
+import Footer from '../components/Footer.js'
+import Card from '../components/Card.js'
+import Page from '../components/Pagination.js'
 import Lottie from 'lottie-react'
 import homeBg from '../animations/YDT9GjiZWg.json'
 import { useTheme } from 'next-themes'
+import SearchBar from '../components/SearchBar.js'
 
 import API_BASE_URL from '../config'
 
@@ -14,6 +16,8 @@ export default function Home() {
   const [search, setSearch] = useState('');
   const [foodCat,setFoodCat] = useState([]);
   const [foodItem,setFoodItem] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3;
 
   const loadData = async ()=>{
     let response = await fetch(`${API_BASE_URL}/api/foodData`,{
@@ -51,51 +55,21 @@ export default function Home() {
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div className="container">
           {/* Search Bar */}
-          <div className="row mb-2 mt-2" data-aos="fade-down">
+          <div className="row mb-2 mt-2" data-aos="fade-down" style={{ position: 'relative', zIndex: 5000 }}>
             <div className="col-12 text-center mb-3">
               <h1 style={{ 
-                color: '#fff', 
-                textShadow: '2px 2px 8px rgba(0,0,0,0.7)',
-                fontWeight: 'bold'
+                color: theme === 'dark' ? '#fff' : '#1a1a1a', 
+                textShadow: theme === 'dark' ? '2px 2px 8px rgba(0,0,0,0.7)' : '0 2px 4px rgba(0,0,0,0.1)',
+                fontWeight: 'bold',
+                transition: 'color 0.3s ease'
               }}>Explore Amazing Foods</h1>
             </div>
             <div className="col-12">
               <div className="d-flex justify-content-center">
-                <div className="input-group shadow-lg" style={{ maxWidth: '600px', width: '100%' }}>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Search for food items..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                      border: '3px solid #007bff',
-                      borderRadius: '30px 0 0 30px',
-                      padding: '15px 25px',
-                      fontSize: '18px',
-                      boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
-                    }}
-                  />
-                  <button
-                    className="btn btn-primary"
-                    type="button"
-                    onClick={() => {
-                      // Search functionality is already implemented via onChange
-                      console.log('Searching for:', search);
-                    }}
-                    style={{
-                      borderRadius: '0 30px 30px 0',
-                      padding: '15px 30px',
-                      fontSize: '18px',
-                      fontWeight: 'bold',
-                      boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-                      background: 'linear-gradient(45deg, #007bff, #0056b3)'
-                    }}
-                  >
-                    🔍 Search
-                  </button>
-                </div>
+                <SearchBar 
+                  items={foodItem} 
+                  onSearch={(val) => setSearch(val)} 
+                />
               </div>
             </div>
             {/* Tags */}
@@ -107,15 +81,24 @@ export default function Home() {
             </div> */}
           </div>
         {
-          foodCat.length > 0
-          ? foodCat.filter((cat, index, self) => 
+          (() => {
+            if (foodCat.length === 0) return "";
+            
+            const uniqueCategories = foodCat.filter((cat, index, self) => 
               index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            ).map((data)=>{
-            return ( <div className='row mb-3'>
-              <div key={data._id} className="fs-3 m-3">
-                {data.CategoryName}
-              </div>
-              <hr />
+            );
+            const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
+            const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+            return (
+              <>
+                {currentCategories.map((data) => {
+                  return (
+                    <div className='row mb-3' key={data._id}>
+                      <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
+                        {data.CategoryName}
+                      </div>
+                      <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
               {foodItem.length > 0
               ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
                 .reduce((unique, item) => {
@@ -129,10 +112,19 @@ export default function Home() {
                   )
                 })
               : <div>No Such Data Found</div>}
-              </div>
-            )
-          })
-          : ""
+                    </div>
+                  );
+                })}
+                {totalPages > 1 && (
+                  <Page
+                    totalPages={totalPages}
+                    currentPage={currentPage}
+                    onPageChange={setCurrentPage}
+                  />
+                )}
+              </>
+            );
+          })()
         }
         </div>
         <Footer/>

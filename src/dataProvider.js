@@ -1,6 +1,6 @@
 import { fetchUtils } from 'react-admin';
 import { stringify } from 'query-string';
-import API_BASE_URL from './config';
+import API_BASE_URL from './config.js';
 
 const apiUrl = `${API_BASE_URL}/api`;
 
@@ -32,7 +32,7 @@ const dataProvider = {
                 ? parseInt(headers.get('content-range').split('/').pop(), 10)
                 : dataArray.length;
             return {
-                data: dataArray,
+                data: dataArray.map(item => ({ ...item, id: item._id || item.id })),
                 total,
             };
         });
@@ -40,7 +40,7 @@ const dataProvider = {
 
     getOne: (resource, params) =>
         httpClient(`${getResourceUrl(resource)}/${params.id}`).then(({ json }) => ({
-            data: json,
+            data: { ...json, id: json._id || json.id },
         })),
 
     getMany: (resource, params) => {
@@ -48,7 +48,9 @@ const dataProvider = {
             filter: JSON.stringify({ id: params.ids }),
         };
         const url = `${getResourceUrl(resource)}?${stringify(query)}`;
-        return httpClient(url).then(({ json }) => ({ data: json }));
+        return httpClient(url).then(({ json }) => ({
+            data: Array.isArray(json) ? json.map(item => ({ ...item, id: item._id || item.id })) : [],
+        }));
     },
 
     getManyReference: (resource, params) => {
@@ -71,7 +73,7 @@ const dataProvider = {
                 );
             }
             return {
-                data: json,
+                data: Array.isArray(json) ? json.map(item => ({ ...item, id: item._id || item.id })) : [],
                 total: parseInt(
                     headers.get('content-range').split('/').pop(),
                     10
@@ -84,20 +86,20 @@ const dataProvider = {
         httpClient(`${getResourceUrl(resource)}/${params.id}`, {
             method: 'PUT',
             body: JSON.stringify(params.data),
-        }).then(({ json }) => ({ data: json })),
+        }).then(({ json }) => ({ data: { ...json, id: json._id || json.id } })),
 
     create: (resource, params) =>
         httpClient(`${getResourceUrl(resource)}`, {
             method: 'POST',
             body: JSON.stringify(params.data),
         }).then(({ json }) => ({
-            data: { ...params.data, id: json.id },
+            data: { ...params.data, id: json._id || json.id },
         })),
 
     delete: (resource, params) =>
         httpClient(`${getResourceUrl(resource)}/${params.id}`, {
             method: 'DELETE',
-        }).then(({ json }) => ({ data: json })),
+        }).then(({ json }) => ({ data: { ...json, id: params.id } })),
 
     deleteMany: (resource, params) => {
         const query = {

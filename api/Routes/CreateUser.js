@@ -51,7 +51,7 @@ router.post(
 );
 
 router.post(
-  "/loginuser",
+  "/login",
   [
     // --- Validation Rules ---
     body('email', 'Please enter a valid email.').isEmail(),

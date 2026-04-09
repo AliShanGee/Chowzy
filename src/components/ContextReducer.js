@@ -1,4 +1,5 @@
 import React, { useReducer, createContext, useContext } from "react";
+import API_BASE_URL from "../config";
 
 const CartStateContext = createContext();
 const CartDispatchContext = createContext();
@@ -26,19 +27,30 @@ const loadInitialCart = () => {
   }
 };
 
-const persistCart = (state) => {
+const persistCart = async (state) => {
   const email = getCurrentUserEmail();
   if (!email) return;
   try {
     localStorage.setItem(`cart_${email}`, JSON.stringify(state));
-  } catch {
-    // ignore write errors
+    // Persist to backend as well
+    await fetch(`${API_BASE_URL}/api/updatecart`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, cartData: state }),
+    });
+  } catch (err) {
+    console.error("Failed to persist cart to backend", err);
   }
 };
 
 const reducer = (state, action) => {
   let newState = state;
   switch (action.type) {
+    case "SET_CART":
+      newState = action.cart;
+      return newState; // Return directly, don't persist SET_CART as it's from backend
     case "ADD":
       newState = [
         ...state,
@@ -61,6 +73,8 @@ const reducer = (state, action) => {
     case "DROP":
       newState = [];
       break;
+    case "LOGOUT":
+      return []; // Return directly, don't persist empty cart on logout
     default:
       console.log("Error in Reducer");
       newState = state;

@@ -3,6 +3,8 @@ const router = express.Router();
 const FoodItem = require('../models/FoodItem');
 const FoodCategory = require('../models/FoodCategory');
 const Order = require('../models/Orders');
+const User = require('../models/User');
+const Cart = require('../models/Cart');
 
 // Helper for sending list response with Content-Range
 const sendListResponse = (res, data, total) => {
@@ -42,6 +44,37 @@ const getQueryOptions = (query) => {
 
     return { filter, sort, skip, limit };
 };
+
+// --- Carts ---
+router.get('/carts', async (req, res) => {
+    try {
+        const { filter, sort, skip, limit } = getQueryOptions(req.query);
+        const data = await Cart.find(filter).sort(sort).skip(skip).limit(limit || 0);
+        const total = await Cart.countDocuments(filter);
+        sendListResponse(res, data, total);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/carts/:id', async (req, res) => {
+    try {
+        const cart = await Cart.findById(req.params.id);
+        if (!cart) return res.status(404).json({ error: "Not found" });
+        res.json(cart);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.delete('/carts/:id', async (req, res) => {
+    try {
+        await Cart.findByIdAndDelete(req.params.id);
+        res.json({ id: req.params.id });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 // --- Food Items ---
 router.get('/foodItems', async (req, res) => {
@@ -245,8 +278,6 @@ router.get('/admin/stats', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-
-const User = require('../models/User');
 
 // --- Users ---
 router.get('/users', async (req, res) => {

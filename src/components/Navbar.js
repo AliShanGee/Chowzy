@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import Container from 'react-bootstrap/Container';
-import { useCart, useDispatchCart } from './ContextReducer';
+import { useCart, useDispatchCart } from './ContextReducer.js';
 import Lottie from "lottie-react";
 import shoppingCartAnimation from "../animations/shopping cart.json";
 import helloChatBotAnimation from "../animations/Hello Chat Bot.json";
@@ -13,11 +13,12 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { IoIosLogOut } from "react-icons/io";
 import { BsPersonCircle } from "react-icons/bs";
 import { gsap } from 'gsap';
-import Carousel from './Carousel'; // Import the Carousel component
-import ChatHistory from './ChatHistory';
-import Chatbot from './Chatbot';
-import ThemeToggle from './ThemeToggle';
+import Carousel from './Carousel.js'; // Import the Carousel component
+import ChatHistory from './ChatHistory.js';
+import Chatbot from './Chatbot.js';
+import ThemeToggle from './ThemeToggle.js';
 import { useTheme } from 'next-themes';
+import AnimatedLogo from './AnimatedLogo.js'; // Import Framer animated logo
 
 function NavScrollExample() {
   const location = useLocation();
@@ -34,9 +35,9 @@ function NavScrollExample() {
     // Clear user data from localStorage and state
     localStorage.removeItem("authToken");
     localStorage.removeItem("user");
-    // Clear any cart items so the next logged-in user sees their own cart
+    // Clear context state only (don't clear backend)
     if (dispatchCart) {
-      dispatchCart({ type: "DROP" });
+      dispatchCart({ type: "LOGOUT" });
     }
     setUser(null);
     setShowChatbot(false);
@@ -53,19 +54,6 @@ function NavScrollExample() {
     const storedUser = localStorage.getItem('user');
     if (storedUser && storedUser !== 'undefined') {
       setUser(JSON.parse(storedUser));
-    }
-    // Animate logo on initial load
-    if (logoRef.current) {
-      const letters = logoRef.current.children;
-      // Use set to ensure visibility then from to animate
-      gsap.set(letters, { y: 0, opacity: 1 });
-      gsap.from(letters, {
-        y: 20,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.07,
-        ease: 'power3.out'
-      });
     }
 
     // Add hover animations to nav links
@@ -120,14 +108,7 @@ function NavScrollExample() {
               }
             }}
           >
-            {'Chowzy'.split('').map((char, index) => (
-              <span key={index} style={{
-                display: 'inline-block',
-                color: ['#ff6b6b', '#f94d63', '#f7971e', '#ffd700', '#08C1FF', '#FF4DC2'][index % 6]
-              }}>
-                {char}
-              </span>
-            ))}
+            <AnimatedLogo text="Chowzy" fontSize="1.8rem" />
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="navbarScroll" />
           <Navbar.Collapse id="navbarScroll">

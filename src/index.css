@@ -65,3 +65,37 @@ html.dark input.form-control {
 html.dark input.form-control::placeholder {
     color: #888 !important;
 }
+
+/* Glassmorphism for Order History */
+.order-card {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.light .order-card {
+    background-color: rgba(255, 255, 255, 0.7) !important;
+    color: #333 !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark .order-card {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.light .order-card-header,
+.light .order-card-footer {
+    background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+.dark .order-card-header,
+.dark .order-card-footer {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Ensure notifications are on top of everything including Admin layers */
+.react-notification-root {
+    z-index: 99999 !important;
+}

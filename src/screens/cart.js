@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Lottie from "lottie-react";
 import animationData from "../animations/Order success.json";
-import { useCart, useDispatchCart } from '../components/ContextReducer';
+import { useCart, useDispatchCart } from '../components/ContextReducer.js';
 import { BsTrash, BsArrowLeft } from 'react-icons/bs';
-import API_BASE_URL from '../config';
+import API_BASE_URL from '../config.js';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 

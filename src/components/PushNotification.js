@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import addNotification, { Notifications } from 'react-push-notification';
 
 export const NotificationProvider = ({ children }) => {

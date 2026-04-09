@@ -1,7 +1,7 @@
 import { AppBar } from 'react-admin';
 import React from 'react';
 import { Typography, Box } from '@mui/material';
-import ThemeToggle from '../components/ThemeToggle';
+import ThemeToggle from '../components/ThemeToggle.js';
 
 const MyAppBar = (props) => (
     <AppBar {...props}>

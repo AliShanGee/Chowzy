@@ -7,13 +7,15 @@ import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
 import Lottie from 'lottie-react';
 import animationData from '../animations/Gradient Dots Background.json';
-import API_BASE_URL from '../config';
+import API_BASE_URL from '../config.js';
+import { useDispatchCart } from '../components/ContextReducer.js';
 
 export default function Login() {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const titleRef = useRef(null);
   const navigate = useNavigate();
+  const dispatch = useDispatchCart();
 
   useEffect(() => {
     if (localStorage.getItem("authToken")) {
@@ -51,7 +53,7 @@ export default function Login() {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/loginuser`, {
+      const response = await fetch(`${API_BASE_URL}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -78,6 +80,22 @@ export default function Login() {
       } else {
         localStorage.setItem("authToken", json.authToken);
         localStorage.setItem("user", JSON.stringify(json.user)); // Store user details
+
+        // Fetch and sync cart on login
+        try {
+          const cartResponse = await fetch(`${API_BASE_URL}/api/getcart`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: json.user.email })
+          });
+          const cartJson = await cartResponse.json();
+          if (cartJson.success && cartJson.cartData) {
+            dispatch({ type: "SET_CART", cart: cartJson.cartData });
+          }
+        } catch (err) {
+          console.error("Failed to sync cart on login:", err);
+        }
+
         await Swal.fire({
           icon: 'success',
           title: 'Logged In!',

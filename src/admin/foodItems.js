@@ -23,12 +23,12 @@ const CustomOptionsInput = ({ source }) => {
         rows.forEach(r => {
             if (r.size && r.price) newObj[r.size] = r.price;
         });
-        if (Object.keys(newObj).length > 0) {
-            field.onChange([newObj]);
-        } else {
-            field.onChange([]);
+        const newValue = Object.keys(newObj).length > 0 ? [newObj] : [];
+        if (JSON.stringify(newValue) !== JSON.stringify(field.value)) {
+            field.onChange(newValue);
         }
-    }, [rows, field]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [rows]);
 
     return (
         <Box mb={2} p={2} border="1px solid #ccc" borderRadius={2} width="100%">

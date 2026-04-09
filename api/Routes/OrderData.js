@@ -55,15 +55,21 @@ router.get('/admin/orders', async (req, res) => {
   }
 });
 
-// Update order delivery schedule
-router.put('/admin/orders/:id/schedule', async (req, res) => {
+// Update order delivery schedule and status
+router.put('/admin/orders/:id/update', async (req, res) => {
   try {
-    const { delivery_date, delivery_time, delivery_status } = req.body;
+    const { delivery_date, delivery_time, delivery_status, notification_sent } = req.body;
     const updateData = {};
     if (delivery_date) updateData.delivery_date = delivery_date;
     if (delivery_time) updateData.delivery_time = delivery_time;
     if (delivery_status) updateData.delivery_status = delivery_status;
+    if (notification_sent !== undefined) updateData.notification_sent = notification_sent;
     
+    // If status is changed but notification_sent is not provided, reset it for new notification
+    if (delivery_status && notification_sent === undefined) {
+        updateData.notification_sent = false;
+    }
+
     const order = await Order.findByIdAndUpdate(
       req.params.id,
       updateData,
@@ -77,6 +83,33 @@ router.put('/admin/orders/:id/schedule', async (req, res) => {
     console.error(error.message);
     res.status(500).send('Server Error: ' + error.message);
   }
+});
+
+// Schedule delivery specifically
+router.put('/admin/orders/:id/schedule', async (req, res) => {
+    try {
+        const { delivery_date, delivery_time, delivery_status } = req.body;
+        const updateData = {
+            delivery_date,
+            delivery_time,
+            delivery_status: delivery_status || 'scheduled',
+            notification_sent: false // Reset so user gets a new alert
+        };
+
+        const order = await Order.findByIdAndUpdate(
+            req.params.id,
+            updateData,
+            { new: true }
+        );
+
+        if (!order) {
+            return res.status(404).json({ msg: 'Order not found' });
+        }
+        res.json(order);
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send('Server Error: ' + error.message);
+    }
 });
 
 
