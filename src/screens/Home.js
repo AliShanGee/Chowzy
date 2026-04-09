@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer'
@@ -34,6 +34,31 @@ export default function Home() {
       duration: 1000 // values from 50 to 3000, with step 50ms
     });
   }, []);
+
+  const groupedData = useMemo(() => {
+    if (foodCat.length === 0) return [];
+
+    const uniqueCats = foodCat.filter((cat, index, self) =>
+      index === self.findIndex(c => c.CategoryName === cat.CategoryName)
+    );
+
+    const searchTerm = search.toLowerCase();
+    const filteredItems = foodItem.filter((item) =>
+      item.name && item.name.toLowerCase().includes(searchTerm)
+    );
+
+    return uniqueCats.map(cat => {
+      const itemsInCategory = filteredItems.filter(item => item.CategoryName === cat.CategoryName);
+      const uniqueItems = itemsInCategory.reduce((unique, item) => {
+        return unique.some(i => i.name === item.name) ? unique : [...unique, item];
+      }, []);
+
+      return {
+        ...cat,
+        items: uniqueItems
+      };
+    }).filter(cat => cat.items.length > 0 || search === ""); // Keep categories if they have items or if not searching
+  }, [foodCat, foodItem, search]);
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
@@ -107,21 +132,15 @@ export default function Home() {
             </div> */}
           </div>
         {
-          foodCat.length > 0
-          ? foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            ).map((data)=>{
-            return ( <div className='row mb-3'>
-              <div key={data._id} className="fs-3 m-3">
+          groupedData.length > 0
+          ? groupedData.map((data)=>{
+            return ( <div key={data._id} className='row mb-3'>
+              <div className="fs-3 m-3">
                 {data.CategoryName}
               </div>
               <hr />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
+              {data.items.length > 0
+              ? data.items.map(filterItems => {
                   return (
                     <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
                       <Card foodItem={filterItems} options={filterItems.options[0]} />
