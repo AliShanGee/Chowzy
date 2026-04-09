@@ -5,3 +5,7 @@
 ## 2025-05-14 - [Expensive Render Calculations]
 **Learning:** Nested array operations (filter/find/map) inside the render body of a main screen (like `Home.js`) cause noticeable lag during state updates (e.g., search typing).
 **Action:** Use `useMemo` to stabilize data structures derived from props/state, especially when dealing with category-item mappings.
+
+## 2025-05-14 - [Native Dependencies in Serverless Environments]
+**Learning:** Native dependencies like `bcrypt` often cause build failures in serverless/worker environments (e.g., Cloudflare Workers) due to compilation requirements. `bcryptjs` is a safer, pure-JS alternative.
+**Action:** Prefer pure-JS alternatives for native modules in serverless-targeted codebases. Remove unused native dependencies to prevent CI/CD build failures.
