@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, memo } from "react";
 import BootstrapCard from "react-bootstrap/Card";
-import { useDispatchCart,useCart } from "./ContextReducer";
-export default function Card(props) {
+import { useDispatchCart } from "./ContextReducer";
+
+const Card = memo(function Card(props) {
 let dispatch = useDispatchCart();
-let data = useCart();
     const [qty, setQty] = useState(1);
     const [size, setSize] = useState("");
     const priceRef = useRef();
@@ -15,7 +15,6 @@ let data = useCart();
     const handleAddToCart = async () => {
         // Logic for adding to cart will go here
         await dispatch({type:"ADD",id:props.foodItem._id,name:props.foodItem.name,price:finalPrice,qty:qty,size:size,img:props.foodItem.img})
-        console.log(data)
     };
 
     let finalPrice = qty * parseInt(options[size]);
@@ -52,4 +51,6 @@ let data = useCart();
             </BootstrapCard.Body>
         </BootstrapCard>
     );
-}
+});
+
+export default Card;
