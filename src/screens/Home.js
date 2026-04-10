@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -38,6 +38,37 @@ export default function Home() {
       duration: 1000 // values from 50 to 3000, with step 50ms
     });
   }, []);
+
+  // Performance Optimization: Memoize unique categories to avoid O(N) filtering on every render
+  const uniqueCategories = useMemo(() => {
+    return foodCat.filter((cat, index, self) =>
+      index === self.findIndex(c => c.CategoryName === cat.CategoryName)
+    );
+  }, [foodCat]);
+
+  // Performance Optimization: Pre-group and deduplicate food items by category.
+  // This transforms the O(Categories * Items^2) render complexity into O(Items + Categories).
+  const groupedFoodItems = useMemo(() => {
+    if (!foodItem.length) return {};
+
+    const grouped = {};
+    const seenNamesByCategory = {};
+
+    foodItem.forEach(item => {
+      if (!item.name) return;
+      const cat = item.CategoryName;
+      if (!grouped[cat]) {
+        grouped[cat] = [];
+        seenNamesByCategory[cat] = new Set();
+      }
+
+      if (!seenNamesByCategory[cat].has(item.name)) {
+        grouped[cat].push(item);
+        seenNamesByCategory[cat].add(item.name);
+      }
+    });
+    return grouped;
+  }, [foodItem]);
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
@@ -82,11 +113,8 @@ export default function Home() {
           </div>
         {
           (() => {
-            if (foodCat.length === 0) return "";
+            if (uniqueCategories.length === 0) return "";
             
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
             const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -99,11 +127,9 @@ export default function Home() {
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
+              {groupedFoodItems[data.CategoryName]
+              ? groupedFoodItems[data.CategoryName]
+                .filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
                 .map(filterItems => {
                   return (
                     <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
