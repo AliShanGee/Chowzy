@@ -34,13 +34,6 @@ const ThemeToggle = () => {
     }
   }, [theme]);
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      toggleTheme();
-    }
-  };
-
   return (
     <button
       style={{
@@ -56,7 +49,6 @@ const ThemeToggle = () => {
         padding: 0,
       }}
       onClick={toggleTheme}
-      onKeyDown={handleKeyDown}
       title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
     >

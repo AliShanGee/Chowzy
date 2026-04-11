@@ -162,7 +162,7 @@ function NavScrollExample() {
                     marginRight: "10px",
                     background: "none",
                     border: "none",
-                    padding: 0,
+                    padding: 0
                   }}
                   onClick={toggleChatbot}
                   aria-label={showChatbot ? "Close Chatbot" : "Open Chatbot"}
