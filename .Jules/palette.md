@@ -1,0 +1,3 @@
+## 2025-05-14 - Accessibility of Icon-Only Interactive Elements
+**Learning:** In this application, several interactive elements (like the theme toggle and chatbot toggle) are implemented using `div` elements with `onClick` handlers. This makes them inaccessible to screen readers and keyboard-only users, as they are not focusable and lack appropriate ARIA roles and labels.
+**Action:** Always use semantic `<button>` elements for interactive components, or at least provide `role="button"`, `tabIndex={0}`, and `aria-label` along with keyboard event handlers (Space/Enter) to ensure full accessibility.
