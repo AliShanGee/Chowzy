@@ -18,7 +18,6 @@ router.get('/foodData', async (req, res) => {
                 socketTimeoutMS: 45000,
             });
         }
-        // Use existing connection
         const foodItemsCollection = mongoose.connection.db.collection("food_items");
         const foodCategoryCollection = mongoose.connection.db.collection("foodCategory");
 

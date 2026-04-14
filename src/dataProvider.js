@@ -3,7 +3,6 @@ import queryString from 'query-string';
 import API_BASE_URL from './config.js';
 
 const { stringify } = queryString;
-
 const apiUrl = `${API_BASE_URL}/api`;
 
 const httpClient = (url, options = {}) => {
