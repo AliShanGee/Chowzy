@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -18,6 +18,38 @@ export default function Home() {
   const [foodItem,setFoodItem] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
+
+  // Memoize unique categories to avoid redundant calculations on every render
+  const uniqueCategories = useMemo(() => {
+    const categoryMap = new Map();
+    for (const cat of foodCat) {
+      if (!categoryMap.has(cat.CategoryName)) {
+        categoryMap.set(cat.CategoryName, cat);
+      }
+    }
+    return Array.from(categoryMap.values());
+  }, [foodCat]);
+
+  // Pre-group and deduplicate items by category in O(N) complexity
+  const itemsByCategory = useMemo(() => {
+    const grouped = new Map();
+    for (const item of foodItem) {
+      if (!item.name) continue;
+      if (!grouped.has(item.CategoryName)) {
+        grouped.set(item.CategoryName, new Map());
+      }
+      const catMap = grouped.get(item.CategoryName);
+      if (!catMap.has(item.name)) {
+        catMap.set(item.name, item);
+      }
+    }
+    // Convert nested maps to arrays for easier consumption in render
+    const groupedArray = new Map();
+    for (const [catName, catMap] of grouped) {
+      groupedArray.set(catName, Array.from(catMap.values()));
+    }
+    return groupedArray;
+  }, [foodItem]);
 
   const loadData = async ()=>{
     let response = await fetch(`${API_BASE_URL}/api/foodData`,{
@@ -81,37 +113,31 @@ export default function Home() {
             </div> */}
           </div>
         {
-          (() => {
-            if (foodCat.length === 0) return "";
-            
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
+          foodCat.length !== 0 && (() => {
             const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
             return (
               <>
                 {currentCategories.map((data) => {
+                  const filteredItems = (itemsByCategory.get(data.CategoryName) || [])
+                    .filter(item => item.name.toLowerCase().includes(search.toLowerCase()));
+
                   return (
                     <div className='row mb-3' key={data._id}>
                       <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
-                    </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
+                      {filteredItems.length > 0 ? (
+                        filteredItems.map(filterItems => (
+                          <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                            <Card foodItem={filterItems} options={filterItems.options[0]} />
+                          </div>
+                        ))
+                      ) : (
+                        <div className="m-3" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a' }}>No Such Data Found</div>
+                      )}
                     </div>
                   );
                 })}
