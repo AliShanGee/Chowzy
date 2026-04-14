@@ -51,6 +51,9 @@ export default function Home() {
     return groupedArray;
   }, [foodItem]);
 
+  const totalPages = useMemo(() => Math.ceil(uniqueCategories.length / itemsPerPage), [uniqueCategories.length, itemsPerPage]);
+  const currentCategories = useMemo(() => uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage), [uniqueCategories, currentPage, itemsPerPage]);
+
   const loadData = async ()=>{
     let response = await fetch(`${API_BASE_URL}/api/foodData`,{
         method:"GET",
@@ -114,9 +117,6 @@ export default function Home() {
           </div>
         {
           foodCat.length !== 0 && (() => {
-            const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
-            const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
             return (
               <>
                 {currentCategories.map((data) => {
