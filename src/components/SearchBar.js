@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useCombobox } from 'downshift';
 import { IoCloseCircleOutline, IoSearchOutline } from "react-icons/io5";
 
-const SearchBar = ({ items, onSearch }) => {
+const SearchBar = React.memo(({ items, onSearch }) => {
   const [inputItems, setInputItems] = useState(items);
 
   // Update inputItems when items prop changes (after fetching)
@@ -205,6 +205,6 @@ const SearchBar = ({ items, onSearch }) => {
       </ul>
     </div>
   );
-};
+});
 
 export default SearchBar;
