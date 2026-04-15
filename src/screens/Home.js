@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -75,6 +75,10 @@ export default function Home() {
     });
   }, []);
 
+  const handleSearch = useCallback((val) => {
+    setSearch(val);
+  }, []);
+
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
       {theme !== 'dark' && (
@@ -104,7 +108,7 @@ export default function Home() {
               <div className="d-flex justify-content-center">
                 <SearchBar 
                   items={foodItem} 
-                  onSearch={(val) => setSearch(val)} 
+                  onSearch={handleSearch}
                 />
               </div>
             </div>
