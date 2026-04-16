@@ -1,0 +1,10 @@
+◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+Error: MONGODB_URI environment variable is not defined!
+◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+Starting server on port 3001
+Server running at http://localhost:3001
+(node:334887) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///app/index.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /app/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Server running on port 5000
