@@ -145,6 +145,7 @@ function NavScrollExample() {
               <div className='d-flex align-items-center'>
                 <ThemeToggle />
                 <button
+                  className="focus-ring focus-ring-primary"
                   style={{
                     cursor: 'pointer',
                     width: "100px",

@@ -99,15 +99,3 @@ html.dark input.form-control::placeholder {
 .react-notification-root {
     z-index: 99999 !important;
 }
-
-/* Accessibility: High contrast focus indicator for keyboard navigation */
-:focus-visible {
-    outline: 3px solid #007bff !important;
-    outline-offset: 2px !important;
-    box-shadow: 0 0 0 5px rgba(0, 123, 255, 0.3) !important;
-}
-
-html.dark :focus-visible {
-    outline: 3px solid #ffeb3b !important;
-    box-shadow: 0 0 0 5px rgba(255, 235, 59, 0.3) !important;
-}

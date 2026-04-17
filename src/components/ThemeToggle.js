@@ -36,6 +36,7 @@ const ThemeToggle = () => {
 
   return (
     <button
+      className="focus-ring focus-ring-primary"
       style={{
         cursor: 'pointer',
         width: '50px',
