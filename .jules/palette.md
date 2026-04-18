@@ -1,0 +1,3 @@
+## 2026-04-18 - [Improve accessibility of Navbar interactive controls]
+**Learning:** Using semantic `button` elements instead of `div` or `span` for interactive components (like theme or chatbot toggles) is essential for keyboard accessibility and screen reader support. Lottie animations should be wrapped in semantic buttons to provide native focus states and ARIA labels.
+**Action:** Always refactor interactive `div` or `span` elements with `onClick` handlers to semantic `button` elements, adding style resets (`background: transparent`, `border: none`) to maintain visual design while enabling accessibility.
