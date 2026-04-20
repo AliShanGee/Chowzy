@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -18,6 +18,23 @@ export default function Home() {
   const [foodItem,setFoodItem] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
+
+  // Optimize: Pre-group and deduplicate food items by category to avoid O(N^2) in render loop
+  const groupedFood = useMemo(() => {
+    const map = new Map();
+    foodItem.forEach(item => {
+      if (!item.name || !item.CategoryName) return;
+      if (!map.has(item.CategoryName)) {
+        map.set(item.CategoryName, []);
+      }
+      const categoryItems = map.get(item.CategoryName);
+      // Deduplicate by name within the category scope
+      if (!categoryItems.some(i => i.name === item.name)) {
+        categoryItems.push(item);
+      }
+    });
+    return map;
+  }, [foodItem]);
 
   const loadData = async ()=>{
     let response = await fetch(`${API_BASE_URL}/api/foodData`,{
@@ -99,11 +116,9 @@ export default function Home() {
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
+              {groupedFood.has(data.CategoryName)
+              ? groupedFood.get(data.CategoryName)
+                .filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
                 .map(filterItems => {
                   return (
                     <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
