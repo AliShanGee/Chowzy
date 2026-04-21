@@ -27,7 +27,6 @@ export default function Home() {
   }, [foodCat]);
 
   // Efficiently group and filter food items in O(N) time
-  // Hoists search.toLowerCase() and avoids O(N^2) nested deduplication logic
   const filteredItemsGrouped = useMemo(() => {
     const lowSearch = search.toLowerCase();
     const grouped = new Map();
