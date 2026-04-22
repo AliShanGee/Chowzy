@@ -111,10 +111,13 @@ export default function Home() {
             </div> */}
           </div>
         {uniqueCategories.length > 0 ? (
-          <>
-            {uniqueCategories
-              .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-              .map((data) => {
+          (() => {
+            const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
+            return (
+              <>
+                {uniqueCategories
+                  .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                  .map((data) => {
                 const categoryItems = Array.from(groupedItems.get(data.CategoryName)?.values() || []);
                 const filteredItems = categoryItems.filter(item =>
                   item.name.toLowerCase().includes(searchLower)
@@ -140,14 +143,16 @@ export default function Home() {
                   </div>
                 );
               })}
-            {Math.ceil(uniqueCategories.length / itemsPerPage) > 1 && (
-              <Page
-                totalPages={Math.ceil(uniqueCategories.length / itemsPerPage)}
-                currentPage={currentPage}
-                onPageChange={setCurrentPage}
-              />
-            )}
-          </>
+                {totalPages > 1 && (
+                  <Page
+                    totalPages={totalPages}
+                    currentPage={currentPage}
+                    onPageChange={setCurrentPage}
+                  />
+                )}
+              </>
+            );
+          })()
         ) : ""}
         </div>
         <Footer/>
