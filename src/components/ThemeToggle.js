@@ -36,6 +36,7 @@ const ThemeToggle = () => {
 
   return (
     <button
+      type="button"
       className="btn focus-ring focus-ring-primary p-0 border-0"
       style={{
         width: '50px',

@@ -145,6 +145,7 @@ function NavScrollExample() {
               <div className='d-flex align-items-center'>
                 <ThemeToggle />
                 <button
+                  type="button"
                   className="btn focus-ring focus-ring-primary p-0 border-0"
                   style={{ width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px", backgroundColor: "transparent" }}
                   onClick={toggleChatbot}
