@@ -1,0 +1,3 @@
+## 2026-04-26 - Semantic Button Conversion for Icon Toggles
+**Learning:** Inaccessible interactive elements often use `div` or `span` with `onClick` to avoid default browser button styling. These are invisible to screen readers and keyboard users. Using Bootstrap 5's `.focus-ring` and `.focus-ring-primary` utility classes allows converting these to semantic `<button>` elements while easily maintaining the original design and providing high-contrast focus indicators for accessibility.
+**Action:** Always prefer `<button>` for interactive elements and use `.focus-ring` with `backgroundColor: "transparent"` and `border-0` to preserve the UI while adding keyboard support.
