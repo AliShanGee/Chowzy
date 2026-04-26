@@ -31,6 +31,8 @@ app.get('/', (req, res) => {
 });
 
 // Export the app for Hono/Cloudflare Workers
+const serverless = require('serverless-http');
+app.fetch = serverless(app);
 module.exports = app;
 
 // Start server if not imported
