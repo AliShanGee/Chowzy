@@ -5,3 +5,7 @@
 ## 2025-04-27 - [Component Memoization with React.memo]
 **Learning:** Card components were re-rendering on every keystroke in the search bar because they were not memoized.
 **Action:** Use React.memo for list items that receive stable props to prevent unnecessary re-renders when parent state changes.
+
+## 2025-04-27 - [Cloudflare Workers Native Dependency Fix]
+**Learning:** Native dependencies like `bcrypt` often cause CI failures in Cloudflare Workers environments.
+**Action:** Prefer pure-JavaScript alternatives like `bcryptjs` for projects targeting serverless/edge environments. Ensure lockfiles are updated after removal.

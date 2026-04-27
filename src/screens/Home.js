@@ -132,7 +132,7 @@ export default function Home() {
                     {data.CategoryName}
                   </div>
                   <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-                  {items.length > 0 ? (
+                  {foodItem.length > 0 ? (
                     items.map(filterItems => (
                       <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
                         <Card foodItem={filterItems} options={filterItems.options[0]} />
