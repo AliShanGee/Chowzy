@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -18,6 +18,37 @@ export default function Home() {
   const [foodItem,setFoodItem] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
+
+  // Memoize unique categories to avoid O(N^2) filter/findIndex on every render
+  const uniqueCategories = useMemo(() => {
+    const map = new Map();
+    foodCat.forEach(cat => {
+      if (!map.has(cat.CategoryName)) {
+        map.set(cat.CategoryName, cat);
+      }
+    });
+    return Array.from(map.values());
+  }, [foodCat]);
+
+  // Pre-calculate search lowercase and group items by category for O(N) access
+  // This avoids redundant .toLowerCase() calls and nested filtering in the render loop
+  const groupedItems = useMemo(() => {
+    const searchLower = search.toLowerCase();
+    const map = new Map();
+    foodItem.forEach(item => {
+      if (!item || !item.name || !item.name.toLowerCase().includes(searchLower)) return;
+
+      if (!map.has(item.CategoryName)) {
+        map.set(item.CategoryName, new Map());
+      }
+      const catMap = map.get(item.CategoryName);
+      // Deduplicate items by name
+      if (!catMap.has(item.name)) {
+        catMap.set(item.name, item);
+      }
+    });
+    return map;
+  }, [foodItem, search]);
 
   const loadData = async ()=>{
     let response = await fetch(`${API_BASE_URL}/api/foodData`,{
@@ -72,27 +103,20 @@ export default function Home() {
                 />
               </div>
             </div>
-            {/* Tags */}
-            {/* <div className="col-12 text-center mt-3">
-              <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>latest food item</span>
-              <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>offer</span>
-              <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>new pizza</span>
-              <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>50% off foods</span>
-            </div> */}
           </div>
         {
           (() => {
-            if (foodCat.length === 0) return "";
+            if (uniqueCategories.length === 0) return "";
             
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
             const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
             return (
               <>
                 {currentCategories.map((data) => {
+                  const itemsForCategoryMap = groupedItems.get(data.CategoryName);
+                  const itemsForCategory = itemsForCategoryMap ? Array.from(itemsForCategoryMap.values()) : [];
+
                   return (
                     <div className='row mb-3' key={data._id}>
                       <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
@@ -100,17 +124,15 @@ export default function Home() {
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
               {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
+              ? (itemsForCategory.length > 0
+                ? itemsForCategory.map(filterItems => {
                   return (
                     <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
                       <Card foodItem={filterItems} options={filterItems.options[0]} />
                     </div>
                   )
                 })
+                : "")
               : <div>No Such Data Found</div>}
                     </div>
                   );
