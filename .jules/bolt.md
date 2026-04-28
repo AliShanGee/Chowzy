@@ -1,3 +1,9 @@
-## 2025-05-14 - Optimized Home screen render loop and memoized Card component
-**Learning:** The previous implementation had a complexity of O(C^2 + C * I^2) because it was performing filter/findIndex and nested filters/reduces inside the render loop. By using useMemo to pre-group items into a Map and deduplicate them in a single pass (O(I)), and calculating unique categories using a Map (O(C)), the data processing time for 20,000 items was reduced by ~3x (from 54ms to 18ms).
-**Action:** Always look for nested array operations in React render loops, especially those involving .filter() and .reduce() on large datasets. Use useMemo and Map/Set to optimize to O(N).
+## 2025-05-14 - Optimized Home screen render loop and fixed Cloudflare Workers CI
+**Learning:**
+1.  **Performance:** The O(C^2 + C * I^2) render loop in Home.js was optimized to O(C + I) using useMemo and Map-based grouping, resulting in a ~3x speedup for 20,000 items.
+2.  **CI Failure:** Cloudflare Workers builds fail if native dependencies like 'bcrypt' are present in the dependency tree or lockfiles. Removing 'bcrypt' and ensuring only 'bcryptjs' is used resolves this.
+3.  **Environment Management:** Using different package managers (npm vs pnpm) in the same repo can lead to broken node_modules states. Stick to the project's primary tools and avoid commit-level changes to lockfiles unless necessary.
+**Action:**
+- Use useMemo/Map for large dataset processing in React.
+- Always remove native 'bcrypt' in favor of 'bcryptjs' for Cloudflare Workers compatibility.
+- Perform targeted manual edits to package-lock.json to avoid massive unrelated diffs when possible.
