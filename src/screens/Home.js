@@ -103,13 +103,6 @@ export default function Home() {
                 />
               </div>
             </div>
-            {/* Tags */}
-            {/* <div className="col-12 text-center mt-3">
-              <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>latest food item</span>
-              <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>offer</span>
-              <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>new pizza</span>
-              <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>50% off foods</span>
-            </div> */}
           </div>
         {
           (() => {
