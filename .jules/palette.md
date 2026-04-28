@@ -1,0 +1,3 @@
+## 2025-05-14 - Semantic Buttons and Focus Indicators
+**Learning:** In this application, many interactive elements (like the theme toggle and chatbot launcher) were implemented using `div` elements with `onClick` handlers. While functional for mouse users, these are inaccessible to keyboard and screen reader users. Converting them to semantic `button` elements and applying Bootstrap 5's `.focus-ring` utility ensures they are focusable and provide visual feedback without introducing custom global CSS.
+**Action:** Always check for `div` or `span` elements with click handlers and convert them to semantic buttons with appropriate ARIA labels and focus styles.
