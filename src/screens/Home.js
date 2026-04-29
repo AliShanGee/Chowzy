@@ -21,17 +21,17 @@ export default function Home() {
 
   // Memoize unique categories to avoid redundant filtering on every render
   const uniqueCategories = useMemo(() => {
-    return foodCat.filter((cat, index, self) =>
+    return (foodCat || []).filter((cat, index, self) =>
       index === self.findIndex(c => c.CategoryName === cat.CategoryName)
     );
   }, [foodCat]);
 
   // Memoize grouped and filtered food items to avoid O(N^2) nested filtering in the render loop
   const filteredItemsByCategory = useMemo(() => {
-    const searchLower = search.toLowerCase();
+    const searchLower = (search || '').toLowerCase();
     const grouped = new Map();
 
-    foodItem.forEach(item => {
+    (foodItem || []).forEach(item => {
       if (item.name && item.name.toLowerCase().includes(searchLower)) {
         if (!grouped.has(item.CategoryName)) {
           grouped.set(item.CategoryName, new Map());
@@ -129,7 +129,7 @@ export default function Home() {
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
+              {(foodItem && foodItem.length > 0)
               ? categoryItems.map(filterItems => {
                   return (
                     <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
