@@ -30,7 +30,12 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-// Start server
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+// ⚡ Bolt: Prevent app.listen when imported as a module (e.g. by Hono/Cloudflare)
+// This resolves framework conflicts and allows the server to start properly in both local and worker environments.
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
+
+module.exports = app;

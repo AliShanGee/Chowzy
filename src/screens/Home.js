@@ -126,15 +126,11 @@ export default function Home() {
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
 
                       {foodItem.length > 0 ? (
-                        filteredItems.length > 0 ? (
-                          filteredItems.map(filterItems => (
-                            <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                              <Card foodItem={filterItems} options={filterItems.options[0]} />
-                            </div>
-                          ))
-                        ) : (
-                          <div className="m-3" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a' }}>No items found in this category</div>
-                        )
+                        filteredItems.map(filterItems => (
+                          <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                            <Card foodItem={filterItems} options={filterItems.options[0]} />
+                          </div>
+                        ))
                       ) : (
                         <div>No Such Data Found</div>
                       )}
