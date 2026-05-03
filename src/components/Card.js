@@ -5,7 +5,9 @@ import IconSlideButton from "./IconSlideButton";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useTheme } from "next-themes";
 
-export default function Card(props) {
+// ⚡ Bolt: Wrap Card in React.memo to prevent unnecessary re-renders when parent
+// state (like search in Home.js) changes but the food item props remain the same.
+const Card = React.memo(function Card(props) {
     let dispatch = useDispatchCart();
     const { theme } = useTheme();
     const [qty, setQty] = useState(1);
@@ -225,4 +227,6 @@ export default function Card(props) {
             </motion.div>
         </div>
     );
-}
+});
+
+export default Card;
