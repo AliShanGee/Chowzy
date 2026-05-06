@@ -19,35 +19,52 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
 
-  // Bolt ⚡ Optimization: Pre-calculate unique categories to avoid O(N^2) in render loop
+  // Bolt ⚡ Optimization: Pre-calculate unique categories in O(K)
   const uniqueCategories = useMemo(() => {
-    return foodCat.filter((cat, index, self) =>
-      index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-    );
+    const seenNames = new Set();
+    return foodCat.filter((cat) => {
+      if (seenNames.has(cat.CategoryName)) return false;
+      seenNames.add(cat.CategoryName);
+      return true;
+    });
   }, [foodCat]);
 
-  // Bolt ⚡ Optimization: Group and deduplicate items by category in O(N) instead of nested filtering in render
-  const groupedItems = useMemo(() => {
+  // Bolt ⚡ Optimization: Stage 1 - Group and deduplicate items by category in O(N).
+  // This runs only when foodItem changes, keeping search interactions light.
+  const baseGroupedItems = useMemo(() => {
     const grouped = new Map();
-    const seen = new Set();
-    const lowSearch = search.toLowerCase();
+    const seenGlobal = new Set();
 
     foodItem.forEach(item => {
       if (!item.name) return;
-      // Deduplicate by name within the category
+      // Deduplicate by name within the category (consistent with original logic)
       const key = `${item.CategoryName}-${item.name}`;
-      if (seen.has(key)) return;
-      seen.add(key);
+      if (seenGlobal.has(key)) return;
+      seenGlobal.add(key);
 
-      if (item.name.toLowerCase().includes(lowSearch)) {
-        if (!grouped.has(item.CategoryName)) {
-          grouped.set(item.CategoryName, []);
-        }
-        grouped.get(item.CategoryName).push(item);
+      if (!grouped.has(item.CategoryName)) {
+        grouped.set(item.CategoryName, []);
       }
+      grouped.get(item.CategoryName).push(item);
     });
     return grouped;
-  }, [foodItem, search]);
+  }, [foodItem]);
+
+  // Bolt ⚡ Optimization: Stage 2 - Filter pre-grouped items based on search.
+  const filteredGroupedItems = useMemo(() => {
+    const lowSearch = search.toLowerCase();
+    const filtered = new Map();
+
+    baseGroupedItems.forEach((items, categoryName) => {
+      const matched = items.filter(item =>
+        item.name.toLowerCase().includes(lowSearch)
+      );
+      if (matched.length > 0) {
+        filtered.set(categoryName, matched);
+      }
+    });
+    return filtered;
+  }, [baseGroupedItems, search]);
 
   const loadData = async ()=>{
     let response = await fetch(`${API_BASE_URL}/api/foodData`,{
@@ -120,7 +137,7 @@ export default function Home() {
             return (
               <>
                 {currentCategories.map((data) => {
-                  const filteredItems = groupedItems.get(data.CategoryName) || [];
+                  const filteredItems = filteredGroupedItems.get(data.CategoryName) || [];
                   return (
                     <div className='row mb-3' key={data._id}>
                       <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>

@@ -1,3 +1,3 @@
-## 2025-05-22 - O(N) Item Grouping in Home Screen
-**Learning:** Replacing nested O(Categories * Items^2) render-time filtering/deduplication with a Map-based O(Items) grouping inside useMemo yields a 7-50x speedup depending on dataset size.
-**Action:** Always prefer O(N) grouping over nested filtering for large lists with category grouping.
+## 2025-05-22 - Multi-stage Memoization in Home Screen
+**Learning:** For interactive search over large lists, Stage 1 (grouping/deduplication) should depend only on data, while Stage 2 (filtering) should depend on the search string. This minimizes the work done during user input.
+**Action:** Use multi-stage memoization to isolate heavy data transformations from high-frequency state updates like search.
