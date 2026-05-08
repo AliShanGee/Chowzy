@@ -30,7 +30,12 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-// Start server
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+// Export app for use with @hono/node-server in root index.js
+module.exports = app;
+
+// Start server only if run directly
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
