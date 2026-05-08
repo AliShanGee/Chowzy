@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -18,6 +18,42 @@ export default function Home() {
   const [foodItem,setFoodItem] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
+
+  // Memoize unique categories to avoid re-calculating on every render
+  const uniqueCategories = useMemo(() => {
+    return foodCat.filter((cat, index, self) =>
+      index === self.findIndex(c => c.CategoryName === cat.CategoryName)
+    );
+  }, [foodCat]);
+
+  // Optimize item deduplication and filtering with O(N) grouping
+  // This avoids O(N^2) complexity of nested filter/some/reduce in the render loop
+  const groupedItems = useMemo(() => {
+    const map = new Map();
+    foodItem.forEach(item => {
+      if (!item.name) return;
+
+      const searchMatch = item.name.toLowerCase().includes(search.toLowerCase());
+      if (!searchMatch) return;
+
+      if (!map.has(item.CategoryName)) {
+        map.set(item.CategoryName, new Map());
+      }
+
+      const categoryMap = map.get(item.CategoryName);
+      // Deduplicate by name
+      if (!categoryMap.has(item.name)) {
+        categoryMap.set(item.name, item);
+      }
+    });
+
+    // Convert back to structured object for easy access
+    const result = {};
+    map.forEach((itemsMap, category) => {
+      result[category] = Array.from(itemsMap.values());
+    });
+    return result;
+  }, [foodItem, search]);
 
   const loadData = async ()=>{
     let response = await fetch(`${API_BASE_URL}/api/foodData`,{
@@ -84,9 +120,6 @@ export default function Home() {
           (() => {
             if (foodCat.length === 0) return "";
             
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
             const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -99,19 +132,15 @@ export default function Home() {
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
-                    </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
+                      {groupedItems[data.CategoryName] && groupedItems[data.CategoryName].length > 0
+                        ? groupedItems[data.CategoryName].map(filterItems => {
+                          return (
+                            <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                              <Card foodItem={filterItems} options={filterItems.options[0]} />
+                            </div>
+                          )
+                        })
+                        : <div className="m-3">No Such Data Found</div>}
                     </div>
                   );
                 })}
