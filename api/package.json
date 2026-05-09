@@ -13,7 +13,6 @@
     "@google/genai": "^1.46.0",
     "@google/generative-ai": "^0.24.1",
     "@langchain/google-genai": "^2.1.26",
-    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "colors": "^1.4.0",
     "cors": "^2.8.5",
