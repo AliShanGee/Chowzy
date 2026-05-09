@@ -1,0 +1,3 @@
+## 2025-05-14 - Semantic Toggles and ARIA labels
+**Learning:** Interactive elements in this codebase (like ThemeToggle and Chatbot toggle) were frequently implemented as `div` elements, making them inaccessible to keyboard users and screen readers. Converting them to `<button type="button">` with `aria-label` and `aria-expanded` attributes provides native focusability and state communication without breaking layouts when using Bootstrap utility classes like `border-0 p-0`.
+**Action:** Always check if a clickable `div` should be a `<button>` and ensure icon-only buttons have descriptive `aria-label` attributes.
