@@ -5,7 +5,7 @@ import IconSlideButton from "./IconSlideButton";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useTheme } from "next-themes";
 
-export default function Card(props) {
+function Card(props) {
     let dispatch = useDispatchCart();
     const { theme } = useTheme();
     const [qty, setQty] = useState(1);
@@ -226,3 +226,5 @@ export default function Card(props) {
         </div>
     );
 }
+
+export default React.memo(Card);
