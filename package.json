@@ -87,6 +87,7 @@
     ]
   },
   "devDependencies": {
+    "query-string": "^7.1.3",
     "typescript": "^5.5.3"
   }
 }
