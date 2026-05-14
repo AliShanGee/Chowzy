@@ -30,7 +30,12 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-// Start server
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+// Export for workers and local server
+module.exports = app;
+
+// Start server locally if not in a worker environment
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
