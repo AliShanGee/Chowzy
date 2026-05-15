@@ -5,11 +5,16 @@ import IconSlideButton from "./IconSlideButton";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useTheme } from "next-themes";
 
-export default function Card(props) {
+function Card(props) {
     let dispatch = useDispatchCart();
     const { theme } = useTheme();
     const [qty, setQty] = useState(1);
-    const [size, setSize] = useState("");
+
+    let options = props.options || {};
+    let priceOptions = Object.keys(options);
+    let foodItem = props.foodItem;
+
+    const [size, setSize] = useState(priceOptions.length > 0 ? priceOptions[0] : "");
     const [expanded, setExpanded] = useState(false);
     const priceRef = useRef();
 
@@ -51,10 +56,6 @@ export default function Card(props) {
         x.set(0);
         y.set(0);
     };
-
-    let options = props.options || {};
-    let priceOptions = Object.keys(options);
-    let foodItem = props.foodItem;
 
     const handleAddToCart = async () => {
         await dispatch({
@@ -148,6 +149,7 @@ export default function Card(props) {
                     <BootstrapCard.Img 
                         variant="top" 
                         src={foodItem.img} 
+                        loading="lazy"
                         style={{ 
                             height: '210px', 
                             objectFit: 'cover',
@@ -226,3 +228,5 @@ export default function Card(props) {
         </div>
     );
 }
+
+export default React.memo(Card);
