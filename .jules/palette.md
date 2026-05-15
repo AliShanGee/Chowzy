@@ -1,0 +1,3 @@
+## 2025-05-15 - GSAP Animations Masking Accessibility Gaps
+**Learning:** High-fidelity animations (GSAP, Framer Motion, Lottie) can often mask significant accessibility issues. Interactive elements styled as `div` or `span` might look and feel interactive to sighted users due to hover effects and motion, but remain completely invisible or non-functional for screen reader and keyboard-only users.
+**Action:** Always prioritize semantic HTML (e.g., `<button type="button">`) for any interactive component, even if complex animations are being applied. Use `aria-label` and `aria-expanded` to communicate state changes that are otherwise only visually apparent through animation.
