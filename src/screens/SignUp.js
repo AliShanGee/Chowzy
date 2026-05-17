@@ -330,6 +330,7 @@ export default function SignUp() {
                     variant="light"
                     onClick={togglePasswordVisibility}
                     style={{ border: '1px solid #ced4da', borderLeft: 'none' }}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
                   </Button>
@@ -359,11 +360,12 @@ export default function SignUp() {
                     variant="outline-secondary"
                     onClick={handleGetLocation}
                     disabled={isFetchingLocation}
+                    aria-label="Get current location"
                   >
 
                     {isFetchingLocation
-                      ? <span className="spinner-border spinner-border-sm"></span>
-                      : <i className="bi bi-geo-alt"></i>}
+                      ? <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                      : <i className="bi bi-geo-alt" aria-hidden="true"></i>}
 
                   </Button>
 
