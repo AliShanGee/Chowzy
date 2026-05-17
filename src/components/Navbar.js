@@ -157,8 +157,8 @@ function NavScrollExample() {
                       autoplay={true}
                   />
                 </button>
-                <Link className="btn bg-white text-success mx-2 d-flex align-items-center" to="/cart" style={{ textDecoration: 'none' }} aria-label="View Cart">
-                  <div style={{ width: "30px", height: "30px" }}>
+                <Link className="btn bg-white text-success mx-2 d-flex align-items-center" to="/cart" style={{ textDecoration: 'none' }} aria-label={`View Cart, ${data.length} items`}>
+                  <div style={{ width: "30px", height: "30px" }} aria-hidden="true">
                     <Lottie
                       lottieRef={lottieRef}
                       animationData={shoppingCartAnimation}
