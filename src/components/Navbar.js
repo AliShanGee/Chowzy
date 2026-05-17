@@ -146,7 +146,8 @@ function NavScrollExample() {
                 <ThemeToggle />
                 <button
                   type="button"
-                  style={{ cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px", background: 'none', border: 'none', padding: 0 }}
+                  className="btn p-0 border-0 d-flex align-items-center"
+                  style={{ width: "100px", height: "58px", overflow: "hidden", marginRight: "10px" }}
                   onClick={toggleChatbot}
                   aria-label="Open food assistant chatbot"
                   aria-expanded={showChatbot}
