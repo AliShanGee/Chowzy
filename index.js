@@ -6,9 +6,14 @@ const port = parseInt(process.env.PORT || '3001', 10);
 
 console.log('Starting server on port', port);
 
-serve({
-  fetch: app.fetch,
-  port,
-});
-
-console.log(`Server running at http://localhost:${port}`);
+if (app.fetch) {
+  serve({
+    fetch: app.fetch,
+    port,
+  });
+} else {
+  // Fallback for standard Express app in Node environment
+  app.listen(port, () => {
+    console.log(`Express server running at http://localhost:${port}`);
+  });
+}
