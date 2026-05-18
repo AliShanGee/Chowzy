@@ -20,6 +20,12 @@ const FoodItemSchema = new mongoose.Schema({
     description: {
         type: String,
         required: true
+    },
+    rating: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5
     }
 }, { collection: 'food_items' });
 

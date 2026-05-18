@@ -2,9 +2,16 @@ const express = require('express')
 const router = express.Router()
 router.get('/foodData', async (req, res) => {
     try {
+        if (global.food_items && global.foodCategory) {
+            return res.send([global.food_items, global.foodCategory]);
+        }
+        
         const mongoose = require('mongoose');
-        // Ensure connection
+        // Ensure connection if not available
         if (mongoose.connection.readyState !== 1) {
+            if (!process.env.MONGODB_URI) {
+                return res.status(500).send("Database connection URI not found");
+            }
             await mongoose.connect(process.env.MONGODB_URI, {
                 dbName: 'gofood',
                 maxPoolSize: 10,
@@ -18,6 +25,10 @@ router.get('/foodData', async (req, res) => {
 
         const foodItemsData = await foodItemsCollection.find({}).toArray();
         const catData = await foodCategoryCollection.find({}).toArray();
+
+        // Update global cache
+        global.food_items = foodItemsData;
+        global.foodCategory = catData;
 
         res.send([foodItemsData, catData]);
     } catch (error) {

@@ -4,6 +4,7 @@ import Home from './screens/Home.js';
 import Login from './screens/Login.js';
 import SignUp from './screens/SignUp.js';
 import MyOrder from './screens/MyOrder.js';
+import Reels from './screens/Reels.js';
 import NotFound from './screens/NotFound.js';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { CartProvider, useDispatchCart } from './components/ContextReducer.js';
@@ -13,10 +14,24 @@ import { ThemeProvider } from 'next-themes';
 import { ReactNotifications } from 'react-notifications-component';
 import 'react-notifications-component/dist/theme.css';
 import API_BASE_URL from './config.js';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import FloatingReelButton from './components/FloatingReelButton.js';
+import useUserStore from './store/useUserStore';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    },
+  },
+});
 
 const AppContent = () => {
   const location = useLocation();
   const isAdminRoute = location.pathname.toLowerCase().startsWith('/admin');
+  const isReelsPage = location.pathname.toLowerCase() === '/reels';
+  const user = useUserStore(state => state.user);
   const dispatch = useDispatchCart();
 
   useEffect(() => {
@@ -49,12 +64,14 @@ const AppContent = () => {
     <div className="app-container">
       <ReactNotifications />
       {!isAdminRoute && <Navbar />}
+      {user && !isAdminRoute && !isReelsPage && <FloatingReelButton />}
       <Routes>
         <Route exact path="/" element={<Home />} />
         <Route exact path="/login" element={<Login />} />
         <Route exact path="/signup" element={<SignUp />} />
         <Route exact path="/myOrder" element={<MyOrder />} />
         <Route exact path="/orderhistory" element={<MyOrder />} />
+        <Route exact path="/reels" element={<Reels />} />
         <Route exact path="/cart" element={<Cart />} />
         <Route path="/admin/*" element={
           localStorage.getItem("admin_auth") ? <AdminPanel /> : <Navigate to="/login" />
@@ -67,12 +84,14 @@ const AppContent = () => {
 
 export default function App() {
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-      <CartProvider>
-        <Router>
-          <AppContent />
-        </Router>
-      </CartProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+        <CartProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </CartProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }

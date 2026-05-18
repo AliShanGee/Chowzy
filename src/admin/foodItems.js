@@ -2,6 +2,36 @@ import React from 'react';
 import { List, Datagrid, TextField, Edit, SimpleForm, TextInput, Create, ImageField, ReferenceInput, SelectInput, useInput } from 'react-admin';
 import { Box, Button, TextField as MuiTextField, Select, MenuItem, InputLabel, FormControl, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { Rating, ThinStar } from '@smastrom/react-rating';
+import '@smastrom/react-rating/style.css';
+
+const RatingInput = ({ source, label }) => {
+    const { field } = useInput({ source });
+    return (
+        <Box mb={2}>
+            <InputLabel>{label}</InputLabel>
+            <div style={{ maxWidth: 180, marginTop: '10px', marginBottom: '10px' }}>
+                <Rating
+                    value={field.value || 0}
+                    onChange={(val) => field.onChange(val)}
+                    itemStyles={{
+                        itemShapes: ThinStar,
+                        activeFillColor: '#ffb400',
+                        inactiveFillColor: '#e2e8f0'
+                    }}
+                />
+            </div>
+            <MuiTextField
+                type="number"
+                size="small"
+                label="Rating Value"
+                value={field.value || 0}
+                onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                inputProps={{ min: 0, max: 5, step: 0.1 }}
+            />
+        </Box>
+    );
+};
 
 const CustomOptionsInput = ({ source }) => {
     const { field } = useInput({ source });
@@ -82,6 +112,7 @@ export const FoodItemList = props => (
             <TextField source="name" />
             <TextField source="CategoryName" />
             <TextField source="description" />
+            <TextField source="rating" />
             <ImageField source="img" title="image" sx={{ '& img': { maxWidth: 50, maxHeight: 50, objectFit: 'contain' } }} />
         </Datagrid>
     </List>
@@ -98,6 +129,7 @@ export const FoodItemEdit = props => (
             <TextInput source="img" />
             <ImageField source="img" title="image preview" sx={{ '& img': { maxWidth: 200, maxHeight: 200, objectFit: 'contain' } }} />
             <TextInput source="description" />
+            <RatingInput source="rating" label="Star Rating" />
             <CustomOptionsInput source="options" />
         </SimpleForm>
     </Edit>
@@ -112,6 +144,7 @@ export const FoodItemCreate = props => (
             </ReferenceInput>
             <TextInput source="img" helperText="Paste an image URL here" />
             <TextInput source="description" />
+            <RatingInput source="rating" label="Star Rating" />
             <CustomOptionsInput source="options" />
         </SimpleForm>
     </Create>

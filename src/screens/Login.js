@@ -9,6 +9,7 @@ import Lottie from 'lottie-react';
 import animationData from '../animations/Gradient Dots Background.json';
 import API_BASE_URL from '../config.js';
 import { useDispatchCart } from '../components/ContextReducer.js';
+import useUserStore from '../store/useUserStore';
 
 export default function Login() {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
@@ -16,6 +17,7 @@ export default function Login() {
   const titleRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatchCart();
+  const setUser = useUserStore(state => state.setUser);
 
   useEffect(() => {
     if (localStorage.getItem("authToken")) {
@@ -79,7 +81,7 @@ export default function Login() {
         });
       } else {
         localStorage.setItem("authToken", json.authToken);
-        localStorage.setItem("user", JSON.stringify(json.user)); // Store user details
+        setUser(json.user); // Store user details in Zustand store
 
         // Fetch and sync cart on login
         try {

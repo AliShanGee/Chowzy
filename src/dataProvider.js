@@ -8,12 +8,20 @@ const httpClient = (url, options = {}) => {
     if (!options.headers) {
         options.headers = new Headers({ Accept: 'application/json' });
     }
+    // Only set Content-Type to JSON if it's not FormData
+    if (!(options.body instanceof FormData)) {
+        options.headers.set('Content-Type', 'application/json');
+    }
     const token = localStorage.getItem('authToken');
     options.headers.set('Authorization', `Bearer ${token}`);
     return fetchUtils.fetchJson(url, options);
 };
 
-const getResourceUrl = (resource) => resource === 'orders' ? `${apiUrl}/admin/orders` : `${apiUrl}/${resource}`;
+const getResourceUrl = (resource) => {
+    if (resource === 'orders') return `${apiUrl}/admin/orders`;
+    if (resource === 'deliveredOrders') return `${apiUrl}/admin/delivered-orders`;
+    return `${apiUrl}/${resource}`;
+};
 
 const dataProvider = {
     getList: (resource, params) => {
@@ -82,19 +90,58 @@ const dataProvider = {
         });
     },
 
-    update: (resource, params) =>
-        httpClient(`${getResourceUrl(resource)}/${params.id}`, {
-            method: 'PUT',
-            body: JSON.stringify(params.data),
-        }).then(({ json }) => ({ data: { ...json, id: json._id || json.id } })),
+    update: (resource, params) => {
+        if (resource === 'reels' && params.data.video && params.data.video.rawFile) {
+            const formData = new FormData();
+            for (const key in params.data) {
+                if (key === 'video' && params.data[key].rawFile) {
+                    formData.append('video', params.data[key].rawFile);
+                } else if (key !== 'video') {
+                    formData.append(key, params.data[key]);
+                }
+            }
+            return httpClient(`${getResourceUrl(resource)}/${params.id}`, {
+                method: 'PUT',
+                body: formData,
+            }).then(({ json }) => ({ data: { ...json, id: json._id || json.id } }));
+        }
+        
+        // If it's a reel but no new file is uploaded, remove the video object to avoid sending it as string "[object Object]"
+        const cleanData = { ...params.data };
+        if (resource === 'reels') {
+            delete cleanData.video;
+        }
 
-    create: (resource, params) =>
-        httpClient(`${getResourceUrl(resource)}`, {
+        return httpClient(`${getResourceUrl(resource)}/${params.id}`, {
+            method: 'PUT',
+            body: JSON.stringify(cleanData),
+        }).then(({ json }) => ({ data: { ...json, id: json._id || json.id } }));
+    },
+
+    create: (resource, params) => {
+        if (resource === 'reels' && params.data.video && params.data.video.rawFile) {
+            const formData = new FormData();
+            for (const key in params.data) {
+                if (key === 'video' && params.data[key].rawFile) {
+                    formData.append('video', params.data[key].rawFile);
+                } else if (key !== 'video') {
+                    formData.append(key, params.data[key]);
+                }
+            }
+            return httpClient(`${getResourceUrl(resource)}`, {
+                method: 'POST',
+                body: formData,
+            }).then(({ json }) => ({
+                data: { ...params.data, id: json._id || json.id },
+            }));
+        }
+        return httpClient(`${getResourceUrl(resource)}`, {
             method: 'POST',
             body: JSON.stringify(params.data),
         }).then(({ json }) => ({
             data: { ...params.data, id: json._id || json.id },
-        })),
+        }));
+    },
 
     delete: (resource, params) =>
         httpClient(`${getResourceUrl(resource)}/${params.id}`, {

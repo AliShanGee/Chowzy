@@ -22,6 +22,7 @@ const defaultSummary = {
     totalUsers: 0,
     totalFoodItems: 0,
     totalCategories: 0,
+    totalReels: 0,
     totalOrders: 0,
     totalItemsSold: 0,
     totalRevenue: 0
@@ -98,22 +99,25 @@ const Dashboard = () => {
                 ) : null}
 
                 <Grid container spacing={2} sx={{ mb: 3 }}>
-                    <Grid item xs={12} sm={6} md={4} lg={2}>
+                    <Grid item xs={12} sm={6} md={4} lg={1.7}>
                         <SummaryCard title="Users" value={summary.totalUsers} />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4} lg={2}>
+                    <Grid item xs={12} sm={6} md={4} lg={1.7}>
                         <SummaryCard title="Food Items" value={summary.totalFoodItems} />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4} lg={2}>
+                    <Grid item xs={12} sm={6} md={4} lg={1.7}>
                         <SummaryCard title="Categories" value={summary.totalCategories} />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4} lg={2}>
+                    <Grid item xs={12} sm={6} md={4} lg={1.7}>
+                        <SummaryCard title="Reels" value={summary.totalReels} />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={4} lg={1.7}>
                         <SummaryCard title="Orders" value={summary.totalOrders} />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4} lg={2}>
+                    <Grid item xs={12} sm={6} md={4} lg={1.7}>
                         <SummaryCard title="Items Sold" value={summary.totalItemsSold} />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4} lg={2}>
+                    <Grid item xs={12} sm={6} md={4} lg={1.7}>
                         <SummaryCard title="Revenue" value={formatCurrency(summary.totalRevenue)} />
                     </Grid>
                 </Grid>

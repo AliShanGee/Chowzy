@@ -20,15 +20,22 @@ export default function Home() {
   const itemsPerPage = 3;
 
   const loadData = async ()=>{
-    let response = await fetch(`${API_BASE_URL}/api/foodData`,{
-        method:"GET",
-        headers:{
-            "Content-Type":"application/json"
-        }
-    })
-    response = await response.json();
-    setFoodItem(response[0]);
-    setFoodCat(response[1]);
+    try {
+      let response = await fetch(`${API_BASE_URL}/api/foodData`,{
+          method:"GET",
+          headers:{
+              "Content-Type":"application/json"
+          }
+      })
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      let data = await response.json();
+      setFoodItem(data[0] || []);
+      setFoodCat(data[1] || []);
+    } catch (error) {
+      console.error("Error loading home data:", error);
+    }
   }
   useEffect(()=>{
     loadData()

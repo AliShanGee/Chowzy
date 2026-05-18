@@ -6,12 +6,13 @@ import Lottie from "lottie-react";
 import shoppingCartAnimation from "../animations/shopping cart.json";
 import helloChatBotAnimation from "../animations/Hello Chat Bot.json";
 import historyAnimation from "../animations/History.json";
+import reelAnimation from "../animations/reel.json";
+import profileAnimation from "../animations/Profile .json";
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { Dropdown, Card, Button } from 'react-bootstrap';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { IoIosLogOut } from "react-icons/io";
-import { BsPersonCircle } from "react-icons/bs";
 import { gsap } from 'gsap';
 import Carousel from './Carousel.js'; // Import the Carousel component
 import ChatHistory from './ChatHistory.js';
@@ -19,12 +20,14 @@ import Chatbot from './Chatbot.js';
 import ThemeToggle from './ThemeToggle.js';
 import { useTheme } from 'next-themes';
 import AnimatedLogo from './AnimatedLogo.js'; // Import Framer animated logo
+import useUserStore from '../store/useUserStore';
 
 function NavScrollExample() {
   const location = useLocation();
   const navigate = useNavigate();
   const { setTheme } = useTheme();
-  const [user, setUser] = useState(null);
+  const user = useUserStore(state => state.user);
+  const logout = useUserStore(state => state.logout);
   let data = useCart();
   const dispatchCart = useDispatchCart();
   const [showHistory, setShowHistory] = useState(false);
@@ -32,14 +35,11 @@ function NavScrollExample() {
   const lottieRef = useRef();
 
   const handleLogout = () => {
-    // Clear user data from localStorage and state
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("user");
+    logout();
     // Clear context state only (don't clear backend)
     if (dispatchCart) {
       dispatchCart({ type: "LOGOUT" });
     }
-    setUser(null);
     setShowChatbot(false);
     // Switch to light mode on logout
     setTheme('light');
@@ -51,10 +51,8 @@ function NavScrollExample() {
   const [search, setSearch] = useState(''); // Add search state for the carousel
 
   useLayoutEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser && storedUser !== 'undefined') {
-      setUser(JSON.parse(storedUser));
-    }
+    // No need to manually fetch user from localStorage here anymore, Zustand handles it
+    // ... remaining logic
 
     // Add hover animations to nav links
     const links = navbarRef.current.querySelectorAll('.nav-link');
@@ -146,9 +144,9 @@ function NavScrollExample() {
                 <ThemeToggle />
                 <div style={{ cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px" }} onClick={toggleChatbot}>
                   <Lottie
-                      animationData={helloChatBotAnimation}
-                      loop={true}
-                      autoplay={true}
+                    animationData={helloChatBotAnimation}
+                    loop={true}
+                    autoplay={true}
                   />
                 </div>
                 <Link className="btn bg-white text-success mx-2 d-flex align-items-center" to="/cart" style={{ textDecoration: 'none' }}>
@@ -165,16 +163,27 @@ function NavScrollExample() {
                 </Link>
                 {showHistory && <ChatHistory show={showHistory} handleClose={() => setShowHistory(false)} />}
                 <Dropdown>
-                  <Dropdown.Toggle variant="light" id="dropdown-profile" className="d-flex align-items-center">
-                    <BsPersonCircle size={24} className="me-2" />
-                    Profile
+                  <Dropdown.Toggle as="div" id="dropdown-profile" className="d-flex align-items-center" style={{ cursor: 'pointer' }}>
+                    {user && user.img ? (
+                      <img src={user.img} alt="Profile" style={{ width: "58px", height: "58px", borderRadius: "50%", objectFit: "cover" }} />
+                    ) : (
+                      <div style={{ width: "100px", height: "50px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <Lottie animationData={profileAnimation} loop={true} autoplay={true} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      </div>
+                    )}
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu align="end" className="p-0 border-0 shadow-lg">
                     <Card style={{ width: '18rem' }}>
                       <Card.Body>
-                        <div className="text-center mb-3">
-                          <BsPersonCircle size={48} className="text-secondary" />
+                        <div className="text-center mb-3 d-flex justify-content-center">
+                          {user && user.img ? (
+                            <img src={user.img} alt="Profile" style={{ width: "48px", height: "48px", borderRadius: "50%", objectFit: "cover" }} />
+                          ) : (
+                            <div style={{ width: "48px", height: "48px", borderRadius: "50%", overflow: "hidden", display: "flex", alignItems: "center", justifyItems: "center", backgroundColor: "#f8f9fa" }}>
+                              <Lottie animationData={profileAnimation} loop={true} autoplay={true} style={{ width: "120%", height: "120%", objectFit: "cover" }} />
+                            </div>
+                          )}
                         </div>
                         <Card.Title className="text-center mb-3">{user ? user.name : 'Guest'}</Card.Title>
                         <hr />

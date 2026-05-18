@@ -6,12 +6,11 @@ import API_BASE_URL from '../config';
 
 const Chatbot = () => {
   const [messages, setMessages] = useState([
-    { user: false, message: 'Hello! I\'m your food assistant. I can help with food ingredients, diet tips, and healthy eating. Here are some suggestions:\n- Ask about ingredients in our dishes\n- Get diet recommendations\n- Learn about healthy food options\n- Select a food item to know more' }
+    { user: false, message: 'Hello! I\'m your food assistant. I can help with menu items, prices, ingredients, ordering help, and basic AI questions. Try prompts like:\n- "List all menu items"\n- "Give only food item which price 100"\n- "Show food items under 200"\n- "What are the ingredients in Veg Pizza?"\n- "Which category has Chicken Biryani?"\n- "Recommend the best starters"\n- "What is AI?"' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const [foodItems, setFoodItems] = useState([]);
   const [position, setPosition] = useState('right'); // 'left' or 'right'
   const messagesEndRef = useRef(null);
 
@@ -20,21 +19,6 @@ const Chatbot = () => {
   };
 
   useEffect(scrollToBottom, [messages]);
-
-  useEffect(() => {
-    const fetchFoodData = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/foodData`);
-        const data = await response.json();
-        if (Array.isArray(data) && data.length > 0) {
-          setFoodItems(data[0]); // food items
-        }
-      } catch (error) {
-        console.error('Error fetching food data:', error);
-      }
-    };
-    fetchFoodData();
-  }, []);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -45,18 +29,15 @@ const Chatbot = () => {
     setLoading(true);
 
     try {
-      const foodList = foodItems.map(item => `${item.name}: ${item.description || 'Delicious food item'}`).join(', ');
-      const systemPrompt = `You are a helpful food assistant for a food delivery app. Answer questions related to food ingredients, diet, health, and nutrition. Do not give personal advice or use "@" in responses. Focus on general information about food. Available food items: ${foodList}. User question: ${input}`;
-
       const response = await fetch(`${API_BASE_URL}/api/ask`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt: systemPrompt }),
+        body: JSON.stringify({ prompt: input }), // Send only the user input
       });
       const data = await response.json();
-      const botMessage = { user: false, message: data.response || 'Sorry, I couldn\'t fetch a response.' };
+      const botMessage = { user: false, message: data.response || data.error || 'Sorry, I couldn\'t fetch a response.' };
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
       const errorMessage = { user: false, message: 'Sorry, I\'m having trouble connecting. Please try again.' };
@@ -192,7 +173,7 @@ const Chatbot = () => {
           <div style={{ display: 'flex' }}>
             <Form.Control
               type="text"
-              placeholder="Ask about food, ingredients, diet..."
+              placeholder="Ask about menu, prices, ingredients, or AI..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}

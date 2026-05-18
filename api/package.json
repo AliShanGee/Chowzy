@@ -13,6 +13,8 @@
     "@google/genai": "^1.46.0",
     "@google/generative-ai": "^0.24.1",
     "@langchain/google-genai": "^2.1.26",
+    "@langchain/langgraph": "^1.1.2",
+    "@tanstack/react-query": "^5.99.2",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "colors": "^1.4.0",
@@ -24,8 +26,11 @@
     "langchain": "^1.2.37",
     "mongodb": "^7.1.0",
     "mongoose": "^8.19.0",
+    "multer": "^2.1.1",
     "nodemon": "^3.1.10",
+    "redis": "^5.12.1",
     "retry": "^0.13.1",
-    "serverless-http": "^4.0.0"
+    "serverless-http": "^4.0.0",
+    "zustand": "^5.0.12"
   }
 }

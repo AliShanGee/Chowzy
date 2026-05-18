@@ -2,11 +2,12 @@ import { Admin, Resource, CustomRoutes } from 'react-admin';
 import { Route } from 'react-router-dom';
 import dataProvider from '../dataProvider.js';
 import authProvider from '../admin/authProvider.js';
-import { OrderList, OrderCreate, OrderEdit, OrderShow } from '../admin/orders.js';
+import { OrderList, OrderCreate, OrderEdit, OrderShow, DeliveredOrderList, DeliveredOrderShow } from '../admin/orders.js';
 import { UserList, UserEdit, UserCreate, UserShow } from '../admin/users.js';
 import { FoodCategoryList, FoodCategoryEdit, FoodCategoryCreate } from '../admin/foodCategories.js';
 import { FoodItemList, FoodItemEdit, FoodItemCreate } from '../admin/foodItems.js';
 import { CartList, CartShow } from '../admin/carts.js';
+import { ReelList, ReelEdit, ReelCreate } from '../admin/reels.js';
 import Dashboard from '../admin/Dashboard.js';
 import MyLayout from '../admin/MyLayout.js';
 import Analytics from '../admin/Analytics';
@@ -20,7 +21,9 @@ export default function AdminPanel() {
       <Resource name="foodItems" list={FoodItemList} edit={FoodItemEdit} create={FoodItemCreate} />
       <Resource name="foodCategories" list={FoodCategoryList} edit={FoodCategoryEdit} create={FoodCategoryCreate} />
       <Resource name="orders" list={OrderList} edit={OrderEdit} create={OrderCreate} show={OrderShow} />
+      <Resource name="deliveredOrders" list={DeliveredOrderList} show={DeliveredOrderShow} options={{ label: 'Delivered Orders' }} />
       <Resource name="users" list={UserList} edit={UserEdit} create={UserCreate} show={UserShow} />
+      <Resource name="reels" list={ReelList} edit={ReelEdit} create={ReelCreate} options={{ label: 'Reels' }} />
       <Resource name="carts" list={CartList} show={CartShow} />
     </Admin>
   );

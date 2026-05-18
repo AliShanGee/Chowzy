@@ -30,15 +30,18 @@ export default function MyOrder() {
 
       const data = await res.json();
 
-      if (data.orderData) {
-        const { order_data, delivery_status, delivery_date, delivery_time, notification_sent } = data.orderData;
+      let combinedOrders = [];
+
+      // 1. Process Active Orders
+      if (data.orderData && data.orderData.order_data) {
+        const { order_data, delivery_status, delivery_date, delivery_time, notification_sent, _id, id } = data.orderData;
         
         // Show notification if status is not pending and notification hasn't been sent
         if (delivery_status && delivery_status !== 'pending' && !notification_sent && !notificationShown.current) {
             notificationShown.current = true;
             Store.addNotification({
-                title: "Order Update! 🍔",
-                message: `Your order is now: ${delivery_status.replace(/_/g, ' ').toUpperCase()}`,
+                title: "Order Update! 🚚",
+                message: `Your order is now ${delivery_status.replace(/_/g, ' ').toUpperCase()}. Check details below!`,
                 type: "info",
                 insert: "top",
                 container: "top-right",
@@ -49,15 +52,14 @@ export default function MyOrder() {
             });
             
             // Mark notification as sent in backend
-            fetch(`${API_BASE_URL}/api/admin/orders/${data.orderData._id || data.orderData.id}/update`, {
+            fetch(`${API_BASE_URL}/api/admin/orders/${_id || id}/update`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ notification_sent: true })
             });
         }
 
-        if (Array.isArray(order_data)) {
-          const formatted = order_data
+        const activeBatch = order_data
             .slice(0)
             .reverse()
             .map((group, index) => {
@@ -66,27 +68,44 @@ export default function MyOrder() {
               const items = group.filter(item => !item.order_date);
               const total = items.reduce((sum, item) => sum + (item.price || 0), 0);
 
-              // Attach delivery info only to the most recent order (index 0 because we reversed)
-              const isLatest = index === 0;
-
               return {
                 order_date: date,
                 items,
                 total,
                 _id: Math.random().toString(36).substr(2, 9),
-                delivery_status: isLatest ? delivery_status : 'delivered', // Assume old ones are delivered
-                delivery_date: isLatest ? delivery_date : null,
-                delivery_time: isLatest ? delivery_time : null
+                delivery_status: delivery_status || 'pending', 
+                delivery_date: delivery_date,
+                delivery_time: delivery_time
               };
             });
-
-          setOrders(formatted);
-        } else {
-          setOrders([]);
-        }
-      } else {
-        setOrders([]);
+        combinedOrders = [...activeBatch];
       }
+
+      // 2. Process Delivered Orders
+      if (data.deliveredData && Array.isArray(data.deliveredData)) {
+        const deliveredBatch = data.deliveredData.map(order => {
+          // In DeliveredOrder model, order_data is just one batch usually, but let's be safe
+          const group = order.order_data[0]; 
+          const dateObj = group.find(item => item.order_date);
+          const date = dateObj ? dateObj.order_date : 'Unknown Date';
+          const items = group.filter(item => !item.order_date);
+          const total = items.reduce((sum, item) => sum + (item.price || 0), 0);
+
+          return {
+            order_date: date,
+            items,
+            total,
+            _id: order._id || order.id,
+            delivery_status: 'delivered',
+            delivery_date: order.delivery_date,
+            delivery_time: order.delivery_time,
+            delivered_at: order.delivered_at
+          };
+        });
+        combinedOrders = [...combinedOrders, ...deliveredBatch];
+      }
+
+      setOrders(combinedOrders);
     } catch (error) {
       console.error('Failed to fetch orders', error);
       setOrders([]);
@@ -95,6 +114,13 @@ export default function MyOrder() {
 
   useEffect(() => {
     fetchMyOrder();
+    
+    // Set up real-time polling every 12 seconds
+    const interval = setInterval(() => {
+        fetchMyOrder();
+    }, 12000);
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -128,7 +154,9 @@ export default function MyOrder() {
                                 order.delivery_status === 'delivered' ? 'success' : 
                                 order.delivery_status === 'cancelled' ? 'danger' :
                                 order.delivery_status === 'out_for_delivery' ? 'primary' :
-                                'warning'
+                                order.delivery_status === 'preparing' ? 'warning' :
+                                order.delivery_status === 'scheduled' ? 'info' :
+                                'secondary'
                             }`}>
                                 {order.delivery_status.replace(/_/g, ' ').toUpperCase()}
                             </span>
@@ -136,7 +164,7 @@ export default function MyOrder() {
                     )}
                   </div>
                   <div className="card-body">
-                    {order.delivery_date && order.delivery_status !== 'delivered' && (
+                    {order.delivery_date && order.delivery_status !== 'delivered' && order.delivery_status !== 'cancelled' && (
                         <div className="mb-3 p-2 rounded bg-info bg-opacity-10 border border-info border-opacity-25">
                             <small className="d-block fw-bold text-info text-uppercase" style={{ fontSize: '0.7rem' }}>Scheduled For</small>
                             <div className="d-flex justify-content-between align-items-center">

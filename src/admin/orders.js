@@ -41,7 +41,7 @@ const DeliveryScheduleForm = () => {
     const handleSchedule = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/admin/orders/${record.id}/schedule`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/admin/orders/${record.id}/update`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -175,6 +175,7 @@ const DeliveryScheduleForm = () => {
 const OrderFilter = (props) => (
     <Filter {...props}>
         <SearchInput source="email" alwaysOn />
+        <TextInput label="Payment Method (cod/card)" source="payment_method" />
     </Filter>
 );
 
@@ -201,6 +202,19 @@ export const OrderList = () => (
                     size="small" 
                 />
             )} />
+            <FunctionField label="Payment Method" render={record => {
+                if (!record.order_data || !record.order_data[0] || !record.order_data[0][0]) return 'Not Set';
+                const payment = record.order_data[0][0].payment_info;
+                if (!payment) return 'Not Set';
+                return (
+                    <Chip 
+                        label={payment.method === 'cod' ? 'COD' : 'Card'} 
+                        color={payment.method === 'cod' ? 'warning' : 'primary'} 
+                        variant="outlined"
+                        size="small" 
+                    />
+                );
+            }} />
             <FunctionField label="Items" render={record => {
                 if (!record.order_data) return '';
                 const items = [];
@@ -268,6 +282,100 @@ export const OrderShow = () => (
                     size="small" 
                 />
             )} />
+            <FunctionField label="Payment Information" render={record => {
+                if (!record.order_data || !record.order_data[0] || !record.order_data[0][0]) return null;
+                const payment = record.order_data[0][0].payment_info;
+                if (!payment) return "Payment info not available";
+                return (
+                    <Box mt={1}>
+                        <Typography variant="body2">
+                            <strong>Method:</strong> {payment.method === 'cod' ? 'Cash on Delivery' : 'Credit/Debit Card'}
+                        </Typography>
+                        {payment.transactionId && (
+                            <Typography variant="body2" sx={{ fontFamily: 'monospace', color: 'text.secondary', mt: 0.5 }}>
+                                <strong>Transaction ID:</strong> {payment.transactionId}
+                            </Typography>
+                        )}
+                    </Box>
+                );
+            }} />
+            <FunctionField label="Order Items" render={record => {
+                if (!record.order_data) return null;
+                const items = [];
+                record.order_data.forEach(batch => {
+                    if (Array.isArray(batch)) {
+                        batch.forEach(item => { if (item.name) items.push(`${item.name} (${item.qty} ${item.size}) - Rs. ${item.price}`); });
+                    }
+                });
+                return (<ul>{items.map((item, idx) => <li key={idx}>{item}</li>)}</ul>);
+            }} />
+        </SimpleShowLayout>
+    </Show>
+);
+
+export const DeliveredOrderList = () => (
+    <List>
+        <Datagrid rowClick="show">
+            <TextField source="id" />
+            <TextField source="email" />
+            <FunctionField label="Delivered At" render={record => {
+                return new Date(record.delivered_at).toLocaleString();
+            }} />
+            <FunctionField label="Payment" render={record => {
+                const payment = record.payment_info;
+                if (!payment) return 'N/A';
+                return (
+                    <Chip 
+                        label={payment.method === 'cod' ? 'COD' : 'Card'} 
+                        color={payment.method === 'cod' ? 'warning' : 'primary'} 
+                        variant="outlined"
+                        size="small" 
+                    />
+                );
+            }} />
+            <FunctionField label="Items" render={record => {
+                if (!record.order_data) return '';
+                const items = [];
+                record.order_data.forEach(batch => {
+                    if (Array.isArray(batch)) {
+                        batch.forEach(item => { if (item.name) items.push(item.name); });
+                    }
+                });
+                return items.join(', ');
+            }} />
+            <ShowButton />
+            <DeleteButton />
+        </Datagrid>
+    </List>
+);
+
+export const DeliveredOrderShow = () => (
+    <Show>
+        <SimpleShowLayout>
+            <TextField source="id" />
+            <TextField source="email" />
+            <FunctionField label="Delivered At" render={record => {
+                return new Date(record.delivered_at).toLocaleString();
+            }} />
+            <FunctionField label="Original Delivery Date" render={record => {
+                return new Date(record.delivery_date).toLocaleDateString();
+            }} />
+            <FunctionField label="Payment Information" render={record => {
+                const payment = record.payment_info;
+                if (!payment) return "N/A";
+                return (
+                    <Box mt={1}>
+                        <Typography variant="body2">
+                            <strong>Method:</strong> {payment.method === 'cod' ? 'Cash on Delivery' : 'Credit/Debit Card'}
+                        </Typography>
+                        {payment.transactionId && (
+                            <Typography variant="body2" sx={{ fontFamily: 'monospace', color: 'text.secondary', mt: 0.5 }}>
+                                <strong>Transaction ID:</strong> {payment.transactionId}
+                            </Typography>
+                        )}
+                    </Box>
+                );
+            }} />
             <FunctionField label="Order Items" render={record => {
                 if (!record.order_data) return null;
                 const items = [];

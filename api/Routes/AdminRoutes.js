@@ -5,6 +5,36 @@ const FoodCategory = require('../models/FoodCategory');
 const Order = require('../models/Orders');
 const User = require('../models/User');
 const Cart = require('../models/Cart');
+const Reel = require('../models/Reel');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const { client } = require('../redis');
+
+// Configure Multer storage
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadDir = path.join(__dirname, '..', 'uploads', 'reels');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+
+const upload = multer({ 
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('video/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only video files are allowed!'), false);
+        }
+    }
+});
 
 // Helper for sending list response with Content-Range
 const sendListResponse = (res, data, total) => {
@@ -211,11 +241,12 @@ router.delete('/foodCategories', async (req, res) => {
 // --- Dashboard Stats ---
 router.get('/admin/stats', async (req, res) => {
     try {
-        const [orders, totalUsers, totalFoodItems, totalCategories] = await Promise.all([
+        const [orders, totalUsers, totalFoodItems, totalCategories, totalReels] = await Promise.all([
             Order.find({}),
             User.countDocuments({}),
             FoodItem.countDocuments({}),
-            FoodCategory.countDocuments({})
+            FoodCategory.countDocuments({}),
+            Reel.countDocuments({})
         ]);
 
         const itemSales = {};
@@ -267,6 +298,7 @@ router.get('/admin/stats', async (req, res) => {
                 totalUsers,
                 totalFoodItems,
                 totalCategories,
+                totalReels,
                 totalOrders,
                 totalItemsSold,
                 totalRevenue: Number(totalRevenue.toFixed(2))
@@ -383,4 +415,123 @@ router.delete('/admin/orders', async (req, res) => {
     }
 });
 
+// --- Reels ---
+router.get('/reels', async (req, res) => {
+    try {
+        const { filter, sort, skip, limit } = getQueryOptions(req.query);
+        const data = await Reel.find(filter).sort(sort).skip(skip).limit(limit || 0);
+        const total = await Reel.countDocuments(filter);
+        sendListResponse(res, data, total);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/reels/:id', async (req, res) => {
+    try {
+        const item = await Reel.findById(req.params.id);
+        res.json(item || {});
+    } catch (error) { res.status(500).json({ error: error.message }); }
+});
+
+router.post('/reels', upload.single('video'), async (req, res) => {
+    try {
+        const reelData = { ...req.body };
+        if (req.file) {
+            // Adjust path for serving
+            reelData.videoUrl = `/uploads/reels/${req.file.filename}`;
+        }
+        const newItem = new Reel(reelData);
+        const savedItem = await newItem.save();
+        
+        // Invalidate Redis cache
+        if (client.isOpen) {
+            try {
+                await Promise.race([
+                    client.del('all_reels'),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Redis timeout')), 2000))
+                ]);
+            } catch (err) {
+                // Silenced Redis timeout
+            }
+        }
+        
+        res.status(201).json(savedItem);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.put('/reels/:id', upload.single('video'), async (req, res) => {
+    try {
+        const updateData = { ...req.body };
+        if (req.file) {
+            updateData.videoUrl = `/uploads/reels/${req.file.filename}`;
+        }
+        const updatedItem = await Reel.findByIdAndUpdate(req.params.id, updateData, { new: true });
+        
+        // Invalidate Redis cache
+        if (client.isOpen) {
+            try {
+                await Promise.race([
+                    client.del('all_reels'),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Redis timeout')), 2000))
+                ]);
+            } catch (err) {
+                // Silenced Redis timeout
+            }
+        }
+        
+        res.json(updatedItem);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.delete('/reels/:id', async (req, res) => {
+    try {
+        const reel = await Reel.findById(req.params.id);
+        if (reel && reel.videoUrl && reel.videoUrl.startsWith('/uploads/')) {
+            const filePath = path.join(__dirname, '..', reel.videoUrl);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+        }
+        await Reel.findByIdAndDelete(req.params.id);
+        
+        // Invalidate Redis cache
+        if (client.isOpen) {
+            try {
+                await Promise.race([
+                    client.del('all_reels'),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Redis timeout')), 2000))
+                ]);
+            } catch (err) {
+                // Silenced Redis timeout
+            }
+        }
+        
+        res.json({ id: req.params.id });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.delete('/reels', async (req, res) => {
+    try {
+        const query = req.query;
+        if (query.filter) {
+            const filter = JSON.parse(query.filter);
+            if (filter.id && Array.isArray(filter.id)) {
+                await Reel.deleteMany({ _id: { $in: filter.id } });
+                return res.json(filter.id);
+            }
+        }
+        res.status(400).json({ error: "Invalid delete request" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;
+

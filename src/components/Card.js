@@ -4,6 +4,8 @@ import { useDispatchCart } from "./ContextReducer";
 import IconSlideButton from "./IconSlideButton";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useTheme } from "next-themes";
+import { Rating, ThinStar } from '@smastrom/react-rating';
+import '@smastrom/react-rating/style.css';
 
 export default function Card(props) {
     let dispatch = useDispatchCart();
@@ -84,6 +86,16 @@ export default function Card(props) {
     const borderColor = isDark ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.08)";
     const shadowColor = isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.12)";
 
+    // Rating styles for light/dark mode
+    const ratingStyles = {
+        itemShapes: ThinStar,
+        activeFillColor: isDark ? '#FFD700' : '#FFB100', // Brighter gold in dark mode
+        inactiveFillColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+        itemStrokeWidth: 1,
+        activeStrokeColor: isDark ? '#FFD700' : '#FFB100',
+        inactiveStrokeColor: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)',
+    };
+
     return (
         <div 
             style={{ 
@@ -156,9 +168,16 @@ export default function Card(props) {
                         }} 
                     />
                     <BootstrapCard.Body className="d-flex flex-column" style={{ transform: "translateZ(80px)", zIndex: 1 }}>
-                        <BootstrapCard.Title className="fw-bold mb-2" style={{ fontSize: "1.5rem", color: textColor, textShadow: isDark ? "0 2px 10px rgba(0,0,0,0.3)" : "none" }}>
+                        <BootstrapCard.Title className="fw-bold mb-1" style={{ fontSize: "1.5rem", color: textColor, textShadow: isDark ? "0 2px 10px rgba(0,0,0,0.3)" : "none" }}>
                             {foodItem.name}
                         </BootstrapCard.Title>
+                        <div style={{ maxWidth: 100, marginBottom: '0.5rem' }}>
+                            <Rating
+                                value={foodItem.rating || 0}
+                                readOnly
+                                itemStyles={ratingStyles}
+                            />
+                        </div>
                         <BootstrapCard.Text className="mb-3" style={{ 
                             fontSize: "0.85rem", 
                             color: subTextColor, 
