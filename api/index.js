@@ -43,10 +43,12 @@ app.get('/', (req, res) => {
 // Connect to MongoDB and Redis then start server
 mongoDB().then(() => {
     connectRedis(); // Connect to Redis in background
-    app.listen(port, () => {
+    if (require.main === module) app.listen(port, () => {
         console.log(`Server running on port ${port}`);
     });
 }).catch(err => {
     console.error("Failed to connect to MongoDB:", err);
     process.exit(1);
 });
+
+module.exports = app;
