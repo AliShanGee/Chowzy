@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -45,6 +45,28 @@ export default function Home() {
       duration: 1000 // values from 50 to 3000, with step 50ms
     });
   }, []);
+
+  // Optimized Stage 1: Group and deduplicate food items in O(N)
+  // This avoids repeating these operations for every category during render
+  const groupedAndDeduplicatedItems = useMemo(() => {
+    const map = new Map();
+    foodItem.forEach(item => {
+      if (!item.name || !item.CategoryName) return;
+      if (!map.has(item.CategoryName)) {
+        map.set(item.CategoryName, new Map());
+      }
+      const catMap = map.get(item.CategoryName);
+      if (!catMap.has(item.name)) {
+        catMap.set(item.name, item);
+      }
+    });
+
+    const finalResult = new Map();
+    for (const [catName, catMap] of map) {
+      finalResult.set(catName, Array.from(catMap.values()));
+    }
+    return finalResult;
+  }, [foodItem]);
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
@@ -106,19 +128,22 @@ export default function Home() {
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
-                    </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
+                      <div className="row">
+                        {(() => {
+                          const categoryItems = (groupedAndDeduplicatedItems.get(data.CategoryName) || [])
+                            .filter(item => item.name.toLowerCase().includes(search.toLowerCase()));
+
+                          return categoryItems.length > 0 ? (
+                            categoryItems.map(filterItems => (
+                              <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                                <Card foodItem={filterItems} options={filterItems.options[0]} />
+                              </div>
+                            ))
+                          ) : (
+                            <div className="m-3">No Such Data Found</div>
+                          );
+                        })()}
+                      </div>
                     </div>
                   );
                 })}
