@@ -115,7 +115,7 @@ function NavScrollExample() {
               navbarScroll
             >
               {(localStorage.getItem("authToken") && location.pathname !== '/orderhistory') ?
-                <Nav.Link as={Link} to="/orderhistory" className="d-flex align-items-center" style={{ textDecoration: 'none' }}>
+                <Nav.Link as={Link} to="/orderhistory" className="d-flex align-items-center focus-ring" style={{ textDecoration: 'none' }} aria-label="View Order History">
                   <div style={{ width: "40px", height: "40px" }}>
                     <Lottie
                       animationData={historyAnimation}
@@ -129,12 +129,12 @@ function NavScrollExample() {
             {(!localStorage.getItem("authToken")) ?
               <Nav>
                 {location.pathname !== '/login' && (
-                  <Nav.Link as={Link} to="/login" className="btn btn-success text-black mx-1" style={{ border: '2px solid green ', backgroundColor: 'white' }} >
+                  <Nav.Link as={Link} to="/login" className="btn btn-success text-black mx-1 focus-ring" style={{ border: '2px solid green ', backgroundColor: 'white' }} >
                     Login
                   </Nav.Link>
                 )}
                 {location.pathname !== '/signup' && (
-                  <Nav.Link as={Link} to="/signup" className="btn text-success mx-1" style={{ border: '2px solid green', backgroundColor: 'white' }}>
+                  <Nav.Link as={Link} to="/signup" className="btn text-success mx-1 focus-ring" style={{ border: '2px solid green', backgroundColor: 'white' }}>
                     Sign Up
                   </Nav.Link>
                 )}
@@ -142,14 +142,21 @@ function NavScrollExample() {
               :
               <div className='d-flex align-items-center'>
                 <ThemeToggle />
-                <div style={{ cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px" }} onClick={toggleChatbot}>
+                <button
+                  type="button"
+                  className="focus-ring"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px", padding: 0 }}
+                  onClick={toggleChatbot}
+                  aria-label="Open food assistant chatbot"
+                  aria-expanded={showChatbot}
+                >
                   <Lottie
                     animationData={helloChatBotAnimation}
                     loop={true}
                     autoplay={true}
                   />
-                </div>
-                <Link className="btn bg-white text-success mx-2 d-flex align-items-center" to="/cart" style={{ textDecoration: 'none' }}>
+                </button>
+                <Link className="btn bg-white text-success mx-2 d-flex align-items-center focus-ring" to="/cart" style={{ textDecoration: 'none' }} aria-label="View Cart">
                   <div style={{ width: "30px", height: "30px" }}>
                     <Lottie
                       lottieRef={lottieRef}
@@ -191,11 +198,11 @@ function NavScrollExample() {
                           <p><strong>Email:</strong> {user ? user.email : 'N/A'}</p>
                           <p><strong>Location:</strong> {user ? user.location : 'N/A'}</p>
                         </Card.Text>
-                        <Button variant="outline-danger" className="w-100 mt-3" onClick={handleLogout}>
+                        <Button variant="outline-danger" className="w-100 mt-3 focus-ring" onClick={handleLogout}>
                           <IoIosLogOut className="me-2" /> Logout
                         </Button>
                       </Card.Body>
-                    </Card>.
+                    </Card>
                   </Dropdown.Menu>
                 </Dropdown>
               </div>}
