@@ -78,6 +78,10 @@ export default function Home() {
     return groups;
   }, [foodItem, search]);
 
+  const hasAnyMatchingItems = useMemo(() => {
+    return itemsByCategory.size > 0;
+  }, [itemsByCategory]);
+
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
       {theme !== 'dark' && (
@@ -122,6 +126,7 @@ export default function Home() {
         {
           (() => {
             if (uniqueCategories.length === 0) return "";
+            if (!hasAnyMatchingItems && search !== "") return <div className="text-center text-muted fs-4 my-5">No Such Data Found</div>;
             
             const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -145,9 +150,7 @@ export default function Home() {
                             <Card foodItem={item} options={item.options[0]} />
                           </div>
                         ))
-                      ) : (
-                        <div className="ms-3 text-muted">No Such Data Found</div>
-                      )}
+                      ) : ""}
                     </div>
                   );
                 })}
