@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import BootstrapCard from "react-bootstrap/Card";
 import { useDispatchCart } from "./ContextReducer";
 import IconSlideButton from "./IconSlideButton";
@@ -7,13 +7,19 @@ import { useTheme } from "next-themes";
 import { Rating, ThinStar } from '@smastrom/react-rating';
 import '@smastrom/react-rating/style.css';
 
-export default function Card(props) {
+const Card = React.memo((props) => {
     let dispatch = useDispatchCart();
     const { theme } = useTheme();
     const [qty, setQty] = useState(1);
-    const [size, setSize] = useState("");
+
+    // Initialize size directly from props.options to avoid useEffect and extra re-render
+    const [size, setSize] = useState(() => {
+        const options = props.options || {};
+        const keys = Object.keys(options);
+        return keys.length > 0 ? keys[0] : "";
+    });
+
     const [expanded, setExpanded] = useState(false);
-    const priceRef = useRef();
 
     // Tilt Effect Setup
     const x = useMotionValue(0);
@@ -71,12 +77,6 @@ export default function Card(props) {
     };
 
     let finalPrice = qty * parseInt(options[size]);
-
-    useEffect(() => {
-        if (priceRef.current) {
-            setSize(priceRef.current.value);
-        }
-    }, []);
 
     // Theme-based variables
     const isDark = theme === 'dark';
@@ -160,6 +160,7 @@ export default function Card(props) {
                     <BootstrapCard.Img 
                         variant="top" 
                         src={foodItem.img} 
+                        loading="lazy"
                         style={{ 
                             height: '210px', 
                             objectFit: 'cover',
@@ -219,7 +220,7 @@ export default function Card(props) {
                                     <select 
                                         className="p-1 bg-success text-white rounded-pill border-0 px-3 shadow-sm" 
                                         style={{ outline: "none", cursor: "pointer", fontSize: "0.85rem", appearance: "none" }}
-                                        ref={priceRef} 
+                                        value={size}
                                         onChange={(e) => setSize(e.target.value)}
                                     >
                                         {priceOptions.map((data) => (
@@ -244,4 +245,6 @@ export default function Card(props) {
             </motion.div>
         </div>
     );
-}
+});
+
+export default Card;

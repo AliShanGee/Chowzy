@@ -1,0 +1,3 @@
+## 2025-05-15 - [O(N) Data Grouping and Hook Placement]
+**Learning:** Performance bottlenecks often arise from O(N²) operations (like nested filtering and deduplication) within render loops. Transitioning to a Map-based O(N) grouping strategy yields significant speedups. Crucially, React Hooks must always be called at the top level of a component; calling them inside an IIFE within JSX violates the Rules of Hooks and causes crashes.
+**Action:** Always pre-process large datasets using memoized Map lookups at the component's top level, and ensure all Hooks are correctly positioned before the return statement.
