@@ -144,21 +144,11 @@ function NavScrollExample() {
                 <ThemeToggle />
                 <button
                   type="button"
-                  style={{
-                    cursor: 'pointer',
-                    width: "100px",
-                    height: "58px",
-                    overflow: "hidden",
-                    display: "flex",
-                    alignItems: "center",
-                    marginRight: "10px",
-                    background: 'none',
-                    border: 'none',
-                    padding: 0
-                  }}
-                  onClick={toggleChatbot}
                   aria-label="Open food assistant chatbot"
                   aria-expanded={showChatbot}
+                  className="btn p-0 border-0 focus-ring"
+                  style={{ cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px", backgroundColor: 'transparent' }}
+                  onClick={toggleChatbot}
                 >
                   <Lottie
                     animationData={helloChatBotAnimation}
@@ -183,11 +173,11 @@ function NavScrollExample() {
                   <Dropdown.Toggle
                     as="div"
                     id="dropdown-profile"
-                    className="d-flex align-items-center"
+                    className="d-flex align-items-center focus-ring"
                     style={{ cursor: 'pointer' }}
                     role="button"
                     tabIndex="0"
-                    aria-label="User profile menu"
+                    aria-label="User Profile Menu"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
