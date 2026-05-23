@@ -216,7 +216,7 @@ function NavScrollExample() {
                           <IoIosLogOut className="me-2" /> Logout
                         </Button>
                       </Card.Body>
-                    </Card>.
+                    </Card>
                   </Dropdown.Menu>
                 </Dropdown>
               </div>}
