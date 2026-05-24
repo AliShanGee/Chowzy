@@ -142,14 +142,26 @@ function NavScrollExample() {
               :
               <div className='d-flex align-items-center'>
                 <ThemeToggle />
-                <div style={{ cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px" }} onClick={toggleChatbot}>
+                <button
+                  type="button"
+                  aria-label="Toggle Chatbot"
+                  aria-expanded={showChatbot}
+                  className="btn border-0 p-0 focus-ring"
+                  style={{ cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px", backgroundColor: 'transparent' }}
+                  onClick={toggleChatbot}
+                >
                   <Lottie
                     animationData={helloChatBotAnimation}
                     loop={true}
                     autoplay={true}
                   />
-                </div>
-                <Link className="btn bg-white text-success mx-2 d-flex align-items-center" to="/cart" style={{ textDecoration: 'none' }}>
+                </button>
+                <Link
+                  className="btn bg-white text-success mx-2 d-flex align-items-center"
+                  to="/cart"
+                  style={{ textDecoration: 'none' }}
+                  aria-label={`Shopping cart, ${data.length} items`}
+                >
                   <div style={{ width: "30px", height: "30px" }}>
                     <Lottie
                       lottieRef={lottieRef}
@@ -195,7 +207,7 @@ function NavScrollExample() {
                           <IoIosLogOut className="me-2" /> Logout
                         </Button>
                       </Card.Body>
-                    </Card>.
+                    </Card>
                   </Dropdown.Menu>
                 </Dropdown>
               </div>}
