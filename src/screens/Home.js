@@ -20,7 +20,8 @@ export default function Home() {
   const itemsPerPage = 3;
 
   // Bolt: Memoize categories and food items to avoid expensive calculations on every render
-  const { uniqueCategories, groupedItems } = useMemo(() => {
+  const { uniqueCategories, groupedItems, hasFilteredResults } = useMemo(() => {
+    // Deduplicate categories by CategoryName
     const categories = foodCat.filter((cat, index, self) =>
       index === self.findIndex(c => c.CategoryName === cat.CategoryName)
     );
@@ -34,7 +35,7 @@ export default function Home() {
           groups.set(item.CategoryName, new Map());
         }
         const catMap = groups.get(item.CategoryName);
-        // Deduplicate by name
+        // Deduplicate items by name
         if (!catMap.has(item.name)) {
           catMap.set(item.name, item);
         }
@@ -43,7 +44,8 @@ export default function Home() {
 
     return {
       uniqueCategories: categories,
-      groupedItems: groups
+      groupedItems: groups,
+      hasFilteredResults: groups.size > 0
     };
   }, [foodCat, foodItem, search]);
 
@@ -124,6 +126,11 @@ export default function Home() {
 
             return (
               <>
+                {!hasFilteredResults && foodCat.length > 0 && (
+                  <div className="text-center mt-5" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a' }}>
+                    No Such Data Found
+                  </div>
+                )}
                 {currentCategories.map((data) => {
                   const itemsInCategory = groupedItems.has(data.CategoryName)
                     ? Array.from(groupedItems.get(data.CategoryName).values())
@@ -135,15 +142,13 @@ export default function Home() {
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-                      {itemsInCategory.length > 0 ? (
+                      {itemsInCategory.length > 0 &&
                         itemsInCategory.map(filterItems => (
                           <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
                             <Card foodItem={filterItems} options={filterItems.options[0]} />
                           </div>
                         ))
-                      ) : (
-                        <div className="ms-3" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a' }}>No Such Data Found</div>
-                      )}
+                      }
                     </div>
                   );
                 })}
