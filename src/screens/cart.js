@@ -192,7 +192,7 @@ export default function Cart() {
                         border: '1px solid rgba(255, 255, 255, 0.1)',
                         boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
                     }}>
-                        <BsCart4 size={80} className="mb-4" style={{ color: 'rgba(255, 255, 255, 0.2)' }} />
+                        <BsCart4 size={80} className="mb-4" style={{ color: 'rgba(255, 255, 255, 0.2)' }} aria-hidden="true" />
                         <h2 className='text-white fw-bold mb-3'>Your cart is empty</h2>
                         <p className='text-white-50 mb-4 fs-5'>Discover something delicious and fill it up!</p>
                         <motion.button
