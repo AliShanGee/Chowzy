@@ -21,14 +21,20 @@ export default function Home() {
 
   // Bolt: Memoize categories and food items to avoid expensive calculations on every render
   const { uniqueCategories, groupedItems, hasFilteredResults } = useMemo(() => {
-    // Deduplicate categories by CategoryName
-    const categories = foodCat.filter((cat, index, self) =>
-      index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-    );
+    // Bolt: Use Set for O(C) deduplication of category names
+    const catNames = new Set();
+    const categories = [];
+    for (const cat of foodCat) {
+      if (cat.CategoryName && !catNames.has(cat.CategoryName)) {
+        catNames.add(cat.CategoryName);
+        categories.push(cat);
+      }
+    }
 
     const searchLower = search.toLowerCase();
     const groups = new Map();
 
+    // Bolt: Use Map for O(N) grouping and deduplication
     foodItem.forEach(item => {
       if (item.name && item.name.toLowerCase().includes(searchLower)) {
         if (!groups.has(item.CategoryName)) {
