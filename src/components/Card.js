@@ -187,20 +187,24 @@ export default function Card(props) {
                         }}>
                             {expanded ? foodItem.description : `${foodItem.description.substring(0, 60)}${foodItem.description.length > 60 ? '' : ''}`}
                             {!expanded && foodItem.description && foodItem.description.length > 60 && (
-                                <span 
+                                <button
+                                    type="button"
                                     onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
-                                    style={{ color: "#28a745", cursor: "pointer", fontWeight: "bold" }}
+                                    style={{ color: "#28a745", cursor: "pointer", fontWeight: "bold", background: 'none', border: 'none', padding: 0, display: 'inline' }}
+                                    aria-label="Read more"
                                 >
                                     ...
-                                </span>
+                                </button>
                             )}
                             {expanded && (
-                                <span 
+                                <button
+                                    type="button"
                                     onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
-                                    style={{ color: "#28a745", cursor: "pointer", fontWeight: "bold", marginLeft: "5px", fontSize: "0.75rem" }}
+                                    style={{ color: "#28a745", cursor: "pointer", fontWeight: "bold", marginLeft: "5px", fontSize: "0.75rem", background: 'none', border: 'none', padding: 0, display: 'inline' }}
+                                    aria-label="Read less"
                                 >
                                     (less)
-                                </span>
+                                </button>
                             )}
                         </BootstrapCard.Text>
                         
