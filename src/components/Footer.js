@@ -14,7 +14,7 @@ export default function Footer() {
            
           </a>
           <span className="mb-3 mb-md-0 text-body-secondary">
-            © 2025 Chowzy, Inc
+            © 2025 GoFood, Inc
           </span>
         </div>
         <ul className="nav col-md-4 justify-content-end list-unstyled d-flex">
