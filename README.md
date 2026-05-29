@@ -1,6 +1,7 @@
 # Chowzy 🍽️
 
 Your ultimate companion for discovering and enjoying delicious food.
+![Example](<img width="1366" height="633" alt="Screenshot (38)" src="https://github.com/user-attachments/assets/76e4d830-7cba-4451-a158-604846bdb74d" />)
 
 ---
 
