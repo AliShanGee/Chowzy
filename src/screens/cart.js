@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Lottie from "lottie-react";
 import animationData from "../animations/Order success.json";
 import deleteAnimation from "../animations/Delete.json";
+import shoppingCartAnimation from "../animations/shopping cart.json";
 import { useCart, useDispatchCart } from '../components/ContextReducer.js';
 import { BsArrowLeft, BsCreditCard, BsHouseDoor } from 'react-icons/bs';
 import API_BASE_URL from '../config.js';
@@ -149,7 +150,9 @@ export default function Cart() {
 
     return (
         <div style={{ position: 'relative', minHeight: '100vh', paddingTop: '20px' }}>
-            <motion.div 
+            <motion.button
+                type="button"
+                aria-label="Back to home"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => navigate("/")}
@@ -173,7 +176,7 @@ export default function Cart() {
                 }}
             >
                 <BsArrowLeft size={24} />
-            </motion.div>
+            </motion.button>
 
             {showSuccess ? (
                 <div className='m-5 w-100 text-center fs-3 text-white'>
@@ -181,7 +184,23 @@ export default function Cart() {
                     <p>Order Placed Successfully!</p>
                 </div>
             ) : data.length === 0 ? (
-                <div className='m-5 w-100 text-center fs-3 text-white pt-5'>The Cart is Empty!</div>
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className='m-5 w-100 text-center text-white pt-5'
+                >
+                    <div style={{ height: 250, width: 250, margin: 'auto' }}>
+                        <Lottie animationData={shoppingCartAnimation} loop={true} />
+                    </div>
+                    <h2 className="mt-4 mb-3 fw-bold">Your cart is empty!</h2>
+                    <p className="opacity-75 mb-4">Add some delicious items to your cart and they will appear here.</p>
+                    <button
+                        className='btn btn-success px-5 py-3 fs-5 rounded-pill shadow-lg'
+                        onClick={() => navigate("/")}
+                    >
+                        Browse Menu
+                    </button>
+                </motion.div>
             ) : (
                 <div className='container m-auto mt-5 table-responsive' >
                     <table className='table table-hover'>
