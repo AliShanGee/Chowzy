@@ -47,44 +47,50 @@ export default function Home() {
   }, []);
 
   // Performance Optimization: Group food items by category and filter/deduplicate once
-  const processedData = useMemo(() => {
-    if (foodCat.length === 0) return { currentCategories: [], totalPages: 0 };
-
-    // Deduplicate categories based on CategoryName
-    const uniqueCategories = foodCat.filter((cat, index, self) =>
-      index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-    );
-
-    const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
-    const currentCategoriesSlice = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-    // Group food items by category for O(1) lookup during render
-    const groupedItems = new Map();
+  const groupedItems = useMemo(() => {
+    const map = new Map();
     const searchLower = search.toLowerCase();
 
     foodItem.forEach(item => {
       if (!item.name || !item.CategoryName) return;
       if (!item.name.toLowerCase().includes(searchLower)) return;
 
-      if (!groupedItems.has(item.CategoryName)) {
-        groupedItems.set(item.CategoryName, []);
+      if (!map.has(item.CategoryName)) {
+        map.set(item.CategoryName, []);
       }
 
-      const categoryItems = groupedItems.get(item.CategoryName);
+      const categoryItems = map.get(item.CategoryName);
       // Deduplicate items by name within the category
       if (!categoryItems.some(i => i.name === item.name)) {
         categoryItems.push(item);
       }
     });
+    return map;
+  }, [foodItem, search]);
+
+  const categoryData = useMemo(() => {
+    if (foodCat.length === 0) return { currentCategories: [], totalPages: 0 };
+
+    // Deduplicate categories based on CategoryName using a Set for O(N)
+    const seenNames = new Set();
+    const uniqueCategories = [];
+    foodCat.forEach(cat => {
+      if (!seenNames.has(cat.CategoryName)) {
+        seenNames.add(cat.CategoryName);
+        uniqueCategories.push(cat);
+      }
+    });
+
+    const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
+    const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     return {
-      currentCategories: currentCategoriesSlice,
-      totalPages,
-      groupedItems
+      currentCategories,
+      totalPages
     };
-  }, [foodCat, foodItem, search, currentPage, itemsPerPage]);
+  }, [foodCat, currentPage, itemsPerPage]);
 
-  const { currentCategories, totalPages, groupedItems } = processedData;
+  const { currentCategories, totalPages } = categoryData;
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
