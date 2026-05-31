@@ -213,7 +213,7 @@ export default function Cart() {
                                             className="btn p-0 border-0 focus-ring"
                                             style={{ background: 'transparent' }}
                                             onClick={() => { dispatch({ type: "REMOVE", index: index }) }}
-                                            aria-label="Remove item from cart"
+                                            aria-label={`Remove ${food.name} from cart`}
                                         >
                                             <Lottie 
                                                 animationData={deleteAnimation} 
