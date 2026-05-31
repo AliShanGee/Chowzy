@@ -1,14 +1,25 @@
-import 'dotenv/config';
-import { serve } from '@hono/node-server';
-import app from './api/index.js';
+import expressApp from './api/index.js';
+import { fileURLToPath } from 'url';
 
-const port = parseInt(process.env.PORT || '3001', 10);
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+const isMain = isNode && process.argv && process.argv[1] === fileURLToPath(import.meta.url);
+const port = parseInt((isNode && process.env.PORT) || '3001', 10);
 
-console.log('Starting server on port', port);
+if (isMain) {
+  const startServer = async () => {
+    try {
+      await import('dotenv/config');
+      console.log('Initializing and starting server on port', port);
+      await expressApp.init();
+      expressApp.listen(port, () => {
+        console.log(`Server running at http://localhost:${port}`);
+      });
+    } catch (err) {
+      console.error('Failed to start server:', err);
+      process.exit(1);
+    }
+  };
+  startServer();
+}
 
-serve({
-  fetch: app.fetch,
-  port,
-});
-
-console.log(`Server running at http://localhost:${port}`);
+export default expressApp;
