@@ -149,16 +149,18 @@ export default function Cart() {
 
     return (
         <div style={{ position: 'relative', minHeight: '100vh', paddingTop: '20px' }}>
-            <motion.div 
+            <motion.button
+                type="button"
+                className="btn p-0 border-0 focus-ring"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => navigate("/")}
+                aria-label="Go back to home page"
                 style={{
                     position: 'fixed',
                     top: '90px',
                     left: '30px',
                     zIndex: 1001,
-                    cursor: 'pointer',
                     background: theme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.15)',
                     backdropFilter: 'blur(12px)',
                     border: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(20, 20, 20, 0.2)'}`,
@@ -173,7 +175,7 @@ export default function Cart() {
                 }}
             >
                 <BsArrowLeft size={24} />
-            </motion.div>
+            </motion.button>
 
             {showSuccess ? (
                 <div className='m-5 w-100 text-center fs-3 text-white'>
@@ -206,7 +208,13 @@ export default function Cart() {
                                     <td >{food.size}</td>
                                     <td >{food.price}</td>
                                     <td >
-                                        <button type="button" className="btn p-0" style={{ background: 'transparent', border: 'none' }} onClick={() => { dispatch({ type: "REMOVE", index: index }) }}>
+                                        <button
+                                            type="button"
+                                            className="btn p-0 border-0 focus-ring"
+                                            style={{ background: 'transparent' }}
+                                            onClick={() => { dispatch({ type: "REMOVE", index: index }) }}
+                                            aria-label="Remove item from cart"
+                                        >
                                             <Lottie 
                                                 animationData={deleteAnimation} 
                                                 loop={true} 
