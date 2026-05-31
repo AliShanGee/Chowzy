@@ -44,15 +44,20 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
+// Asynchronous initialization
+app.init = async () => {
+    await mongoDB();
+    await connectRedis();
+};
+
 // Connect to MongoDB and Redis then start server
 if (require.main === module) {
-    mongoDB().then(() => {
-        connectRedis(); // Connect to Redis in background
+    app.init().then(() => {
         app.listen(port, () => {
             console.log(`Server running on port ${port}`);
         });
     }).catch(err => {
-        console.error("Failed to connect to MongoDB:", err);
+        console.error("Failed to initialize app:", err);
         process.exit(1);
     });
 }
