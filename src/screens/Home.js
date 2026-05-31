@@ -48,12 +48,15 @@ export default function Home() {
 
   // Performance Optimization: Memoize data processing to avoid O(N^2) complexity in render
   const { uniqueCategories, groupedItems, totalPages } = useMemo(() => {
-    // Deduplicate categories
-    const uniqueCats = foodCat.filter((cat, index, self) =>
-      index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-    );
+    // Deduplicate categories in O(C)
+    const seenCats = new Set();
+    const uniqueCats = foodCat.filter(cat => {
+      if (seenCats.has(cat.CategoryName)) return false;
+      seenCats.add(cat.CategoryName);
+      return true;
+    });
 
-    // Group and deduplicate items by category for O(N) lookup
+    // Group and deduplicate items by category for O(I) lookup
     const searchLower = search.toLowerCase();
     const groups = new Map();
 
