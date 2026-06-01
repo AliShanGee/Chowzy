@@ -1,14 +1,28 @@
 import 'dotenv/config';
-import { serve } from '@hono/node-server';
-import app from './api/index.js';
+import express from 'express';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import expressApp from './api/index.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const port = parseInt(process.env.PORT || '3001', 10);
 
-console.log('Starting server on port', port);
+// Check if this module is being run directly
+const isMain = process.argv[1] === __filename;
 
-serve({
-  fetch: app.fetch,
-  port,
-});
+if (isMain) {
+  console.log('Starting server on port', port);
 
-console.log(`Server running at http://localhost:${port}`);
+  expressApp.init().then(() => {
+    expressApp.listen(port, () => {
+      console.log(`Server running at http://localhost:${port}`);
+    });
+  }).catch(err => {
+    console.error('Failed to initialize application:', err);
+    process.exit(1);
+  });
+}
+
+export default expressApp;
