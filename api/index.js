@@ -8,6 +8,11 @@ const { connectRedis } = require('./redis');
 const app = express();
 const port = process.env.PORT || 5000;
 
+app.init = async () => {
+    await mongoDB();
+    connectRedis();
+};
+
 // Middleware
 app.use(express.json());
 app.use(cors({
@@ -18,10 +23,15 @@ app.use(cors({
 
 // Serve static files from uploads directory with absolute path
 const uploadsPath = path.resolve(__dirname, 'uploads');
-if (!fs.existsSync(uploadsPath)) {
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+
+if (isNode && !fs.existsSync(uploadsPath)) {
     fs.mkdirSync(uploadsPath, { recursive: true });
 }
-app.use('/uploads', express.static(uploadsPath));
+
+if (isNode) {
+    app.use('/uploads', express.static(uploadsPath));
+}
 console.log(`Serving static files from: ${uploadsPath}`);
 
 // Routes
@@ -41,12 +51,15 @@ app.get('/', (req, res) => {
 });
 
 // Connect to MongoDB and Redis then start server
-mongoDB().then(() => {
-    connectRedis(); // Connect to Redis in background
-    app.listen(port, () => {
-        console.log(`Server running on port ${port}`);
+if (require.main === module) {
+    app.init().then(() => {
+        app.listen(port, () => {
+            console.log(`Server running on port ${port}`);
+        });
+    }).catch(err => {
+        console.error("Initialization failed:", err);
+        process.exit(1);
     });
-}).catch(err => {
-    console.error("Failed to connect to MongoDB:", err);
-    process.exit(1);
-});
+}
+
+module.exports = app;
