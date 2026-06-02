@@ -8,6 +8,11 @@ const { connectRedis } = require('./redis');
 const app = express();
 const port = process.env.PORT || 5000;
 
+app.init = async () => {
+    await mongoDB();
+    connectRedis();
+};
+
 // Middleware
 app.use(express.json());
 app.use(cors({
