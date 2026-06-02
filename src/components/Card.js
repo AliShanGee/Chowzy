@@ -11,7 +11,12 @@ export default function Card(props) {
     let dispatch = useDispatchCart();
     const { theme } = useTheme();
     const [qty, setQty] = useState(1);
-    const [size, setSize] = useState("");
+
+    // Bolt Optimization: Initialize state directly from props to avoid redundant useEffect re-render
+    const options = props.options || {};
+    const priceOptions = Object.keys(options);
+    const [size, setSize] = useState(priceOptions.length > 0 ? priceOptions[0] : "");
+
     const [expanded, setExpanded] = useState(false);
     const priceRef = useRef();
 
@@ -54,8 +59,6 @@ export default function Card(props) {
         y.set(0);
     };
 
-    let options = props.options || {};
-    let priceOptions = Object.keys(options);
     let foodItem = props.foodItem;
 
     const handleAddToCart = async () => {
@@ -72,11 +75,6 @@ export default function Card(props) {
 
     let finalPrice = qty * parseInt(options[size]);
 
-    useEffect(() => {
-        if (priceRef.current) {
-            setSize(priceRef.current.value);
-        }
-    }, []);
 
     // Theme-based variables
     const isDark = theme === 'dark';
@@ -220,6 +218,7 @@ export default function Card(props) {
                                         className="p-1 bg-success text-white rounded-pill border-0 px-3 shadow-sm" 
                                         style={{ outline: "none", cursor: "pointer", fontSize: "0.85rem", appearance: "none" }}
                                         ref={priceRef} 
+                                        value={size}
                                         onChange={(e) => setSize(e.target.value)}
                                     >
                                         {priceOptions.map((data) => (
