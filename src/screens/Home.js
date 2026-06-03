@@ -147,7 +147,7 @@ export default function Home() {
                             </div>
                           )
                         })
-                        : <div className="m-3">No Such Data Found</div>}
+                        : <div>No Such Data Found</div>}
                     </div>
                   );
                 })}

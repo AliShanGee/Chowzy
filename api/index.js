@@ -21,7 +21,9 @@ const isNode = typeof process !== 'undefined' && process.versions && process.ver
 if (isNode) {
     const uploadsPath = path.resolve(__dirname, 'uploads');
     if (!fs.existsSync(uploadsPath)) {
-        fs.mkdirSync(uploadsPath, { recursive: true });
+        try {
+            fs.mkdirSync(uploadsPath, { recursive: true });
+        } catch (e) {}
     }
     app.use('/uploads', express.static(uploadsPath));
 }
@@ -42,18 +44,18 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-// Export the app instance
+// Export for Workers
 module.exports = app;
 
-// Connect and start server only in local Node environment
-if (isNode && (require.main === module || process.env.NODE_ENV === 'development')) {
+// Local startup
+if (isNode && require.main === module) {
     mongoDB().then(() => {
-        connectRedis(); // Connect to Redis in background
+        connectRedis();
         app.listen(port, () => {
             console.log(`Server running on port ${port}`);
         });
     }).catch(err => {
         console.error("Failed to connect to MongoDB:", err);
-        if (require.main === module) process.exit(1);
+        process.exit(1);
     });
 }
