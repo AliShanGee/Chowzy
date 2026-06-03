@@ -30,9 +30,12 @@ const mongoDB = async () => {
     const catData = await foodCategoryCollection.find({}).toArray();
 
     // Seed Admin user if collection is empty
+    const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+    if (!isNode) return;
+
     const Admin = require('./models/Admin');
     const bcrypt = require('bcryptjs');
-    const adminCount = await Admin.countDocuments();
+    const adminCount = await Admin.countDocuments().catch(() => 0);
     if (adminCount === 0) {
       console.log("Seeding initial admin user...");
       const salt = await bcrypt.genSalt(10);
@@ -65,8 +68,10 @@ const mongoDB = async () => {
       );
     }
     console.error("Full error details:", error);
-    // Exit process with failure
-    process.exit(1);
+    // Exit process with failure if in Node
+    if (typeof process !== 'undefined' && process.exit) {
+        process.exit(1);
+    }
   }
 };
 
