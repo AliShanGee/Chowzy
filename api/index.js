@@ -60,6 +60,6 @@ if (require.main === module) {
       });
   }).catch(err => {
       console.error("Failed to connect to MongoDB:", err);
-      process.exit(1);
+      if (process.exit) process.exit(1);
   });
 }
