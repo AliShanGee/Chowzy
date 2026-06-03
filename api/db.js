@@ -30,6 +30,9 @@ const mongoDB = async () => {
     const catData = await foodCategoryCollection.find({}).toArray();
 
     // Seed Admin user if collection is empty
+    const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+    if (!isNode) return;
+
     const Admin = require('./models/Admin');
     const bcrypt = require('bcryptjs');
     const adminCount = await Admin.countDocuments().catch(() => 0);
