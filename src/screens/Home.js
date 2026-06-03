@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -46,6 +46,42 @@ export default function Home() {
     });
   }, []);
 
+  // Performance Optimization: Deduplicate categories in O(N) using a Map
+  const uniqueCategories = useMemo(() => {
+    if (!foodCat.length) return [];
+    return Array.from(new Map(foodCat.map(cat => [cat.CategoryName, cat])).values());
+  }, [foodCat]);
+
+  // Performance Optimization: Group and deduplicate food items in a single O(N) pass
+  // This avoids O(Categories * Items) filtering and O(M^2) reduce in the render loop
+  const itemsByCategory = useMemo(() => {
+    if (!foodItem.length) return new Map();
+
+    const groups = new Map();
+    const searchLower = search.toLowerCase();
+
+    for (let i = 0; i < foodItem.length; i++) {
+      const item = foodItem[i];
+      // Search filter and initial category filter logic moved here
+      if (item.name && item.name.toLowerCase().includes(searchLower)) {
+        let catGroup = groups.get(item.CategoryName);
+        if (!catGroup) {
+          catGroup = new Map(); // Use Map to deduplicate by name in O(1)
+          groups.set(item.CategoryName, catGroup);
+        }
+
+        if (!catGroup.has(item.name)) {
+          catGroup.set(item.name, item);
+        }
+      }
+    }
+    return groups;
+  }, [foodItem, search]);
+
+  const hasAnyMatchingItems = useMemo(() => {
+    return itemsByCategory.size > 0;
+  }, [itemsByCategory]);
+
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
       {theme !== 'dark' && (
@@ -89,36 +125,32 @@ export default function Home() {
           </div>
         {
           (() => {
-            if (foodCat.length === 0) return "";
+            if (uniqueCategories.length === 0) return "";
+            if (!hasAnyMatchingItems && search !== "") return <div className="text-center text-muted fs-4 my-5">No Such Data Found</div>;
             
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
             const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
             return (
               <>
                 {currentCategories.map((data) => {
+                  const categoryItemsMap = itemsByCategory.get(data.CategoryName);
+                  const filterItemsList = categoryItemsMap ? Array.from(categoryItemsMap.values()) : [];
+
                   return (
                     <div className='row mb-3' key={data._id}>
                       <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
-                    </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
+
+                      {filterItemsList.length > 0 ? (
+                        filterItemsList.map(item => (
+                          <div key={item._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                            <Card foodItem={item} options={item.options[0]} />
+                          </div>
+                        ))
+                      ) : ""}
                     </div>
                   );
                 })}
