@@ -1,14 +1,22 @@
 import 'dotenv/config';
-import { serve } from '@hono/node-server';
-import app from './api/index.js';
+import expressApp from './api/index.js';
+import { fileURLToPath } from 'url';
 
 const port = parseInt(process.env.PORT || '3001', 10);
 
-console.log('Starting server on port', port);
+// Use default export for Cloudflare Workers (chowzy)
+export default expressApp;
 
-serve({
-  fetch: app.fetch,
-  port,
-});
+const isMain = process.argv[1] === fileURLToPath(import.meta.url);
 
-console.log(`Server running at http://localhost:${port}`);
+if (isMain) {
+  console.log('Starting server on port', port);
+  expressApp.init().then(() => {
+    expressApp.listen(port, () => {
+      console.log(`Server running at http://localhost:${port}`);
+    });
+  }).catch(err => {
+    console.error('Failed to initialize app:', err);
+    process.exit(1);
+  });
+}
