@@ -16,18 +16,13 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Guard filesystem operations for non-Node environments (like Cloudflare Workers)
-const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
-
-if (isNode) {
-  // Serve static files from uploads directory with absolute path
-  const uploadsPath = path.resolve(__dirname, 'uploads');
-  if (!fs.existsSync(uploadsPath)) {
-      fs.mkdirSync(uploadsPath, { recursive: true });
-  }
-  app.use('/uploads', express.static(uploadsPath));
-  console.log(`Serving static files from: ${uploadsPath}`);
+// Serve static files from uploads directory with absolute path
+const uploadsPath = path.resolve(__dirname, 'uploads');
+if (!fs.existsSync(uploadsPath)) {
+    fs.mkdirSync(uploadsPath, { recursive: true });
 }
+app.use('/uploads', express.static(uploadsPath));
+console.log(`Serving static files from: ${uploadsPath}`);
 
 // Routes
 app.use('/api', require('./Routes/CreateUser'));
@@ -45,18 +40,13 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-// Export the app instance
-module.exports = app;
-
-// Connect to MongoDB and Redis then start server (only if run directly)
-if (require.main === module) {
-  mongoDB().then(() => {
-      connectRedis(); // Connect to Redis in background
-      app.listen(port, () => {
-          console.log(`Server running on port ${port}`);
-      });
-  }).catch(err => {
-      console.error("Failed to connect to MongoDB:", err);
-      process.exit(1);
-  });
-}
+// Connect to MongoDB and Redis then start server
+mongoDB().then(() => {
+    connectRedis(); // Connect to Redis in background
+    app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+    });
+}).catch(err => {
+    console.error("Failed to connect to MongoDB:", err);
+    process.exit(1);
+});

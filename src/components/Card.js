@@ -185,7 +185,7 @@ export default function Card(props) {
                             lineHeight: "1.4",
                             transition: "all 0.3s ease"
                         }}>
-                            {expanded ? foodItem.description : `${foodItem.description.substring(0, 60)}${foodItem.description.length > 60 ? '' : ''}`}
+                            {expanded ? foodItem.description : `${foodItem.description.substring(0, 60)}`}
                             {!expanded && foodItem.description && foodItem.description.length > 60 && (
                                 <span 
                                     role="button"
