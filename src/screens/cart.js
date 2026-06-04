@@ -150,9 +150,13 @@ export default function Cart() {
     return (
         <div style={{ position: 'relative', minHeight: '100vh', paddingTop: '20px' }}>
             <motion.div 
+                role="button"
+                aria-label="Go back to home"
+                tabIndex="0"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => navigate("/")}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate("/"); }}
                 style={{
                     position: 'fixed',
                     top: '90px',
@@ -206,7 +210,13 @@ export default function Cart() {
                                     <td >{food.size}</td>
                                     <td >{food.price}</td>
                                     <td >
-                                        <button type="button" className="btn p-0" style={{ background: 'transparent', border: 'none' }} onClick={() => { dispatch({ type: "REMOVE", index: index }) }}>
+                                        <button
+                                            type="button"
+                                            aria-label={`Remove ${food.name} from cart`}
+                                            className="btn p-0"
+                                            style={{ background: 'transparent', border: 'none' }}
+                                            onClick={() => { dispatch({ type: "REMOVE", index: index }) }}
+                                        >
                                             <Lottie 
                                                 animationData={deleteAnimation} 
                                                 loop={true} 
@@ -250,6 +260,8 @@ export default function Cart() {
                                     }}
                                 >
                                     <button 
+                                        type="button"
+                                        aria-label="Close payment modal"
                                         onClick={() => { setShowPaymentModal(false); setPaymentMethod(null); }} 
                                         style={{ position: 'absolute', top: 15, right: 20, background: 'transparent', border: 'none', fontSize: '24px', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', zIndex: 1 }}
                                     >
