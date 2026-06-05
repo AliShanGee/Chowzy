@@ -1,0 +1,3 @@
+## 2026-06-05 - [Optimized Home rendering and Card memoization]
+**Learning:** Performing expensive O(N²) data processing (nested filtering and deduplication) inside the render loop significantly degrades UI responsiveness, especially during active search. Additionally, initializing component state in a `useEffect` hook based on props causes an immediate and redundant second render on mount.
+**Action:** Use `useMemo` with a `Map` to group and deduplicate items in O(N) time. Initialize state directly from props where possible to eliminate unnecessary render cycles. Wrap frequently re-rendered components in `React.memo`.
