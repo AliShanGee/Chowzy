@@ -55,7 +55,7 @@ app.init = async () => {
     }
 };
 
-const isMain = require.main === module;
+const isMain = typeof require !== 'undefined' && require.main === module;
 
 if (isMain) {
     app.init().then(() => {
@@ -63,7 +63,9 @@ if (isMain) {
             console.log(`Server running on port ${port}`);
         });
     }).catch(err => {
-        process.exit(1);
+        if (typeof process !== 'undefined' && process.exit) {
+            process.exit(1);
+        }
     });
 }
 

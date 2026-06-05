@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 
 const port = parseInt(process.env.PORT || '3001', 10);
 
-const isMain = process.argv[1] === fileURLToPath(import.meta.url);
+const isMain = typeof process !== 'undefined' && process.argv && process.argv[1] === fileURLToPath(import.meta.url);
 
 if (isMain) {
   console.log('Starting server on port', port);
@@ -14,7 +14,9 @@ if (isMain) {
     });
   }).catch(err => {
     console.error("Failed to initialize app:", err);
-    process.exit(1);
+    if (process.exit) {
+      process.exit(1);
+    }
   });
 }
 
