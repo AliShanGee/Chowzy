@@ -11,6 +11,9 @@ if (isMain) {
     expressApp.listen(port, () => {
       console.log(`Server running at http://localhost:${port}`);
     });
+  }).catch(err => {
+    console.error("Failed to initialize app:", err);
+    process.exit(1);
   });
 }
 
