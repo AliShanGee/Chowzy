@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, memo } from "react";
+import React, { useState, memo } from "react";
 import BootstrapCard from "react-bootstrap/Card";
 import { useDispatchCart } from "./ContextReducer";
 import IconSlideButton from "./IconSlideButton";
@@ -18,7 +18,6 @@ const Card = (props) => {
     const [size, setSize] = useState(priceOptions[0] || "");
 
     const [expanded, setExpanded] = useState(false);
-    const priceRef = useRef();
 
     // Tilt Effect Setup
     const x = useMotionValue(0);
@@ -216,7 +215,6 @@ const Card = (props) => {
                                     <select 
                                         className="p-1 bg-success text-white rounded-pill border-0 px-3 shadow-sm" 
                                         style={{ outline: "none", cursor: "pointer", fontSize: "0.85rem", appearance: "none" }}
-                                        ref={priceRef} 
                                         value={size}
                                         onChange={(e) => setSize(e.target.value)}
                                     >

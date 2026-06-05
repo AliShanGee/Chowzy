@@ -1,14 +1,17 @@
 import 'dotenv/config';
-import { serve } from '@hono/node-server';
-import app from './api/index.js';
+import { fileURLToPath } from 'url';
+import expressApp from './api/index.js';
 
 const port = parseInt(process.env.PORT || '3001', 10);
 
-console.log('Starting server on port', port);
+const isMain = process.argv[1] === fileURLToPath(import.meta.url);
 
-serve({
-  fetch: app.fetch,
-  port,
-});
+if (isMain) {
+  expressApp.init().then(() => {
+    expressApp.listen(port, () => {
+      console.log(`Server running at http://localhost:${port}`);
+    });
+  });
+}
 
-console.log(`Server running at http://localhost:${port}`);
+export default expressApp;
