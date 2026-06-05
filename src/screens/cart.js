@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Lottie from "lottie-react";
 import animationData from "../animations/Order success.json";
 import deleteAnimation from "../animations/Delete.json";
+import shoppingCartAnimation from "../animations/shopping cart.json";
 import { useCart, useDispatchCart } from '../components/ContextReducer.js';
 import { BsArrowLeft, BsCreditCard, BsHouseDoor } from 'react-icons/bs';
 import API_BASE_URL from '../config.js';
@@ -153,6 +154,10 @@ export default function Cart() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => navigate("/")}
+                onKeyDown={(e) => e.key === 'Enter' && navigate("/")}
+                role="button"
+                tabIndex={0}
+                aria-label="Go back to home"
                 style={{
                     position: 'fixed',
                     top: '90px',
@@ -181,7 +186,24 @@ export default function Cart() {
                     <p>Order Placed Successfully!</p>
                 </div>
             ) : data.length === 0 ? (
-                <div className='m-5 w-100 text-center fs-3 text-white pt-5'>The Cart is Empty!</div>
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className='m-5 w-100 text-center'
+                >
+                    <div style={{ maxWidth: '300px', margin: '0 auto' }}>
+                        <Lottie animationData={shoppingCartAnimation} loop={true} />
+                    </div>
+                    <h2 className={`mt-4 ${theme === 'dark' ? 'text-white' : 'text-dark'}`}>Your Cart is Empty!</h2>
+                    <p className={`mb-4 ${theme === 'dark' ? 'text-white-50' : 'text-muted'}`}>Looks like you haven't added anything to your cart yet.</p>
+                    <button
+                        className="btn btn-success px-4 py-2 fs-5 rounded-pill shadow-sm"
+                        onClick={() => navigate("/")}
+                    >
+                        Browse Menu
+                    </button>
+                </motion.div>
             ) : (
                 <div className='container m-auto mt-5 table-responsive' >
                     <table className='table table-hover'>
@@ -206,7 +228,13 @@ export default function Cart() {
                                     <td >{food.size}</td>
                                     <td >{food.price}</td>
                                     <td >
-                                        <button type="button" className="btn p-0" style={{ background: 'transparent', border: 'none' }} onClick={() => { dispatch({ type: "REMOVE", index: index }) }}>
+                                        <button
+                                            type="button"
+                                            className="btn p-0"
+                                            style={{ background: 'transparent', border: 'none' }}
+                                            onClick={() => { dispatch({ type: "REMOVE", index: index }) }}
+                                            aria-label={`Remove ${food.name} from cart`}
+                                        >
                                             <Lottie 
                                                 animationData={deleteAnimation} 
                                                 loop={true} 
@@ -258,11 +286,15 @@ export default function Cart() {
 
                                     <h3 className={`text-center mb-4 ${theme === 'dark' ? 'text-white' : 'text-dark'}`}>Select Payment Method</h3>
                                     
-                                    <div className="d-flex flex-column gap-3">
+                                    <div className="d-flex flex-column gap-3" role="radiogroup" aria-label="Select Payment Method">
                                         <motion.div 
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}
                                             onClick={() => setPaymentMethod('cod')}
+                                            onKeyDown={(e) => e.key === 'Enter' && setPaymentMethod('cod')}
+                                            role="radio"
+                                            aria-checked={paymentMethod === 'cod'}
+                                            tabIndex={0}
                                             className={`p-3 rounded-3 cursor-pointer d-flex align-items-center gap-3 ${paymentMethod === 'cod' ? 'bg-success text-white' : (theme === 'dark' ? 'bg-dark text-white' : 'bg-light text-dark')}`}
                                             style={{ border: paymentMethod === 'cod' ? '2px solid #fff' : '1px solid rgba(128,128,128,0.2)', cursor: 'pointer' }}
                                         >
@@ -279,6 +311,10 @@ export default function Cart() {
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}
                                             onClick={() => setPaymentMethod('card')}
+                                            onKeyDown={(e) => e.key === 'Enter' && setPaymentMethod('card')}
+                                            role="radio"
+                                            aria-checked={paymentMethod === 'card'}
+                                            tabIndex={0}
                                             className={`p-3 rounded-3 cursor-pointer d-flex align-items-center gap-3 ${paymentMethod === 'card' ? 'bg-primary text-white' : (theme === 'dark' ? 'bg-dark text-white' : 'bg-light text-dark')}`}
                                             style={{ border: paymentMethod === 'card' ? '2px solid #fff' : '1px solid rgba(128,128,128,0.2)', cursor: 'pointer' }}
                                         >
