@@ -51,7 +51,9 @@ if (require.main === module) {
         });
     }).catch(err => {
         console.error("Failed to connect to MongoDB:", err);
-        process.exit(1);
+        if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+            process.exit(1);
+        }
     });
 }
 
