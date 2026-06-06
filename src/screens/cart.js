@@ -48,7 +48,9 @@ const MockPaymentForm = ({ totalPrice, onSuccess, onCancel }) => {
                 style={{ background: theme === 'dark' ? '#111' : '#fff', maxWidth: '400px', width: '90%', border: theme === 'dark' ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)' }}
             >
                 <button 
+                    type="button"
                     onClick={onCancel} 
+                    aria-label="Close"
                     style={{ position: 'absolute', top: 15, right: 20, background: 'transparent', border: 'none', fontSize: '24px', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', zIndex: 10 }}
                 >
                     ✕
@@ -149,10 +151,11 @@ export default function Cart() {
 
     return (
         <div style={{ position: 'relative', minHeight: '100vh', paddingTop: '20px' }}>
-            <motion.div 
+            <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => navigate("/")}
+                aria-label="Go back"
                 style={{
                     position: 'fixed',
                     top: '90px',
@@ -173,7 +176,7 @@ export default function Cart() {
                 }}
             >
                 <BsArrowLeft size={24} />
-            </motion.div>
+            </motion.button>
 
             {showSuccess ? (
                 <div className='m-5 w-100 text-center fs-3 text-white'>
@@ -206,7 +209,13 @@ export default function Cart() {
                                     <td >{food.size}</td>
                                     <td >{food.price}</td>
                                     <td >
-                                        <button type="button" className="btn p-0" style={{ background: 'transparent', border: 'none' }} onClick={() => { dispatch({ type: "REMOVE", index: index }) }}>
+                                        <button
+                                            type="button"
+                                            className="btn p-0"
+                                            style={{ background: 'transparent', border: 'none' }}
+                                            onClick={() => { dispatch({ type: "REMOVE", index: index }) }}
+                                            aria-label={`Remove ${food.name} from cart`}
+                                        >
                                             <Lottie 
                                                 animationData={deleteAnimation} 
                                                 loop={true} 
@@ -250,21 +259,26 @@ export default function Cart() {
                                     }}
                                 >
                                     <button 
+                                        type="button"
                                         onClick={() => { setShowPaymentModal(false); setPaymentMethod(null); }} 
+                                        aria-label="Close"
                                         style={{ position: 'absolute', top: 15, right: 20, background: 'transparent', border: 'none', fontSize: '24px', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', zIndex: 1 }}
                                     >
                                         ✕
                                     </button>
 
-                                    <h3 className={`text-center mb-4 ${theme === 'dark' ? 'text-white' : 'text-dark'}`}>Select Payment Method</h3>
+                                    <h3 id="payment-method-label" className={`text-center mb-4 ${theme === 'dark' ? 'text-white' : 'text-dark'}`}>Select Payment Method</h3>
                                     
-                                    <div className="d-flex flex-column gap-3">
-                                        <motion.div 
+                                    <div className="d-flex flex-column gap-3" role="radiogroup" aria-labelledby="payment-method-label">
+                                        <motion.button
+                                            type="button"
+                                            role="radio"
+                                            aria-checked={paymentMethod === 'cod'}
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}
                                             onClick={() => setPaymentMethod('cod')}
-                                            className={`p-3 rounded-3 cursor-pointer d-flex align-items-center gap-3 ${paymentMethod === 'cod' ? 'bg-success text-white' : (theme === 'dark' ? 'bg-dark text-white' : 'bg-light text-dark')}`}
-                                            style={{ border: paymentMethod === 'cod' ? '2px solid #fff' : '1px solid rgba(128,128,128,0.2)', cursor: 'pointer' }}
+                                            className={`p-3 rounded-3 cursor-pointer d-flex align-items-center gap-3 w-100 text-start ${paymentMethod === 'cod' ? 'bg-success text-white' : (theme === 'dark' ? 'bg-dark text-white' : 'bg-light text-dark')}`}
+                                            style={{ border: paymentMethod === 'cod' ? '2px solid #fff' : '1px solid rgba(128,128,128,0.2)', cursor: 'pointer', background: 'none' }}
                                         >
                                             <div className="p-2 rounded-circle bg-white bg-opacity-10">
                                                 <BsHouseDoor size={24} />
@@ -273,14 +287,17 @@ export default function Cart() {
                                                 <div className="fw-bold fs-5">Cash on Delivery</div>
                                                 <small className="opacity-75">Pay at your doorstep</small>
                                             </div>
-                                        </motion.div>
+                                        </motion.button>
 
-                                        <motion.div 
+                                        <motion.button
+                                            type="button"
+                                            role="radio"
+                                            aria-checked={paymentMethod === 'card'}
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}
                                             onClick={() => setPaymentMethod('card')}
-                                            className={`p-3 rounded-3 cursor-pointer d-flex align-items-center gap-3 ${paymentMethod === 'card' ? 'bg-primary text-white' : (theme === 'dark' ? 'bg-dark text-white' : 'bg-light text-dark')}`}
-                                            style={{ border: paymentMethod === 'card' ? '2px solid #fff' : '1px solid rgba(128,128,128,0.2)', cursor: 'pointer' }}
+                                            className={`p-3 rounded-3 cursor-pointer d-flex align-items-center gap-3 w-100 text-start ${paymentMethod === 'card' ? 'bg-primary text-white' : (theme === 'dark' ? 'bg-dark text-white' : 'bg-light text-dark')}`}
+                                            style={{ border: paymentMethod === 'card' ? '2px solid #fff' : '1px solid rgba(128,128,128,0.2)', cursor: 'pointer', background: 'none' }}
                                         >
                                             <div className="p-2 rounded-circle bg-white bg-opacity-10">
                                                 <BsCreditCard size={24} />
@@ -289,7 +306,7 @@ export default function Cart() {
                                                 <div className="fw-bold fs-5">Credit/Debit Card</div>
                                                 <small className="opacity-75">Secure Online Payment</small>
                                             </div>
-                                        </motion.div>
+                                        </motion.button>
                                     </div>
 
                                     <div className="mt-4">
