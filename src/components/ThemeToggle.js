@@ -35,28 +35,45 @@ const ThemeToggle = () => {
   }, [theme]);
 
   return (
-    <div
-      style={{
-        cursor: 'pointer',
-        width: '50px',
-        height: '50px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: '50%',
-        backgroundColor: 'transparent',
-      }}
-      onClick={toggleTheme}
-      title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-    >
-      <Lottie
-        lottieRef={lottieRef}
-        animationData={darkModeAnimation}
-        loop={false}
-        autoplay={false}
-        style={{ width: '100%', height: '100%' }}
-      />
-    </div>
+    <>
+      <style>
+        {`
+          .theme-toggle-btn {
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+          }
+          .theme-toggle-btn:focus-visible {
+            outline: 2px solid #007bff;
+            background-color: rgba(0, 123, 255, 0.1);
+            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25);
+          }
+        `}
+      </style>
+      <button
+        type="button"
+        className="theme-toggle-btn"
+        onClick={toggleTheme}
+        aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+        title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+      >
+        <Lottie
+          lottieRef={lottieRef}
+          animationData={darkModeAnimation}
+          loop={false}
+          autoplay={false}
+          style={{ width: '100%', height: '100%' }}
+        />
+      </button>
+    </>
   );
 };
 
