@@ -16,7 +16,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Serve static files from uploads directory with absolute path (only in Node.js)
+// Serve static files from uploads directory with absolute path (Node.js only)
 const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 
 if (isNode) {
@@ -44,7 +44,7 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-// Connect to MongoDB and Redis then start server (only if running directly in Node)
+// Connect to MongoDB and Redis then start server (if running directly in Node)
 if (isNode && require.main === module) {
     mongoDB().then(() => {
         connectRedis(); // Connect to Redis in background
@@ -53,7 +53,9 @@ if (isNode && require.main === module) {
         });
     }).catch(err => {
         console.error("Failed to connect to MongoDB:", err);
-        if (process.exit) process.exit(1);
+        if (typeof process !== 'undefined' && process.exit) {
+            process.exit(1);
+        }
     });
 }
 
