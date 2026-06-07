@@ -1,14 +1,14 @@
 import 'dotenv/config';
-import { serve } from '@hono/node-server';
 import app from './api/index.js';
 
-const port = parseInt(process.env.PORT || '3001', 10);
+const port = process.env.PORT || 5000;
 
-console.log('Starting server on port', port);
+// Export the app for Cloudflare Workers
+export default app;
 
-serve({
-  fetch: app.fetch,
-  port,
-});
-
-console.log(`Server running at http://localhost:${port}`);
+// Only start the listener if running directly in Node
+if (typeof require !== 'undefined' && require.main === module) {
+    app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+    });
+}
