@@ -48,6 +48,7 @@ export default function Home() {
 
   // Performance Optimization: Deduplicate categories once when data changes
   const uniqueCategories = useMemo(() => {
+    if (!Array.isArray(foodCat)) return [];
     return foodCat.filter((cat, index, self) =>
       index === self.findIndex(c => c.CategoryName === cat.CategoryName)
     );
@@ -55,16 +56,18 @@ export default function Home() {
 
   // Performance Optimization: Calculate total pages based on memoized categories
   const totalPages = useMemo(() => {
-    return Math.ceil(uniqueCategories.length / itemsPerPage);
-  }, [uniqueCategories.length]);
+    return Math.ceil((uniqueCategories?.length || 0) / itemsPerPage);
+  }, [uniqueCategories?.length]);
 
   // Performance Optimization: Group and deduplicate food items in O(N) instead of O(N^2) nested filtering
   const groupedFoodItems = useMemo(() => {
     const grouped = new Map();
-    const lowercaseSearch = search.toLowerCase();
+    const lowercaseSearch = (search || '').toLowerCase();
+
+    if (!Array.isArray(foodItem)) return grouped;
 
     foodItem.forEach(item => {
-      if (item.name && item.name.toLowerCase().includes(lowercaseSearch)) {
+      if (item && item.name && item.name.toLowerCase().includes(lowercaseSearch)) {
         const catName = item.CategoryName;
         if (!grouped.has(catName)) {
           grouped.set(catName, {
