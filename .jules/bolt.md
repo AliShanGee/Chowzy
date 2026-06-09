@@ -1,0 +1,3 @@
+## 2025-05-15 - [Environment Compatibility vs. Native Dependencies]
+**Learning:** Native dependencies like `bcrypt` cause build failures in serverless environments (Cloudflare Workers/chowzy). Using `bcryptjs` provides cross-environment compatibility without sacrificing necessary functionality. Additionally, filesystem-dependent code (like `multer.diskStorage` and `fs` calls) must be guarded with environment checks to prevent runtime crashes during Worker bundling.
+**Action:** Always prefer pure-JS alternatives for cryptographic operations in this codebase and wrap filesystem/Node-specific logic in environment guards (e.g., `isNode`).

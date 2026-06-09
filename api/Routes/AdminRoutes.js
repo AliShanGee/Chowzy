@@ -11,19 +11,26 @@ const path = require('path');
 const fs = require('fs');
 const { client } = require('../redis');
 
-// Configure Multer storage
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadDir = path.join(__dirname, '..', 'uploads', 'reels');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+
+// Configure Multer storage with environment guards for Cloudflare Workers
+let storage;
+if (isNode) {
+    storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+            const uploadDir = path.join(__dirname, '..', 'uploads', 'reels');
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+            }
+            cb(null, uploadDir);
+        },
+        filename: function (req, file, cb) {
+            cb(null, Date.now() + '-' + file.originalname);
         }
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
+    });
+} else {
+    storage = multer.memoryStorage();
+}
 
 const upload = multer({ 
     storage: storage,
@@ -491,7 +498,7 @@ router.put('/reels/:id', upload.single('video'), async (req, res) => {
 router.delete('/reels/:id', async (req, res) => {
     try {
         const reel = await Reel.findById(req.params.id);
-        if (reel && reel.videoUrl && reel.videoUrl.startsWith('/uploads/')) {
+        if (isNode && reel && reel.videoUrl && reel.videoUrl.startsWith('/uploads/')) {
             const filePath = path.join(__dirname, '..', reel.videoUrl);
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
