@@ -1,39 +1,26 @@
-const express = require('express')
-const router = express.Router()
+const express = require('express');
+const router = express.Router();
+
 router.get('/foodData', async (req, res) => {
     try {
-        if (global.food_items && global.foodCategory) {
-            return res.send([global.food_items, global.foodCategory]);
-        }
-        
-        const mongoose = require('mongoose');
-        // Ensure connection if not available
-        if (mongoose.connection.readyState !== 1) {
-            if (!process.env.MONGODB_URI) {
-                return res.status(500).send("Database connection URI not found");
+        const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+        let foodData = [];
+        let categoryData = [];
+
+        if (isNode) {
+            const mongoose = require('mongoose');
+            if (mongoose.connection.readyState === 1) {
+                foodData = await mongoose.connection.db.collection("food_items").find({}).toArray();
+                categoryData = await mongoose.connection.db.collection("foodCategory").find({}).toArray();
             }
-            await mongoose.connect(process.env.MONGODB_URI, {
-                dbName: 'gofood',
-                maxPoolSize: 10,
-                minPoolSize: 2,
-                serverSelectionTimeoutMS: 5000,
-                socketTimeoutMS: 45000,
-            });
         }
-        const foodItemsCollection = mongoose.connection.db.collection("food_items");
-        const foodCategoryCollection = mongoose.connection.db.collection("foodCategory");
 
-        const foodItemsData = await foodItemsCollection.find({}).toArray();
-        const catData = await foodCategoryCollection.find({}).toArray();
-
-        // Update global cache
-        global.food_items = foodItemsData;
-        global.foodCategory = catData;
-
-        res.send([foodItemsData, catData]);
+        // Return whatever we have (might be empty in serverless if not connected properly)
+        res.send([foodData, categoryData]);
     } catch (error) {
         console.error(error.message);
-        res.send("Server Error")
+        res.status(500).send("Server Error");
     }
-})
+});
+
 module.exports = router;

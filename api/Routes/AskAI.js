@@ -3,11 +3,13 @@ const path = require('path');
 const { Annotation, END, START, StateGraph } = require('@langchain/langgraph');
 const FoodItem = require('../models/FoodItem');
 
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+if (isNode) {
+    require('dotenv').config({ path: path.join(__dirname, '../.env') });
+    require('dotenv').config();
+}
+
 const router = express.Router();
-
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
-require('dotenv').config();
-
 const SUPPORTED_INTENTS = [
   'greeting',
   'list_menu',
