@@ -48,5 +48,7 @@ mongoDB().then(() => {
     });
 }).catch(err => {
     console.error("Failed to connect to MongoDB:", err);
-    process.exit(1);
+    if (typeof process !== 'undefined' && process.exit) {
+        process.exit(1);
+    }
 });
