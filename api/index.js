@@ -16,13 +16,18 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Detect if we are in a Node.js environment
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+
 // Serve static files from uploads directory with absolute path
-const uploadsPath = path.resolve(__dirname, 'uploads');
-if (!fs.existsSync(uploadsPath)) {
-    fs.mkdirSync(uploadsPath, { recursive: true });
+if (isNode) {
+    const uploadsPath = path.resolve(__dirname, 'uploads');
+    if (!fs.existsSync(uploadsPath)) {
+        fs.mkdirSync(uploadsPath, { recursive: true });
+    }
+    app.use('/uploads', express.static(uploadsPath));
+    console.log(`Serving static files from: ${uploadsPath}`);
 }
-app.use('/uploads', express.static(uploadsPath));
-console.log(`Serving static files from: ${uploadsPath}`);
 
 // Routes
 app.use('/api', require('./Routes/CreateUser'));
