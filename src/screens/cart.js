@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Lottie from "lottie-react";
 import animationData from "../animations/Order success.json";
 import deleteAnimation from "../animations/Delete.json";
+import shoppingCartAnimation from "../animations/shopping cart.json";
 import { useCart, useDispatchCart } from '../components/ContextReducer.js';
 import { BsArrowLeft, BsCreditCard, BsHouseDoor } from 'react-icons/bs';
 import API_BASE_URL from '../config.js';
@@ -149,10 +150,11 @@ export default function Cart() {
 
     return (
         <div style={{ position: 'relative', minHeight: '100vh', paddingTop: '20px' }}>
-            <motion.div 
+            <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => navigate("/")}
+                aria-label="Go back to menu"
                 style={{
                     position: 'fixed',
                     top: '90px',
@@ -169,11 +171,12 @@ export default function Cart() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: theme === 'dark' ? 'white' : 'black',
-                    boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+                    boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+                    padding: 0
                 }}
             >
                 <BsArrowLeft size={24} />
-            </motion.div>
+            </motion.button>
 
             {showSuccess ? (
                 <div className='m-5 w-100 text-center fs-3 text-white'>
@@ -181,7 +184,20 @@ export default function Cart() {
                     <p>Order Placed Successfully!</p>
                 </div>
             ) : data.length === 0 ? (
-                <div className='m-5 w-100 text-center fs-3 text-white pt-5'>The Cart is Empty!</div>
+                <div className='m-5 w-100 text-center pt-5' style={{ color: theme === 'dark' ? '#fff' : '#333' }}>
+                    <div style={{ maxWidth: '400px', margin: 'auto' }}>
+                        <Lottie animationData={shoppingCartAnimation} style={{ height: 250 }} />
+                        <h2 className="fw-bold mt-4">Your Cart is Empty</h2>
+                        <p className="opacity-75 mb-4">Looks like you haven't added anything to your cart yet.</p>
+                        <button
+                            className="btn btn-success px-5 py-3 rounded-pill fw-bold"
+                            onClick={() => navigate("/")}
+                            aria-label="Browse Menu"
+                        >
+                            Browse Menu
+                        </button>
+                    </div>
+                </div>
             ) : (
                 <div className='container m-auto mt-5 table-responsive' >
                     <table className='table table-hover'>
@@ -206,7 +222,13 @@ export default function Cart() {
                                     <td >{food.size}</td>
                                     <td >{food.price}</td>
                                     <td >
-                                        <button type="button" className="btn p-0" style={{ background: 'transparent', border: 'none' }} onClick={() => { dispatch({ type: "REMOVE", index: index }) }}>
+                                        <button
+                                            type="button"
+                                            className="btn p-0"
+                                            style={{ background: 'transparent', border: 'none' }}
+                                            onClick={() => { dispatch({ type: "REMOVE", index: index }) }}
+                                            aria-label={`Remove ${food.name} from cart`}
+                                        >
                                             <Lottie 
                                                 animationData={deleteAnimation} 
                                                 loop={true} 
