@@ -5,3 +5,7 @@
 ## 2026-06-12 - [CI Failure: Native bcrypt in Cloudflare Workers]
 **Learning:** Cloudflare Workers (chowzy) build fails when native binaries like `bcrypt` are present in `package.json`, even if not directly used in the worker script. The project already uses `bcryptjs` for cross-environment compatibility.
 **Action:** Removed native `bcrypt` from all `package.json` files and ensured `bcryptjs` is the sole hashing dependency to satisfy CI constraints.
+
+## 2026-06-12 - [CI Failure: Node.js Globals in Cloudflare Workers]
+**Learning:** Cloudflare Workers environment (chowzy) fails build if Node.js-specific globals like `process.exit` or filesystem calls are hit during bundling or if top-level listeners start during import.
+**Action:** Guarded `process.exit` with `if (typeof process !== 'undefined' && process.exit)`, protected filesystem calls with environment checks, and wrapped server listeners/top-level executions in `if (require.main === module)` to prevent side-effects during bundling.
