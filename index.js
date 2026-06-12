@@ -1,14 +1,19 @@
 import 'dotenv/config';
-import { serve } from '@hono/node-server';
 import app from './api/index.js';
 
-const port = parseInt(process.env.PORT || '3001', 10);
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 
-console.log('Starting server on port', port);
+if (isNode) {
+  // Use a dynamic import or require-style check that won't break the build
+  const isMain = (process.argv[1] || '').match(/index\.(js|mjs)$/);
 
-serve({
-  fetch: app.fetch,
-  port,
-});
+  if (isMain) {
+    const port = parseInt(process.env.PORT || '3001', 10);
+    // Express app already handles listening if required, or we can use app.listen here
+    app.listen(port, () => {
+      console.log(`Server running at http://localhost:${port}`);
+    });
+  }
+}
 
-console.log(`Server running at http://localhost:${port}`);
+export default app;
