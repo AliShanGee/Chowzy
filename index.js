@@ -2,13 +2,19 @@ import 'dotenv/config';
 import { serve } from '@hono/node-server';
 import app from './api/index.js';
 
-const port = parseInt(process.env.PORT || '3001', 10);
+const port = parseInt((typeof process !== 'undefined' && process.env && process.env.PORT) || '3001', 10);
 
-console.log('Starting server on port', port);
+const isMain = typeof process !== 'undefined' && (process.argv[1] || '').match(/index\.(js|mjs)$/);
 
-serve({
-  fetch: app.fetch,
-  port,
-});
+if (isMain) {
+  console.log('Starting server on port', port);
 
-console.log(`Server running at http://localhost:${port}`);
+  serve({
+    fetch: app.fetch,
+    port,
+  });
+
+  console.log(`Server running at http://localhost:${port}`);
+}
+
+export default app;
