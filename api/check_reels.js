@@ -16,17 +16,11 @@ async function checkReels() {
         console.log("Connected to MongoDB");
         const reels = await Reel.find({});
         console.log("Reels in database:", JSON.stringify(reels, null, 2));
-        if (typeof process !== 'undefined' && process.exit) {
-            process.exit(0);
-        }
+        process.exit(0);
     } catch (error) {
         console.error("Error:", error);
-        if (typeof process !== 'undefined' && process.exit) {
-            process.exit(1);
-        }
+        process.exit(1);
     }
 }
 
-if (require.main === module) {
-    checkReels();
-}
+checkReels();
