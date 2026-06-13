@@ -1,14 +1,10 @@
-import 'dotenv/config';
-import { serve } from '@hono/node-server';
-import app from './api/index.js';
+const app = require('./api/index.js');
 
-const port = parseInt(process.env.PORT || '3001', 10);
+module.exports = app;
 
-console.log('Starting server on port', port);
-
-serve({
-  fetch: app.fetch,
-  port,
-});
-
-console.log(`Server running at http://localhost:${port}`);
+if (require.main === module) {
+    const port = process.env.PORT || 5000;
+    app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+    });
+}
