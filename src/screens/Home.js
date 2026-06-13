@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -18,6 +18,47 @@ export default function Home() {
   const [foodItem,setFoodItem] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
+
+  // BOLT: Memoize processed categories and items to avoid O(N*C) calculations on every render
+  const processedData = useMemo(() => {
+    if (!foodCat || foodCat.length === 0) return { uniqueCategories: [], groupedItems: {}, totalPages: 0 };
+
+    // O(C) deduplication using Set
+    const seen = new Set();
+    const uniqueCategories = foodCat.filter(cat => {
+      if (seen.has(cat.CategoryName)) return false;
+      seen.add(cat.CategoryName);
+      return true;
+    });
+
+    const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
+
+    // O(N) grouping and search filtering
+    const groupedItems = {};
+    const lowerSearch = search.toLowerCase();
+
+    foodItem.forEach(item => {
+      if (!item.name || !item.CategoryName) return;
+      if (!item.name.toLowerCase().includes(lowerSearch)) return;
+
+      if (!groupedItems[item.CategoryName]) {
+        groupedItems[item.CategoryName] = {
+          items: [],
+          names: new Set()
+        };
+      }
+
+      // O(1) deduplication by name using Set
+      if (!groupedItems[item.CategoryName].names.has(item.name)) {
+        groupedItems[item.CategoryName].items.push(item);
+        groupedItems[item.CategoryName].names.add(item.name);
+      }
+    });
+
+    return { uniqueCategories, groupedItems, totalPages };
+  }, [foodCat, foodItem, search]);
+
+  const { uniqueCategories, groupedItems, totalPages } = processedData;
 
   const loadData = async ()=>{
     try {
@@ -89,36 +130,31 @@ export default function Home() {
           </div>
         {
           (() => {
-            if (foodCat.length === 0) return "";
+            if (uniqueCategories.length === 0) {
+              return "";
+            }
             
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
-            const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-            return (
+            const result = (
               <>
                 {currentCategories.map((data) => {
+                  const categoryData = groupedItems[data.CategoryName];
+                  const itemsToRender = categoryData ? categoryData.items : [];
+
                   return (
                     <div className='row mb-3' key={data._id}>
                       <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
-                    </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
+                      {itemsToRender.length > 0
+                        ? itemsToRender.map(filterItems => (
+                          <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                            <Card foodItem={filterItems} options={filterItems.options[0]} />
+                          </div>
+                        ))
+                        : <div>No Such Data Found</div>}
                     </div>
                   );
                 })}
@@ -131,6 +167,7 @@ export default function Home() {
                 )}
               </>
             );
+            return result;
           })()
         }
         </div>
