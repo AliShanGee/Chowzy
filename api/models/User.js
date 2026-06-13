@@ -11,7 +11,8 @@ const UserSchema = new Schema({
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        index: true // BOLT: Index for faster authentication and profile lookups
     },
     phone: {
         type: String,

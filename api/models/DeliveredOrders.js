@@ -4,7 +4,8 @@ const { Schema } = mongoose;
 const DeliveredOrderSchema = new Schema({
     email: {
         type: String,
-        required: true
+        required: true,
+        index: true // BOLT: Index for faster user order history retrieval
     },
     order_data: {
         type: Array,
