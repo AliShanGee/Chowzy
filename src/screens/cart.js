@@ -50,7 +50,6 @@ const MockPaymentForm = ({ totalPrice, onSuccess, onCancel }) => {
             >
                 <button 
                     onClick={onCancel} 
-                    aria-label="Close payment form"
                     style={{ position: 'absolute', top: 15, right: 20, background: 'transparent', border: 'none', fontSize: '24px', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', zIndex: 10 }}
                 >
                     ✕

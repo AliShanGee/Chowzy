@@ -8,8 +8,6 @@ const { connectRedis } = require('./redis');
 const app = express();
 const port = process.env.PORT || 5000;
 
-module.exports = app;
-
 // Middleware
 app.use(express.json());
 app.use(cors({
