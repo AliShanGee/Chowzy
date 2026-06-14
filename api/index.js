@@ -16,12 +16,17 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Environment detection
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+
 // Serve static files from uploads directory with absolute path
 const uploadsPath = path.resolve(__dirname, 'uploads');
-if (!fs.existsSync(uploadsPath)) {
-    fs.mkdirSync(uploadsPath, { recursive: true });
+if (isNode) {
+    if (!fs.existsSync(uploadsPath)) {
+        fs.mkdirSync(uploadsPath, { recursive: true });
+    }
+    app.use('/uploads', express.static(uploadsPath));
 }
-app.use('/uploads', express.static(uploadsPath));
 console.log(`Serving static files from: ${uploadsPath}`);
 
 // Routes
