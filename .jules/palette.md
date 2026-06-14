@@ -1,0 +1,3 @@
+## 2025-05-14 - [Accessibility and Cross-Environment Reliability]
+**Learning:** Transitioning interactive components from generic `div` elements to semantic `<button>` elements with `aria-label` and `aria-pressed` significantly improves accessibility. Additionally, guarding Node.js-specific global calls (like `process.exit`) and ensuring cross-platform dependency compatibility (e.g., `bcryptjs` over `bcrypt`) is critical for reliability in serverless environments like Cloudflare Workers.
+**Action:** Always prioritize semantic HTML for interactions and implement environment guards for system-level calls in full-stack projects targeting edge or serverless runtimes.
