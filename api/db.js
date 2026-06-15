@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
-require("dotenv").config();
+if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+  require("dotenv").config();
+}
 
 // It's a good practice to hide your credentials, you can use environment variables for this.
 const mongoURL = process.env.MONGODB_URI;

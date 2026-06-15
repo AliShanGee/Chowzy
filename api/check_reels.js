@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
-require('dotenv').config();
+if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+    require('dotenv').config();
+}
 
 const ReelSchema = new mongoose.Schema({
     videoUrl: String,
