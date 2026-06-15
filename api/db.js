@@ -65,8 +65,10 @@ const mongoDB = async () => {
       );
     }
     console.error("Full error details:", error);
-    // Exit process with failure
-    process.exit(1);
+    // Exit process with failure (guarded for non-Node environments)
+    if (typeof process !== 'undefined' && process.exit) {
+      process.exit(1);
+    }
   }
 };
 
