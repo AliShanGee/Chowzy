@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
-require('dotenv').config();
+if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+    require('dotenv').config();
+}
 
 const ReelSchema = new mongoose.Schema({
     videoUrl: String,
@@ -16,11 +18,17 @@ async function checkReels() {
         console.log("Connected to MongoDB");
         const reels = await Reel.find({});
         console.log("Reels in database:", JSON.stringify(reels, null, 2));
-        process.exit(0);
+        if (typeof process !== 'undefined' && process.exit) {
+            process.exit(0);
+        }
     } catch (error) {
         console.error("Error:", error);
-        process.exit(1);
+        if (typeof process !== 'undefined' && process.exit) {
+            process.exit(1);
+        }
     }
 }
 
-checkReels();
+if (require.main === module) {
+    checkReels();
+}

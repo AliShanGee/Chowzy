@@ -5,8 +5,11 @@ const FoodItem = require('../models/FoodItem');
 
 const router = express.Router();
 
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
-require('dotenv').config();
+const isNodeEnv = typeof process !== 'undefined' && process.versions && process.versions.node;
+if (isNodeEnv) {
+  require('dotenv').config({ path: path.join(__dirname, '../.env') });
+  require('dotenv').config();
+}
 
 const SUPPORTED_INTENTS = [
   'greeting',
