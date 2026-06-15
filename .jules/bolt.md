@@ -7,7 +7,3 @@
 ## 2025-05-15 - Card.js Redundant Re-renders
 **Learning:** High-frequency state updates in parent components (like search in Home.js) trigger re-renders of all child components (Card.js), even if their props remain unchanged.
 **Action:** Wrap leaf components like `Card.js` in `React.memo` to prevent unnecessary re-renders and improve interaction responsiveness.
-
-## 2025-05-15 - Missing Database Indexes
-**Learning:** Frequent queries on non-indexed fields (like `email` in `DeliveredOrders`) lead to full collection scans, which degrade performance linearly as the database grows.
-**Action:** Ensure frequently queried fields have appropriate indexes at the schema level.
