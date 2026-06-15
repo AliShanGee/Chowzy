@@ -1,5 +1,8 @@
 const mongoose = require("mongoose");
-require("dotenv").config();
+// Guard dotenv for Node.js environments only
+if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+  require("dotenv").config();
+}
 
 // It's a good practice to hide your credentials, you can use environment variables for this.
 const mongoURL = process.env.MONGODB_URI;
@@ -65,8 +68,10 @@ const mongoDB = async () => {
       );
     }
     console.error("Full error details:", error);
-    // Exit process with failure
-    process.exit(1);
+    // Exit process with failure (guarded for non-Node environments)
+    if (typeof process !== 'undefined' && process.exit) {
+      process.exit(1);
+    }
   }
 };
 
