@@ -38,6 +38,7 @@ const ThemeToggle = () => {
     <button
       type="button"
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+      className="focus-ring"
       style={{
         cursor: 'pointer',
         width: '50px',
@@ -53,7 +54,6 @@ const ThemeToggle = () => {
       }}
       onClick={toggleTheme}
       title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-      className="focus-ring"
     >
       <Lottie
         lottieRef={lottieRef}
