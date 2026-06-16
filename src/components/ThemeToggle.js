@@ -53,7 +53,7 @@ const ThemeToggle = () => {
       }}
       onClick={toggleTheme}
       title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-      className="focus-ring shadow-none"
+      className="focus-ring"
     >
       <Lottie
         lottieRef={lottieRef}

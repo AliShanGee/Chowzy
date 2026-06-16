@@ -145,7 +145,7 @@ function NavScrollExample() {
                 <button
                   type="button"
                   aria-label="Toggle chatbot assistant"
-                  className="focus-ring shadow-none"
+                  className="focus-ring"
                   style={{
                     cursor: 'pointer',
                     width: "100px",
