@@ -17,9 +17,8 @@ app.use(cors({
 }));
 
 // Serve static files from uploads directory with absolute path
-const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 const uploadsPath = path.resolve(__dirname, 'uploads');
-if (isNode) {
+if (typeof process !== 'undefined' && process.versions && process.versions.node) {
     if (!fs.existsSync(uploadsPath)) {
         fs.mkdirSync(uploadsPath, { recursive: true });
     }
@@ -44,14 +43,18 @@ app.get('/', (req, res) => {
 });
 
 // Connect to MongoDB and Redis then start server
-mongoDB().then(() => {
-    connectRedis(); // Connect to Redis in background
-    app.listen(port, () => {
-        console.log(`Server running on port ${port}`);
+if (require.main === module) {
+    mongoDB().then(() => {
+        connectRedis(); // Connect to Redis in background
+        app.listen(port, () => {
+            console.log(`Server running on port ${port}`);
+        });
+    }).catch(err => {
+        console.error("Failed to connect to MongoDB:", err);
+        if (typeof process !== 'undefined' && process.exit) {
+            process.exit(1);
+        }
     });
-}).catch(err => {
-    console.error("Failed to connect to MongoDB:", err);
-    if (typeof process !== 'undefined' && process.exit) {
-        process.exit(1);
-    }
-});
+}
+
+module.exports = app;
