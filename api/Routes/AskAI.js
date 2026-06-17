@@ -30,9 +30,9 @@ const SUPPORTED_INTENTS = [
   'out_of_scope',
 ];
 
-const ZAI_BASE_URL = process.env.ZAI_BASE_URL || 'https://api.z.ai/api/paas/v4';
+const ZAI_BASE_URL = (isNode && process.env.ZAI_BASE_URL) || 'https://api.z.ai/api/paas/v4';
 const MODEL_CANDIDATES = [
-  process.env.ZAI_MODEL,
+  (isNode && process.env.ZAI_MODEL),
   'glm-5.1',
   'glm-4.6',
 ].filter(Boolean);
@@ -118,7 +118,8 @@ function formatSeconds(ms) {
 }
 
 async function invokeZaiChat(messages, options = {}) {
-  if (!process.env.ZAI_API_KEY) {
+  const zaiApiKey = isNode ? process.env.ZAI_API_KEY : null;
+  if (!zaiApiKey) {
     return null;
   }
 
@@ -142,7 +143,7 @@ async function invokeZaiChat(messages, options = {}) {
       const response = await fetch(`${ZAI_BASE_URL.replace(/\/$/, '')}/chat/completions`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${process.env.ZAI_API_KEY}`,
+          Authorization: `Bearer ${zaiApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
