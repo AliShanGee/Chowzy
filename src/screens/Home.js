@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -18,6 +18,43 @@ export default function Home() {
   const [foodItem,setFoodItem] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
+
+  // Memoize unique categories to O(C) complexity, avoiding repeated findIndex (O(C^2))
+  const uniqueCategories = useMemo(() => {
+    const categories = new Set();
+    const unique = [];
+    if (!Array.isArray(foodCat)) return [];
+    for (const cat of foodCat) {
+      if (cat.CategoryName && !categories.has(cat.CategoryName)) {
+        categories.add(cat.CategoryName);
+        unique.push(cat);
+      }
+    }
+    return unique;
+  }, [foodCat]);
+
+  // Pre-group food items by category and deduplicate by name in O(N) complexity.
+  // This moves expensive data processing out of the search-driven render path.
+  const groupedFoodItems = useMemo(() => {
+    const groups = {};
+    if (!Array.isArray(foodItem)) return {};
+    for (const item of foodItem) {
+      if (!item.name || !item.CategoryName) continue;
+      if (!groups[item.CategoryName]) {
+        groups[item.CategoryName] = [];
+      }
+      const group = groups[item.CategoryName];
+      if (!group.some(i => i.name === item.name)) {
+        // Optimization: Pre-calculate lowercase name once during grouping
+        // to avoid redundant O(N) lowercase operations during search.
+        group.push({
+          ...item,
+          _lowerName: item.name.toLowerCase()
+        });
+      }
+    }
+    return groups;
+  }, [foodItem]);
 
   const loadData = async ()=>{
     try {
@@ -89,36 +126,37 @@ export default function Home() {
           </div>
         {
           (() => {
-            if (foodCat.length === 0) return "";
+            if (uniqueCategories.length === 0) return "";
             
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
             const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+            // Normalize search once per render
+            const lowerSearch = search.toLowerCase();
 
             return (
               <>
                 {currentCategories.map((data) => {
+                  // Optimization: Perform O(K) filtering where K is the number of items in this category,
+                  // instead of scanning the entire foodItem array (O(N)) for every category.
+                  const categoryItems = (groupedFoodItems[data.CategoryName] || [])
+                    .filter(item => item._lowerName.includes(lowerSearch));
+
                   return (
                     <div className='row mb-3' key={data._id}>
                       <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
+              {categoryItems.length > 0
+                ? categoryItems.map(filterItems => {
                   return (
                     <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
                       <Card foodItem={filterItems} options={filterItems.options[0]} />
                     </div>
                   )
                 })
-              : <div>No Such Data Found</div>}
+              : <div className="ms-3 text-white-50">No Such Data Found</div>}
                     </div>
                   );
                 })}
