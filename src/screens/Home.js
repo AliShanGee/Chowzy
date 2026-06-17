@@ -45,7 +45,12 @@ export default function Home() {
       }
       const group = groups[item.CategoryName];
       if (!group.some(i => i.name === item.name)) {
-        group.push(item);
+        // Optimization: Pre-calculate lowercase name once during grouping
+        // to avoid redundant O(N) lowercase operations during search.
+        group.push({
+          ...item,
+          _lowerName: item.name.toLowerCase()
+        });
       }
     }
     return groups;
@@ -132,9 +137,10 @@ export default function Home() {
             return (
               <>
                 {currentCategories.map((data) => {
-                  // O(K) filtering where K is items per category, instead of O(N) per category
+                  // Optimization: Perform O(K) filtering where K is the number of items in this category,
+                  // instead of scanning the entire foodItem array (O(N)) for every category.
                   const categoryItems = (groupedFoodItems[data.CategoryName] || [])
-                    .filter(item => item.name.toLowerCase().includes(lowerSearch));
+                    .filter(item => item._lowerName.includes(lowerSearch));
 
                   return (
                     <div className='row mb-3' key={data._id}>

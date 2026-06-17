@@ -5,8 +5,16 @@ const FoodItem = require('../models/FoodItem');
 
 const router = express.Router();
 
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
-require('dotenv').config();
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+
+if (isNode) {
+    try {
+        require('dotenv').config({ path: path.join(__dirname, '../.env') });
+        require('dotenv').config();
+    } catch (err) {
+        // Silenced dotenv error
+    }
+}
 
 const SUPPORTED_INTENTS = [
   'greeting',
@@ -454,7 +462,8 @@ function buildTemporaryAiUnavailableReply(state, error) {
 async function classifyQuery(state) {
   const fallback = keywordFallbackClassification(state.prompt);
 
-  if (!process.env.ZAI_API_KEY) {
+  const zaiApiKey = isNode ? process.env.ZAI_API_KEY : null;
+  if (!zaiApiKey) {
     return { classification: fallback };
   }
 
@@ -607,7 +616,8 @@ function buildGroundedReply(state) {
 async function writeReply(state) {
   const deterministicReply = buildGroundedReply(state);
 
-  if (!process.env.ZAI_API_KEY) {
+  const zaiApiKey = isNode ? process.env.ZAI_API_KEY : null;
+  if (!zaiApiKey) {
     return { response: deterministicReply };
   }
 

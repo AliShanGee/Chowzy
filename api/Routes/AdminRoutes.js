@@ -447,7 +447,7 @@ router.post('/reels', upload.single('video'), async (req, res) => {
         const savedItem = await newItem.save();
         
         // Invalidate Redis cache
-        if (client.isOpen) {
+        if (client?.isOpen) {
             try {
                 await Promise.race([
                     client.del('all_reels'),
@@ -473,7 +473,7 @@ router.put('/reels/:id', upload.single('video'), async (req, res) => {
         const updatedItem = await Reel.findByIdAndUpdate(req.params.id, updateData, { new: true });
         
         // Invalidate Redis cache
-        if (client.isOpen) {
+        if (client?.isOpen) {
             try {
                 await Promise.race([
                     client.del('all_reels'),
@@ -502,7 +502,7 @@ router.delete('/reels/:id', async (req, res) => {
         await Reel.findByIdAndDelete(req.params.id);
         
         // Invalidate Redis cache
-        if (client.isOpen) {
+        if (client?.isOpen) {
             try {
                 await Promise.race([
                     client.del('all_reels'),

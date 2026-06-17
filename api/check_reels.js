@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-require('dotenv').config();
+
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 
 const ReelSchema = new mongoose.Schema({
     videoUrl: String,
@@ -12,7 +13,18 @@ const Reel = mongoose.model('Reel', ReelSchema);
 
 async function checkReels() {
     try {
-        await mongoose.connect(process.env.MONGODB_URI, { dbName: 'gofood' });
+        if (isNode) {
+            try {
+                require('dotenv').config();
+            } catch (err) {
+                // Silenced dotenv error
+            }
+        }
+        const mongoUri = isNode ? process.env.MONGODB_URI : null;
+        if (!mongoUri) {
+            throw new Error('MONGODB_URI is not defined');
+        }
+        await mongoose.connect(mongoUri, { dbName: 'gofood' });
         console.log("Connected to MongoDB");
         const reels = await Reel.find({});
         console.log("Reels in database:", JSON.stringify(reels, null, 2));
