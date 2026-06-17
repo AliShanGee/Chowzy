@@ -11,8 +11,10 @@ const path = require('path');
 const fs = require('fs');
 const { client } = require('../redis');
 
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+
 // Configure Multer storage
-const storage = multer.diskStorage({
+const storage = isNode ? multer.diskStorage({
     destination: function (req, file, cb) {
         const uploadDir = path.join(__dirname, '..', 'uploads', 'reels');
         if (!fs.existsSync(uploadDir)) {
@@ -491,7 +493,7 @@ router.put('/reels/:id', upload.single('video'), async (req, res) => {
 router.delete('/reels/:id', async (req, res) => {
     try {
         const reel = await Reel.findById(req.params.id);
-        if (reel && reel.videoUrl && reel.videoUrl.startsWith('/uploads/')) {
+        if (isNode && reel && reel.videoUrl && reel.videoUrl.startsWith('/uploads/')) {
             const filePath = path.join(__dirname, '..', reel.videoUrl);
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
