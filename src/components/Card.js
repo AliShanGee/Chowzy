@@ -11,9 +11,9 @@ export default function Card(props) {
     let dispatch = useDispatchCart();
     const { theme } = useTheme();
     const [qty, setQty] = useState(1);
-    const [size, setSize] = useState("");
+    // Directly initialize size from options to prevent double render on mount
+    const [size, setSize] = useState(props.options ? Object.keys(props.options)[0] : "");
     const [expanded, setExpanded] = useState(false);
-    const priceRef = useRef();
 
     // Tilt Effect Setup
     const x = useMotionValue(0);
@@ -71,12 +71,6 @@ export default function Card(props) {
     };
 
     let finalPrice = qty * parseInt(options[size]);
-
-    useEffect(() => {
-        if (priceRef.current) {
-            setSize(priceRef.current.value);
-        }
-    }, []);
 
     // Theme-based variables
     const isDark = theme === 'dark';
@@ -219,7 +213,7 @@ export default function Card(props) {
                                     <select 
                                         className="p-1 bg-success text-white rounded-pill border-0 px-3 shadow-sm" 
                                         style={{ outline: "none", cursor: "pointer", fontSize: "0.85rem", appearance: "none" }}
-                                        ref={priceRef} 
+                                        value={size}
                                         onChange={(e) => setSize(e.target.value)}
                                     >
                                         {priceOptions.map((data) => (
