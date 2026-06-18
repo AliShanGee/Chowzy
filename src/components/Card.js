@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import BootstrapCard from "react-bootstrap/Card";
 import { useDispatchCart } from "./ContextReducer";
+import { Store } from 'react-notifications-component';
 import IconSlideButton from "./IconSlideButton";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useTheme } from "next-themes";
@@ -67,6 +68,18 @@ export default function Card(props) {
             qty: qty,
             size: size,
             img: props.foodItem.img
+        });
+
+        Store.addNotification({
+            title: "Success! 🛒",
+            message: `${props.foodItem.name} added to cart`,
+            type: "success",
+            insert: "top",
+            container: "top-right",
+            dismiss: {
+                duration: 2000,
+                onScreen: true
+            }
         });
     };
 
