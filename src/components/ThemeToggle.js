@@ -35,7 +35,9 @@ const ThemeToggle = () => {
   }, [theme]);
 
   return (
-    <div
+    <button
+      type="button"
+      className="btn p-0 border-0 focus-ring"
       style={{
         cursor: 'pointer',
         width: '50px',
@@ -47,6 +49,7 @@ const ThemeToggle = () => {
         backgroundColor: 'transparent',
       }}
       onClick={toggleTheme}
+      aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
       title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
     >
       <Lottie
@@ -56,7 +59,7 @@ const ThemeToggle = () => {
         autoplay={false}
         style={{ width: '100%', height: '100%' }}
       />
-    </div>
+    </button>
   );
 };
 

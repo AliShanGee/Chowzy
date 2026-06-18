@@ -206,7 +206,13 @@ export default function Cart() {
                                     <td >{food.size}</td>
                                     <td >{food.price}</td>
                                     <td >
-                                        <button type="button" className="btn p-0" style={{ background: 'transparent', border: 'none' }} onClick={() => { dispatch({ type: "REMOVE", index: index }) }}>
+                                        <button
+                                            type="button"
+                                            className="btn p-0"
+                                            style={{ background: 'transparent', border: 'none' }}
+                                            onClick={() => { dispatch({ type: "REMOVE", index: index }) }}
+                                            aria-label={`Remove ${food.name} from cart`}
+                                        >
                                             <Lottie 
                                                 animationData={deleteAnimation} 
                                                 loop={true} 
