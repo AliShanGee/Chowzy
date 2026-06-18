@@ -62,7 +62,7 @@ export default function Home() {
     if (!Array.isArray(foodItem)) return {};
 
     const groups = {};
-    const seenItems = new Set();
+    const seenItemsByCategory = {}; // Store seen items per category
     const searchLower = search.toLowerCase();
 
     foodItem.forEach(item => {
@@ -71,9 +71,13 @@ export default function Home() {
       // Filter by search
       if (searchLower && !item.name.toLowerCase().includes(searchLower)) return;
 
-      // Deduplicate by name
-      if (seenItems.has(item.name)) return;
-      seenItems.add(item.name);
+      if (!seenItemsByCategory[item.CategoryName]) {
+        seenItemsByCategory[item.CategoryName] = new Set();
+      }
+
+      // Deduplicate by name per category
+      if (seenItemsByCategory[item.CategoryName].has(item.name)) return;
+      seenItemsByCategory[item.CategoryName].add(item.name);
 
       if (!groups[item.CategoryName]) {
         groups[item.CategoryName] = [];
