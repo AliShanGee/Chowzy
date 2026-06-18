@@ -1,0 +1,3 @@
+## 2025-05-15 - [O(N) Data Grouping and CI/Worker Compatibility]
+**Learning:** High-performance React applications require O(N) data structures (like Maps) for heavy rendering logic. In Cloudflare Workers environments, native binaries like `bcrypt` must be replaced with pure-JS alternatives like `bcryptjs`. Furthermore, surgical edits to `package-lock.json` (removing `bin` keys for `bcryptjs`) are necessary to prevent build failures in these restricted environments.
+**Action:** Use `useMemo` with `Map` for efficient grouping and deduplication. Always favor `bcryptjs` over `bcrypt` for cross-platform and worker compatibility, and perform targeted lockfile cleanups to ensure CI stability without introducing massive review noise.
