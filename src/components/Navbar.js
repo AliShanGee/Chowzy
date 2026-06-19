@@ -145,7 +145,7 @@ function NavScrollExample() {
                 <button
                   type="button"
                   className="btn p-0 border-0 focus-ring"
-                  style={{ width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px", backgroundColor: 'transparent', boxShadow: 'none' }}
+                  style={{ width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px", backgroundColor: 'transparent' }}
                   onClick={toggleChatbot}
                   aria-label="Toggle chatbot"
                   title="Toggle chatbot"

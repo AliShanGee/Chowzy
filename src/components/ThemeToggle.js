@@ -45,8 +45,7 @@ const ThemeToggle = () => {
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: '50%',
-        backgroundColor: 'transparent',
-        boxShadow: 'none'
+        backgroundColor: 'transparent'
       }}
       onClick={toggleTheme}
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
