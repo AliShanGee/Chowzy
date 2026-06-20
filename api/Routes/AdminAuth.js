@@ -4,7 +4,7 @@ const Admin = require('../models/Admin');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const jwtSecret = process.env.JWT_SECRET || 'fallback_secret'; // Use environment variable
+const jwtSecret = (typeof process !== 'undefined' && process.env && process.env.JWT_SECRET) || 'fallback_secret'; // Use environment variable
 
 router.post(
   "/admin/login",

@@ -115,7 +115,7 @@ function NavScrollExample() {
               navbarScroll
             >
               {(localStorage.getItem("authToken") && location.pathname !== '/orderhistory') ?
-                <Nav.Link as={Link} to="/orderhistory" className="d-flex align-items-center" style={{ textDecoration: 'none' }}>
+                <Nav.Link as={Link} to="/orderhistory" className="d-flex align-items-center" style={{ textDecoration: 'none' }} aria-label="Order History">
                   <div style={{ width: "40px", height: "40px" }}>
                     <Lottie
                       animationData={historyAnimation}
@@ -142,13 +142,30 @@ function NavScrollExample() {
               :
               <div className='d-flex align-items-center'>
                 <ThemeToggle />
-                <div style={{ cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px" }} onClick={toggleChatbot}>
+                <button
+                  type="button"
+                  className="focus-ring"
+                  style={{
+                    cursor: 'pointer',
+                    width: "100px",
+                    height: "58px",
+                    overflow: "hidden",
+                    display: "flex",
+                    alignItems: "center",
+                    marginRight: "10px",
+                    background: 'transparent',
+                    border: 'none',
+                    padding: 0
+                  }}
+                  onClick={toggleChatbot}
+                  aria-label="Toggle Chatbot"
+                >
                   <Lottie
                     animationData={helloChatBotAnimation}
                     loop={true}
                     autoplay={true}
                   />
-                </div>
+                </button>
                 <Link className="btn bg-white text-success mx-2 d-flex align-items-center" to="/cart" style={{ textDecoration: 'none' }}>
                   <div style={{ width: "30px", height: "30px" }}>
                     <Lottie
