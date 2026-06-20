@@ -3,7 +3,7 @@ import Lottie from "lottie-react";
 import animationData from "../animations/Order success.json";
 import deleteAnimation from "../animations/Delete.json";
 import { useCart, useDispatchCart } from '../components/ContextReducer.js';
-import { BsArrowLeft, BsCreditCard, BsHouseDoor } from 'react-icons/bs';
+import { BsArrowLeft, BsCreditCard, BsHouseDoor, BsCart4 } from 'react-icons/bs';
 import API_BASE_URL from '../config.js';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -181,7 +181,30 @@ export default function Cart() {
                     <p>Order Placed Successfully!</p>
                 </div>
             ) : data.length === 0 ? (
-                <div className='m-5 w-100 text-center fs-3 text-white pt-5'>The Cart is Empty!</div>
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className='container m-auto mt-5 text-center'
+                >
+                    <div className="p-5 rounded-4" style={{
+                        background: 'rgba(255, 255, 255, 0.03)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+                    }}>
+                        <BsCart4 size={80} className="mb-4" style={{ color: 'rgba(255, 255, 255, 0.2)' }} aria-hidden="true" />
+                        <h2 className='text-white fw-bold mb-3'>Your cart is empty</h2>
+                        <p className='text-white-50 mb-4 fs-5'>Discover something delicious and fill it up!</p>
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className='btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow-sm'
+                            onClick={() => navigate("/")}
+                        >
+                            Explore Menu
+                        </motion.button>
+                    </div>
+                </motion.div>
             ) : (
                 <div className='container m-auto mt-5 table-responsive' >
                     <table className='table table-hover'>
