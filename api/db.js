@@ -2,11 +2,15 @@ const mongoose = require("mongoose");
 const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 
 if (isNode) {
-  require("dotenv").config();
+  try {
+    require("dotenv").config();
+  } catch (e) {
+    // Silence error if dotenv is missing in build environment
+  }
 }
 
 // It's a good practice to hide your credentials, you can use environment variables for this.
-const mongoURL = process.env.MONGODB_URI;
+const mongoURL = (typeof process !== 'undefined' && process.env.MONGODB_URI) || '';
 
 const mongoDB = async () => {
   if (!mongoURL) {
@@ -70,7 +74,7 @@ const mongoDB = async () => {
     }
     console.error("Full error details:", error);
     // Exit process with failure
-    if (isNode && process.exit) {
+    if (isNode && typeof process !== 'undefined' && process.exit) {
       process.exit(1);
     }
   }

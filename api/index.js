@@ -1,14 +1,12 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
 const mongoDB = require('./db');
 
 const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 const { connectRedis } = require('./redis');
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = (isNode && process.env && process.env.PORT) || 5000;
 
 // Middleware
 app.use(express.json());
@@ -20,6 +18,8 @@ app.use(cors({
 
 // Serve static files from uploads directory with absolute path
 if (isNode) {
+    const path = require('path');
+    const fs = require('fs');
     const uploadsPath = path.resolve(__dirname, 'uploads');
     if (!fs.existsSync(uploadsPath)) {
         fs.mkdirSync(uploadsPath, { recursive: true });
@@ -53,7 +53,7 @@ if (isNode && require.main === module) {
         });
     }).catch(err => {
         console.error("Failed to connect to MongoDB:", err);
-        if (process.exit) process.exit(1);
+        if (typeof process !== 'undefined' && process.exit) process.exit(1);
     });
 }
 

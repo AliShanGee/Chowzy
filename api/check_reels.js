@@ -2,7 +2,9 @@ const mongoose = require('mongoose');
 const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 
 if (isNode) {
-    require('dotenv').config();
+    try {
+        require('dotenv').config();
+    } catch (e) {}
 }
 
 const ReelSchema = new mongoose.Schema({
@@ -20,12 +22,12 @@ async function checkReels() {
         console.log("Connected to MongoDB");
         const reels = await Reel.find({});
         console.log("Reels in database:", JSON.stringify(reels, null, 2));
-        if (isNode && process.exit) {
+        if (isNode && typeof process !== 'undefined' && process.exit) {
             process.exit(0);
         }
     } catch (error) {
         console.error("Error:", error);
-        if (isNode && process.exit) {
+        if (isNode && typeof process !== 'undefined' && process.exit) {
             process.exit(1);
         }
     }
