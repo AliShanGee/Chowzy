@@ -7,9 +7,9 @@ router.get('/foodData', async (req, res) => {
             return res.send([global.food_items, global.foodCategory]);
         }
         
-        const mongoose = require('mongoose');
+        const mongoose = isNode ? require('mongoose') : null;
         // Ensure connection if not available
-        if (mongoose.connection.readyState !== 1) {
+        if (isNode && mongoose.connection.readyState !== 1) {
             const mongoURI = isNode ? process.env.MONGODB_URI : null;
             if (!mongoURI) {
                 return res.status(500).send("Database connection URI not found");
@@ -22,17 +22,22 @@ router.get('/foodData', async (req, res) => {
                 socketTimeoutMS: 45000,
             });
         }
-        const foodItemsCollection = mongoose.connection.db.collection("food_items");
-        const foodCategoryCollection = mongoose.connection.db.collection("foodCategory");
 
-        const foodItemsData = await foodItemsCollection.find({}).toArray();
-        const catData = await foodCategoryCollection.find({}).toArray();
+        if (isNode) {
+            const foodItemsCollection = mongoose.connection.db.collection("food_items");
+            const foodCategoryCollection = mongoose.connection.db.collection("foodCategory");
 
-        // Update global cache
-        global.food_items = foodItemsData;
-        global.foodCategory = catData;
+            const foodItemsData = await foodItemsCollection.find({}).toArray();
+            const catData = await foodCategoryCollection.find({}).toArray();
 
-        res.send([foodItemsData, catData]);
+            // Update global cache
+            global.food_items = foodItemsData;
+            global.foodCategory = catData;
+
+            res.send([foodItemsData, catData]);
+        } else {
+            res.send([[], []]);
+        }
     } catch (error) {
         console.error(error.message);
         res.send("Server Error")

@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
 const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+const mongoose = isNode ? require("mongoose") : { connect: () => Promise.resolve(), connection: { db: { collection: () => ({ find: () => ({ toArray: () => Promise.resolve([]) }) }) } } };
 
 if (isNode) {
   require("dotenv").config();
@@ -34,18 +34,20 @@ const mongoDB = async () => {
     const catData = await foodCategoryCollection.find({}).toArray();
 
     // Seed Admin user if collection is empty
-    const Admin = require('./models/Admin');
-    const bcrypt = require('bcryptjs');
-    const adminCount = await Admin.countDocuments();
-    if (adminCount === 0) {
-      console.log("Seeding initial admin user...");
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash("123456", salt); // Initial password
-      await Admin.create({
-        email: "alishan1@gmail.com",
-        password: hashedPassword
-      });
-      console.log("Initial admin user created successfully");
+    const Admin = isNode ? require('./models/Admin') : null;
+    const bcrypt = isNode ? require('bcryptjs') : null;
+    if (isNode) {
+        const adminCount = await Admin.countDocuments();
+        if (adminCount === 0) {
+          console.log("Seeding initial admin user...");
+          const salt = await bcrypt.genSalt(10);
+          const hashedPassword = await bcrypt.hash("123456", salt); // Initial password
+          await Admin.create({
+            email: "alishan1@gmail.com",
+            password: hashedPassword
+          });
+          console.log("Initial admin user created successfully");
+        }
     }
 
     if (foodItemsData.length === 0) {
@@ -59,11 +61,11 @@ const mongoDB = async () => {
     global.foodCategory = catData;
   } catch (error) {
     console.error("Error connecting to MongoDB:", error.message);
-    if (error.code === "ECONNREFUSED") {
+    if (isNode && error.code === "ECONNREFUSED") {
       console.error(
         "Connection refused - check your MongoDB Atlas connection string and network access",
       );
-    } else if (error.name === "MongooseServerSelectionError") {
+    } else if (isNode && error.name === "MongooseServerSelectionError") {
       console.error(
         "Server selection failed - check if your IP is whitelisted in MongoDB Atlas",
       );
