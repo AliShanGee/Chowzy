@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const isNode = typeof process !== "undefined" && process.versions && process.versions.node; const mongoose = isNode ? require("mongoose") : {};
 
 const FoodItemSchema = new mongoose.Schema({
     CategoryName: {
