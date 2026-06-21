@@ -1,5 +1,9 @@
 const express = require('express');
-const path = require('path');
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+let path;
+if (isNode) {
+    path = require('path');
+}
 const { Annotation, END, START, StateGraph } = require('@langchain/langgraph');
 const FoodItem = require('../models/FoodItem');
 
