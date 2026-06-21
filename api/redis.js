@@ -1,8 +1,21 @@
-const redis = require('redis');
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 
-const client = redis.createClient({
-    url: process.env.REDIS_URL || 'redis://localhost:6379'
-});
+let redis;
+let client = {
+    on: () => {},
+    isOpen: false,
+    connect: async () => {},
+    get: async () => null,
+    set: async () => {},
+    del: async () => {}
+};
+
+if (isNode) {
+    redis = require('redis');
+    client = redis.createClient({
+        url: process.env.REDIS_URL || 'redis://localhost:6379'
+    });
+}
 
 client.on('error', (err) => {
     // Suppress repeated connection logs to avoid console noise when offline
@@ -12,8 +25,9 @@ client.on('error', (err) => {
 });
 
 const connectRedis = async () => {
+    if (!isNode) return;
     try {
-        if (!client.isOpen) {
+        if (client && !client.isOpen) {
             await client.connect();
             console.log('Connected to Redis');
         }
