@@ -1,0 +1,3 @@
+## 2026-05-23 - [Optimization of Home.js Rendering]
+**Learning:** The previous implementation of Home.js had an O(N^2) bottleneck where it filtered the entire food items array for every category within the render loop. This caused significant lag as the dataset grew. Using `useMemo` to pre-group items into a `Map` in O(N) time and then rendering from that Map drastically improves performance.
+**Action:** Always check for redundant filter/reduce operations inside map loops in React components, especially when dealing with large datasets. Prefer pre-grouping data in `useMemo` using efficient data structures like `Map`.
