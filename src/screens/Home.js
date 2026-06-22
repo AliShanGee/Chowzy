@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -18,6 +18,37 @@ export default function Home() {
   const [foodItem,setFoodItem] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
+
+  // ⚡ Bolt: Optimize category and item processing with useMemo to avoid O(N*C) filtering in render
+  const uniqueCategories = useMemo(() => {
+    const seen = new Set();
+    return foodCat.filter((cat) => {
+      if (!cat.CategoryName || seen.has(cat.CategoryName)) return false;
+      seen.add(cat.CategoryName);
+      return true;
+    });
+  }, [foodCat]);
+
+  const groupedItems = useMemo(() => {
+    const map = new Map();
+    const itemSeenPerCat = new Map();
+
+    foodItem.forEach((item) => {
+      if (!item.name) return;
+      const cat = item.CategoryName;
+      if (!map.has(cat)) {
+        map.set(cat, []);
+        itemSeenPerCat.set(cat, new Set());
+      }
+      const seenSet = itemSeenPerCat.get(cat);
+      if (!seenSet.has(item.name)) {
+        // Pre-calculate lowercase name for faster search filtering
+        map.get(cat).push({ ...item, _lowerName: item.name.toLowerCase() });
+        seenSet.add(item.name);
+      }
+    });
+    return map;
+  }, [foodItem]);
 
   const loadData = async ()=>{
     try {
@@ -89,36 +120,31 @@ export default function Home() {
           </div>
         {
           (() => {
-            if (foodCat.length === 0) return "";
+            if (uniqueCategories.length === 0) return "";
             
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
             const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+            const searchLower = search.toLowerCase();
 
             return (
               <>
                 {currentCategories.map((data) => {
+                  const categoryItems = (groupedItems.get(data.CategoryName) || [])
+                    .filter(item => item._lowerName.includes(searchLower));
+
                   return (
                     <div className='row mb-3' key={data._id}>
                       <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
-                    </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
+                      {categoryItems.length > 0
+                        ? categoryItems.map(filterItems => (
+                            <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                              <Card foodItem={filterItems} options={filterItems.options[0]} />
+                            </div>
+                          ))
+                        : <div className="ms-3" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a' }}>No Such Data Found</div>}
                     </div>
                   );
                 })}
