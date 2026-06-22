@@ -1,5 +1,13 @@
 const mongoose = require('mongoose');
-require('dotenv').config();
+
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+if (isNode) {
+    try {
+        require('dotenv').config();
+    } catch (err) {
+        // Silence error
+    }
+}
 
 const ReelSchema = new mongoose.Schema({
     videoUrl: String,
@@ -12,15 +20,22 @@ const Reel = mongoose.model('Reel', ReelSchema);
 
 async function checkReels() {
     try {
-        await mongoose.connect(process.env.MONGODB_URI, { dbName: 'gofood' });
+        const mongoUri = (isNode && process.env.MONGODB_URI) || null;
+        if (!mongoUri) {
+            console.log("MONGODB_URI not found, skipping checkReels");
+            return;
+        }
+        await mongoose.connect(mongoUri, { dbName: 'gofood' });
         console.log("Connected to MongoDB");
         const reels = await Reel.find({});
         console.log("Reels in database:", JSON.stringify(reels, null, 2));
-        process.exit(0);
+        if (isNode && process.exit) process.exit(0);
     } catch (error) {
         console.error("Error:", error);
-        process.exit(1);
+        if (isNode && process.exit) process.exit(1);
     }
 }
 
-checkReels();
+if (isNode && require.main === module) {
+    checkReels();
+}

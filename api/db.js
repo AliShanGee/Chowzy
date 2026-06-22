@@ -11,7 +11,7 @@ if (isNode) {
 }
 
 // It's a good practice to hide your credentials, you can use environment variables for this.
-const mongoURL = isNode ? process.env.MONGODB_URI : null;
+const mongoURL = (isNode && process.env.MONGODB_URI) || null;
 
 const mongoDB = async () => {
   if (!mongoURL) {

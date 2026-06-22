@@ -1,13 +1,18 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
+
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+
+let path, fs;
+if (isNode) {
+    path = require('path');
+    fs = require('fs');
+}
+
 const mongoDB = require('./db');
 const { connectRedis } = require('./redis');
 
 const app = express();
-
-const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 const port = (isNode && process.env.PORT) || 5000;
 
 // Middleware
@@ -19,7 +24,7 @@ app.use(cors({
 }));
 
 // Serve static files from uploads directory with absolute path
-if (isNode) {
+if (isNode && path && fs) {
     const uploadsPath = path.resolve(__dirname, 'uploads');
     if (!fs.existsSync(uploadsPath)) {
         fs.mkdirSync(uploadsPath, { recursive: true });
