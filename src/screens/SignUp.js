@@ -329,7 +329,9 @@ export default function SignUp() {
                   <Button
                     variant="light"
                     onClick={togglePasswordVisibility}
+                    className="focus-ring"
                     style={{ border: '1px solid #ced4da', borderLeft: 'none' }}
+                    aria-label="Toggle password visibility"
                   >
                     <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
                   </Button>

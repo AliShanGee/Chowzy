@@ -224,7 +224,7 @@ export default function Login() {
                       value={credentials.password}
                       onChange={onChange}
                     />
-                    <Button variant="light" onClick={togglePasswordVisibility} className="border-0" style={{ cursor: 'pointer', backgroundColor: 'white' }}>
+                    <Button variant="light" onClick={togglePasswordVisibility} className="border-0 focus-ring" style={{ cursor: 'pointer', backgroundColor: 'white' }} aria-label="Toggle password visibility">
                       <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
                     </Button>
                   </InputGroup>
