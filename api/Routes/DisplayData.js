@@ -1,26 +1,18 @@
 const express = require('express')
 const router = express.Router()
-
-const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
-
 router.get('/foodData', async (req, res) => {
     try {
         if (global.food_items && global.foodCategory) {
             return res.send([global.food_items, global.foodCategory]);
         }
         
-        if (!isNode) {
-            return res.status(503).send("Database access not available in this environment");
-        }
-
         const mongoose = require('mongoose');
         // Ensure connection if not available
         if (mongoose.connection.readyState !== 1) {
-            const mongoURL = process.env.MONGODB_URI;
-            if (!mongoURL) {
+            if (!process.env.MONGODB_URI) {
                 return res.status(500).send("Database connection URI not found");
             }
-            await mongoose.connect(mongoURL, {
+            await mongoose.connect(process.env.MONGODB_URI, {
                 dbName: 'gofood',
                 maxPoolSize: 10,
                 minPoolSize: 2,
@@ -41,7 +33,7 @@ router.get('/foodData', async (req, res) => {
         res.send([foodItemsData, catData]);
     } catch (error) {
         console.error(error.message);
-        res.status(500).send("Server Error")
+        res.send("Server Error")
     }
 })
 module.exports = router;
