@@ -115,7 +115,7 @@ function NavScrollExample() {
               navbarScroll
             >
               {(localStorage.getItem("authToken") && location.pathname !== '/orderhistory') ?
-                <Nav.Link as={Link} to="/orderhistory" className="d-flex align-items-center" style={{ textDecoration: 'none' }}>
+                <Nav.Link as={Link} to="/orderhistory" className="d-flex align-items-center" style={{ textDecoration: 'none' }} aria-label="Order History">
                   <div style={{ width: "40px", height: "40px" }}>
                     <Lottie
                       animationData={historyAnimation}
@@ -145,7 +145,7 @@ function NavScrollExample() {
                 <button
                   type="button"
                   className="focus-ring"
-                  style={{ cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px", background: 'transparent', border: 'none', padding: 0 }}
+                  style={{ cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px", backgroundColor: 'transparent', border: 'none', padding: 0 }}
                   onClick={toggleChatbot}
                   aria-label="Open chatbot"
                 >
