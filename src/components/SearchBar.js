@@ -93,6 +93,9 @@ const SearchBar = ({ items, onSearch }) => {
 
         {inputValue && (
           <button
+            type="button"
+            className="focus-ring"
+            aria-label="Clear search"
             onClick={() => {
               setInputValue('');
               onSearch('');
@@ -116,7 +119,9 @@ const SearchBar = ({ items, onSearch }) => {
         )}
         
         <button
-          className="btn btn-primary"
+          type="button"
+          className="btn btn-primary focus-ring"
+          aria-label="Search"
           style={{
             borderRadius: '40px',
             padding: '10px 25px',
