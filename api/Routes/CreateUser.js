@@ -4,7 +4,8 @@ const User = require('../models/User');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const jwtSecret = process.env.JWT_SECRET;
+const isNode = typeof process !== 'undefined' && process.versions && !!process.versions.node;
+const jwtSecret = isNode ? process.env.JWT_SECRET : undefined;
 
 router.post(
   "/createuser", // Corrected the route from "/creatuser" to "/createuser"
