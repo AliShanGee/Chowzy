@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+const isNode = typeof process !== 'undefined' && process.versions && !!process.versions.node;
 let path, fs;
 if (isNode) {
     path = require('path');
@@ -10,7 +10,7 @@ const mongoDB = require('./db');
 const { connectRedis } = require('./redis');
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = (isNode && process.env.PORT) || 5000;
 
 // Middleware
 app.use(express.json());

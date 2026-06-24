@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+const isNode = typeof process !== 'undefined' && process.versions && !!process.versions.node;
 if (isNode) {
   require("dotenv").config();
 }

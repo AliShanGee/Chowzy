@@ -1,5 +1,5 @@
 const express = require('express');
-const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+const isNode = typeof process !== 'undefined' && process.versions && !!process.versions.node;
 let path;
 if (isNode) {
   path = require('path');

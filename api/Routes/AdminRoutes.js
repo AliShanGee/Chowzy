@@ -6,7 +6,7 @@ const Order = require('../models/Orders');
 const User = require('../models/User');
 const Cart = require('../models/Cart');
 const Reel = require('../models/Reel');
-const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+const isNode = typeof process !== 'undefined' && process.versions && !!process.versions.node;
 let multer, path, fs;
 if (isNode) {
     multer = require('multer');

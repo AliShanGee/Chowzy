@@ -9,7 +9,7 @@ router.get('/foodData', async (req, res) => {
         const mongoose = require('mongoose');
         // Ensure connection if not available
         if (mongoose.connection.readyState !== 1) {
-            const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+            const isNode = typeof process !== 'undefined' && process.versions && !!process.versions.node;
             const mongoURI = isNode ? process.env.MONGODB_URI : undefined;
             if (!mongoURI) {
                 return res.status(500).send("Database connection URI not found");
