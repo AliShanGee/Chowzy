@@ -6,35 +6,49 @@ const Order = require('../models/Orders');
 const User = require('../models/User');
 const Cart = require('../models/Cart');
 const Reel = require('../models/Reel');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+let multer, path, fs;
+if (isNode) {
+    multer = require('multer');
+    path = require('path');
+    fs = require('fs');
+}
 const { client } = require('../redis');
 
 // Configure Multer storage
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadDir = path.join(__dirname, '..', 'uploads', 'reels');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
+let storage, upload;
+if (isNode) {
+    storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+            const uploadDir = path.join(__dirname, '..', 'uploads', 'reels');
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+            }
+            cb(null, uploadDir);
+        },
+        filename: function (req, file, cb) {
+            cb(null, Date.now() + '-' + file.originalname);
         }
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
+    });
 
-const upload = multer({ 
-    storage: storage,
-    fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith('video/')) {
-            cb(null, true);
-        } else {
-            cb(new Error('Only video files are allowed!'), false);
+    upload = multer({
+        storage: storage,
+        fileFilter: (req, file, cb) => {
+            if (file.mimetype.startsWith('video/')) {
+                cb(null, true);
+            } else {
+                cb(new Error('Only video files are allowed!'), false);
+            }
         }
-    }
-});
+    });
+} else {
+    // Fallback or empty upload for non-node environments
+    upload = {
+        single: () => (req, res, next) => next(),
+        array: () => (req, res, next) => next(),
+        fields: () => (req, res, next) => next(),
+    };
+}
 
 // Helper for sending list response with Content-Range
 const sendListResponse = (res, data, total) => {
@@ -437,7 +451,7 @@ router.get('/reels/:id', async (req, res) => {
 router.post('/reels', upload.single('video'), async (req, res) => {
     try {
         const reelData = { ...req.body };
-        if (req.file) {
+        if (isNode && req.file) {
             // Adjust path for serving
             reelData.videoUrl = `/uploads/reels/${req.file.filename}`;
         }
@@ -465,7 +479,7 @@ router.post('/reels', upload.single('video'), async (req, res) => {
 router.put('/reels/:id', upload.single('video'), async (req, res) => {
     try {
         const updateData = { ...req.body };
-        if (req.file) {
+        if (isNode && req.file) {
             updateData.videoUrl = `/uploads/reels/${req.file.filename}`;
         }
         const updatedItem = await Reel.findByIdAndUpdate(req.params.id, updateData, { new: true });
@@ -491,7 +505,7 @@ router.put('/reels/:id', upload.single('video'), async (req, res) => {
 router.delete('/reels/:id', async (req, res) => {
     try {
         const reel = await Reel.findById(req.params.id);
-        if (reel && reel.videoUrl && reel.videoUrl.startsWith('/uploads/')) {
+        if (isNode && reel && reel.videoUrl && reel.videoUrl.startsWith('/uploads/')) {
             const filePath = path.join(__dirname, '..', reel.videoUrl);
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
