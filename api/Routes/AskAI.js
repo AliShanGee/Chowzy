@@ -27,7 +27,7 @@ const SUPPORTED_INTENTS = [
 
 const ZAI_BASE_URL = (isNode && process.env.ZAI_BASE_URL) || 'https://api.z.ai/api/paas/v4';
 const MODEL_CANDIDATES = [
-  isNode && process.env.ZAI_MODEL,
+  (isNode && process.env.ZAI_MODEL),
   'glm-5.1',
   'glm-4.6',
 ].filter(Boolean);
