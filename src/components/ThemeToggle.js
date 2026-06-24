@@ -11,19 +11,15 @@ const ThemeToggle = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
 
-    // Play animation segment based on new theme
     if (lottieRef.current) {
       if (newTheme === 'dark') {
-        // Play light to dark: frames 30 to 115
         lottieRef.current.playSegments([30, 115], true);
       } else {
-        // Play dark to light: frames 300 to 385
         lottieRef.current.playSegments([300, 385], true);
       }
     }
   };
 
-  // Set initial animation state based on theme
   useEffect(() => {
     if (lottieRef.current) {
       if (theme === 'dark') {
@@ -35,7 +31,9 @@ const ThemeToggle = () => {
   }, [theme]);
 
   return (
-    <div
+    <button
+      type="button"
+      className="focus-ring"
       style={{
         cursor: 'pointer',
         width: '50px',
@@ -45,9 +43,11 @@ const ThemeToggle = () => {
         justifyContent: 'center',
         borderRadius: '50%',
         backgroundColor: 'transparent',
+        border: 'none',
+        padding: 0
       }}
       onClick={toggleTheme}
-      title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+      aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
     >
       <Lottie
         lottieRef={lottieRef}
@@ -56,7 +56,7 @@ const ThemeToggle = () => {
         autoplay={false}
         style={{ width: '100%', height: '100%' }}
       />
-    </div>
+    </button>
   );
 };
 
