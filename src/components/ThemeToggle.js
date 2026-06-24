@@ -11,19 +11,15 @@ const ThemeToggle = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
 
-    // Play animation segment based on new theme
     if (lottieRef.current) {
       if (newTheme === 'dark') {
-        // Play light to dark: frames 30 to 115
         lottieRef.current.playSegments([30, 115], true);
       } else {
-        // Play dark to light: frames 300 to 385
         lottieRef.current.playSegments([300, 385], true);
       }
     }
   };
 
-  // Set initial animation state based on theme
   useEffect(() => {
     if (lottieRef.current) {
       if (theme === 'dark') {
@@ -51,7 +47,6 @@ const ThemeToggle = () => {
         padding: 0
       }}
       onClick={toggleTheme}
-      title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
     >
       <Lottie
