@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -46,6 +46,46 @@ export default function Home() {
     });
   }, []);
 
+  // Memoize unique categories to avoid O(C^2) filtering on every render.
+  const uniqueCategories = useMemo(() => {
+    const categoryMap = new Map();
+    foodCat.forEach(cat => {
+      if (!categoryMap.has(cat.CategoryName)) {
+        categoryMap.set(cat.CategoryName, cat);
+      }
+    });
+    return Array.from(categoryMap.values());
+  }, [foodCat]);
+
+  // Group and deduplicate food items by category to avoid O(N^2) filtering/deduplication in the render loop.
+  const groupedFoodItems = useMemo(() => {
+    const map = new Map();
+    const searchLower = search.toLowerCase();
+
+    foodItem.forEach(item => {
+      if (item.name && item.name.toLowerCase().includes(searchLower)) {
+        if (!map.has(item.CategoryName)) {
+          map.set(item.CategoryName, new Map());
+        }
+        const categoryItems = map.get(item.CategoryName);
+        // Deduplicate items with the same name within each category
+        if (!categoryItems.has(item.name)) {
+          categoryItems.set(item.name, item);
+        }
+      }
+    });
+
+    // Convert internal Maps to Arrays
+    const result = new Map();
+    map.forEach((itemsMap, categoryName) => {
+      result.set(categoryName, Array.from(itemsMap.values()));
+    });
+    return result;
+  }, [foodItem, search]);
+
+  const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
+  const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
       {theme !== 'dark' && (
@@ -79,60 +119,43 @@ export default function Home() {
                 />
               </div>
             </div>
-            {/* Tags */}
-            {/* <div className="col-12 text-center mt-3">
-              <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>latest food item</span>
-              <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>offer</span>
-              <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>new pizza</span>
-              <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>50% off foods</span>
-            </div> */}
           </div>
-        {
-          (() => {
-            if (foodCat.length === 0) return "";
-            
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
-            const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
-            const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-            return (
-              <>
-                {currentCategories.map((data) => {
-                  return (
-                    <div className='row mb-3' key={data._id}>
-                      <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
-                        {data.CategoryName}
-                      </div>
-                      <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
+          {currentCategories.length > 0 ? (
+            <>
+              {currentCategories.map((category) => {
+                const itemsInCategory = groupedFoodItems.get(category.CategoryName) || [];
+                return (
+                  <div className='row mb-3' key={category._id}>
+                    <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
+                      {category.CategoryName}
                     </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
-                    </div>
-                  );
-                })}
-                {totalPages > 1 && (
-                  <Page
-                    totalPages={totalPages}
-                    currentPage={currentPage}
-                    onPageChange={setCurrentPage}
-                  />
-                )}
-              </>
-            );
-          })()
-        }
+                    <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
+                    {itemsInCategory.length > 0 ? (
+                      itemsInCategory.map(item => (
+                        <div key={item._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                          <Card foodItem={item} options={item.options[0]} />
+                        </div>
+                      ))
+                    ) : (
+                      <div className="m-3">No Such Data Found</div>
+                    )}
+                  </div>
+                );
+              })}
+              {totalPages > 1 && (
+                <Page
+                  totalPages={totalPages}
+                  currentPage={currentPage}
+                  onPageChange={setCurrentPage}
+                />
+              )}
+            </>
+          ) : (
+            <div className="text-center mt-5">
+              <h3>Loading data...</h3>
+            </div>
+          )}
         </div>
         <Footer/>
       </div>
