@@ -28,4 +28,6 @@ const DeliveredOrderSchema = new Schema({
     }
 });
 
+DeliveredOrderSchema.index({ email: 1, delivered_at: -1 });
+
 module.exports = mongoose.model('DeliveredOrder', DeliveredOrderSchema);
