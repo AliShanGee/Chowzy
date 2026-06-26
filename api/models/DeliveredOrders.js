@@ -24,8 +24,7 @@ const DeliveredOrderSchema = new Schema({
     },
     delivered_at: {
         type: Date,
-        default: Date.now,
-        index: true
+        default: Date.now
     }
 });
 
