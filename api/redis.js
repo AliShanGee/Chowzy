@@ -1,10 +1,10 @@
 const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
-let redis, client;
+let redis, client = { isOpen: false };
 
 if (isNode) {
     redis = require('redis');
     client = redis.createClient({
-        url: process.env.REDIS_URL || 'redis://localhost:6379'
+        url: (isNode && process.env.REDIS_URL) || 'redis://localhost:6379'
     });
 
     client.on('error', (err) => {
