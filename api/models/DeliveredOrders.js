@@ -24,8 +24,11 @@ const DeliveredOrderSchema = new Schema({
     },
     delivered_at: {
         type: Date,
-        default: Date.now
+        default: Date.now,
+        index: true
     }
 });
+
+DeliveredOrderSchema.index({ email: 1, delivered_at: -1 });
 
 module.exports = mongoose.model('DeliveredOrder', DeliveredOrderSchema);
