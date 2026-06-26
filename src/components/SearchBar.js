@@ -93,6 +93,8 @@ const SearchBar = ({ items, onSearch }) => {
 
         {inputValue && (
           <button
+            type="button"
+            className="focus-ring"
             onClick={() => {
               setInputValue('');
               onSearch('');
@@ -110,6 +112,7 @@ const SearchBar = ({ items, onSearch }) => {
             }}
             onMouseOver={(e) => e.currentTarget.style.color = '#dc3545'}
             onMouseOut={(e) => e.currentTarget.style.color = '#999'}
+            aria-label="Clear search"
           >
             <IoCloseCircleOutline />
           </button>

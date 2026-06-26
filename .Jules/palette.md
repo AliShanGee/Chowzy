@@ -1,0 +1,3 @@
+## 2025-05-14 - Semantic Accessibility in React Components
+**Learning:** Using non-semantic elements like `div` or `span` for interactive controls (toggles, clear buttons) breaks keyboard navigation and screen reader support. Even when styled to look like buttons, they lack the default focusability and ARIA roles necessary for an inclusive experience.
+**Action:** Always use semantic `<button type="button">` for interactive elements that do not navigate to a new URL. Ensure they have descriptive `aria-label` attributes if they contain only icons, and leverage utility classes like Bootstrap's `.focus-ring` for consistent visual focus indicators.
