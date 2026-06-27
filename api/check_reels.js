@@ -1,18 +1,18 @@
-const mongoose = require('mongoose');
 const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+const mongoose = isNode ? require('mongoose') : null;
 
 if (isNode) {
     require('dotenv').config();
 }
 
-const ReelSchema = new mongoose.Schema({
+const ReelSchema = isNode ? new mongoose.Schema({
     videoUrl: String,
     title: String,
     description: String,
     date: Date
-});
+}) : null;
 
-const Reel = mongoose.model('Reel', ReelSchema);
+const Reel = isNode ? mongoose.model('Reel', ReelSchema) : null;
 
 async function checkReels() {
     if (!isNode) return;
@@ -26,12 +26,12 @@ async function checkReels() {
         console.log("Connected to MongoDB");
         const reels = await Reel.find({});
         console.log("Reels in database:", JSON.stringify(reels, null, 2));
-        if (typeof process !== 'undefined' && process.exit) {
+        if (isNode && typeof process !== 'undefined' && process.exit) {
             process.exit(0);
         }
     } catch (error) {
         console.error("Error:", error);
-        if (typeof process !== 'undefined' && process.exit) {
+        if (isNode && typeof process !== 'undefined' && process.exit) {
             process.exit(1);
         }
     }
