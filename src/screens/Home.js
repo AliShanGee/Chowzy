@@ -132,6 +132,11 @@ export default function Home() {
               <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>50% off foods</span>
             </div> */}
           </div>
+        {foodCat.length > 0 && Array.from(filteredAndGroupedItems.values()).every(arr => arr.length === 0) && (
+          <div className="container mt-4 text-center">
+            <h3 style={{ color: theme === 'dark' ? '#adb5bd' : '#6c757d' }}>No Such Data Found</h3>
+          </div>
+        )}
         {foodCat.length > 0 && (
           <>
             {currentCategories.map((data) => {
@@ -142,16 +147,12 @@ export default function Home() {
                     {data.CategoryName}
                   </div>
                   <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-                  {categoryItems.length > 0 ? (
+                  {categoryItems.length > 0 && (
                     categoryItems.map(filterItems => (
                       <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
                         <Card foodItem={filterItems} options={filterItems.options[0]} />
                       </div>
                     ))
-                  ) : (
-                    <div className="m-3" style={{ color: theme === 'dark' ? '#adb5bd' : '#6c757d' }}>
-                      No Such Data Found
-                    </div>
                   )}
                 </div>
               );
