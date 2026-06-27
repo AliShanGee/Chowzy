@@ -2,6 +2,8 @@ const express = require('express')
 const router = express.Router()
 const Order = require('../models/Orders')
 const DeliveredOrder = require('../models/DeliveredOrders')
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+
 router.post('/orderData',async (req,res)=>{
     let data = req.body.order_data;
     data.splice(0, 0, { 
@@ -195,8 +197,11 @@ router.delete('/admin/delivered-orders/:id', async (req, res) => {
 
 router.post('/myOrderData', async (req, res) => {
     try {
-        let activeOrder = await Order.findOne({ 'email': req.body.email });
-        let deliveredOrders = await DeliveredOrder.find({ 'email': req.body.email }).sort({ delivered_at: -1 });
+        // Optimization: Fetch active and delivered orders concurrently
+        const [activeOrder, deliveredOrders] = await Promise.all([
+            Order.findOne({ 'email': req.body.email }),
+            DeliveredOrder.find({ 'email': req.body.email }).sort({ delivered_at: -1 })
+        ]);
         
         // Combine active and delivered orders for the frontend
         res.json({ 

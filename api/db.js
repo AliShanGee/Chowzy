@@ -1,13 +1,17 @@
-const mongoose = require("mongoose");
-require("dotenv").config();
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+const mongoose = isNode ? require("mongoose") : null;
+
+if (isNode) {
+    require("dotenv").config();
+}
 
 // It's a good practice to hide your credentials, you can use environment variables for this.
-const mongoURL = process.env.MONGODB_URI;
+const mongoURL = (isNode && process.env.MONGODB_URI) || "";
 
 const mongoDB = async () => {
-  if (!mongoURL) {
-    console.error("Error: MONGODB_URI environment variable is not defined!");
-    return; // Don't crash immediately, but log the error
+  if (!isNode || !mongoURL) {
+    if (isNode) console.error("Error: MONGODB_URI environment variable is not defined!");
+    return;
   }
   try {
     console.log("Attempting to connect to MongoDB...");
@@ -66,7 +70,9 @@ const mongoDB = async () => {
     }
     console.error("Full error details:", error);
     // Exit process with failure
-    process.exit(1);
+    if (isNode && typeof process !== 'undefined' && process.exit) {
+        process.exit(1);
+    }
   }
 };
 

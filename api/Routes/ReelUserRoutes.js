@@ -10,7 +10,7 @@ router.get('/getreels', async (req, res) => {
         let cachedReels = null;
         
         // Use a timeout for Redis operations so they don't hang the request
-        if (client.isOpen) {
+        if (client && client.isOpen) {
             try {
                 cachedReels = await Promise.race([
                     client.get('all_reels'),
@@ -27,7 +27,7 @@ router.get('/getreels', async (req, res) => {
 
         const reels = await Reel.find({}).sort({ date: -1 });
         
-        if (client.isOpen) {
+        if (client && client.isOpen) {
             try {
                 await Promise.race([
                     client.set('all_reels', JSON.stringify(reels), { EX: 3600 }),
@@ -61,7 +61,7 @@ router.post('/reels/:id/like', async (req, res) => {
         await reel.save();
 
         // Invalidate Redis cache
-        if (client.isOpen) {
+        if (client && client.isOpen) {
             try {
                 await Promise.race([
                     client.del('all_reels'),
