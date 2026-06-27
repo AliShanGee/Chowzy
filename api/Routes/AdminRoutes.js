@@ -6,35 +6,46 @@ const Order = require('../models/Orders');
 const User = require('../models/User');
 const Cart = require('../models/Cart');
 const Reel = require('../models/Reel');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+
+let multer, path, fs;
+if (isNode) {
+    multer = require('multer');
+    path = require('path');
+    fs = require('fs');
+}
 const { client } = require('../redis');
 
-// Configure Multer storage
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadDir = path.join(__dirname, '..', 'uploads', 'reels');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
+let upload = {
+    single: () => (req, res, next) => next() // Fallback
+};
 
-const upload = multer({ 
-    storage: storage,
-    fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith('video/')) {
-            cb(null, true);
-        } else {
-            cb(new Error('Only video files are allowed!'), false);
+if (isNode) {
+    // Configure Multer storage
+    const storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+            const uploadDir = path.join(__dirname, '..', 'uploads', 'reels');
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+            }
+            cb(null, uploadDir);
+        },
+        filename: function (req, file, cb) {
+            cb(null, Date.now() + '-' + file.originalname);
         }
-    }
-});
+    });
+
+    upload = multer({
+        storage: storage,
+        fileFilter: (req, file, cb) => {
+            if (file.mimetype.startsWith('video/')) {
+                cb(null, true);
+            } else {
+                cb(new Error('Only video files are allowed!'), false);
+            }
+        }
+    });
+}
 
 // Helper for sending list response with Content-Range
 const sendListResponse = (res, data, total) => {
@@ -445,7 +456,7 @@ router.post('/reels', upload.single('video'), async (req, res) => {
         const savedItem = await newItem.save();
         
         // Invalidate Redis cache
-        if (client.isOpen) {
+        if (client && client.isOpen) {
             try {
                 await Promise.race([
                     client.del('all_reels'),
@@ -471,7 +482,7 @@ router.put('/reels/:id', upload.single('video'), async (req, res) => {
         const updatedItem = await Reel.findByIdAndUpdate(req.params.id, updateData, { new: true });
         
         // Invalidate Redis cache
-        if (client.isOpen) {
+        if (client && client.isOpen) {
             try {
                 await Promise.race([
                     client.del('all_reels'),
@@ -492,15 +503,17 @@ router.delete('/reels/:id', async (req, res) => {
     try {
         const reel = await Reel.findById(req.params.id);
         if (reel && reel.videoUrl && reel.videoUrl.startsWith('/uploads/')) {
-            const filePath = path.join(__dirname, '..', reel.videoUrl);
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
+            if (isNode) {
+                const filePath = path.join(__dirname, '..', reel.videoUrl);
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
             }
         }
         await Reel.findByIdAndDelete(req.params.id);
         
         // Invalidate Redis cache
-        if (client.isOpen) {
+        if (client && client.isOpen) {
             try {
                 await Promise.race([
                     client.del('all_reels'),
@@ -534,4 +547,3 @@ router.delete('/reels', async (req, res) => {
 });
 
 module.exports = router;
-
