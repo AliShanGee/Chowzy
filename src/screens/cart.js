@@ -206,7 +206,7 @@ export default function Cart() {
                                     <td >{food.size}</td>
                                     <td >{food.price}</td>
                                     <td >
-                                        <button type="button" className="btn p-0 focus-ring" style={{ backgroundColor: 'transparent', border: 'none' }} onClick={() => { dispatch({ type: "REMOVE", index: index }) }} aria-label="Remove item from cart">
+                                        <button type="button" className="btn p-0" style={{ background: 'transparent', border: 'none' }} onClick={() => { dispatch({ type: "REMOVE", index: index }) }}>
                                             <Lottie 
                                                 animationData={deleteAnimation} 
                                                 loop={true} 
@@ -250,11 +250,8 @@ export default function Cart() {
                                     }}
                                 >
                                     <button 
-                                        type="button"
                                         onClick={() => { setShowPaymentModal(false); setPaymentMethod(null); }} 
-                                        style={{ position: 'absolute', top: 15, right: 20, backgroundColor: 'transparent', border: 'none', fontSize: '24px', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', zIndex: 1 }}
-                                        className="focus-ring"
-                                        aria-label="Close payment modal"
+                                        style={{ position: 'absolute', top: 15, right: 20, background: 'transparent', border: 'none', fontSize: '24px', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', zIndex: 1 }}
                                     >
                                         ✕
                                     </button>

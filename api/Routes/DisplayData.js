@@ -7,8 +7,8 @@ router.get('/foodData', async (req, res) => {
         }
         
         const mongoose = require('mongoose');
-        // Ensure connection if not available
         const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+        // Ensure connection if not available
         if (mongoose.connection.readyState !== 1) {
             const mongoURI = (isNode && process.env.MONGODB_URI) || null;
             if (!mongoURI) {

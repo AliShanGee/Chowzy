@@ -187,26 +187,20 @@ export default function Card(props) {
                         }}>
                             {expanded ? foodItem.description : `${foodItem.description.substring(0, 60)}${foodItem.description.length > 60 ? '' : ''}`}
                             {!expanded && foodItem.description && foodItem.description.length > 60 && (
-                                <button
-                                    type="button"
+                                <span
                                     onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
-                                    style={{ backgroundColor: 'transparent', border: 'none', color: "#28a745", cursor: "pointer", fontWeight: "bold", padding: 0 }}
-                                    aria-expanded="false"
-                                    aria-label="Show more description"
+                                    style={{ color: "#28a745", cursor: "pointer", fontWeight: "bold" }}
                                 >
                                     ...
-                                </button>
+                                </span>
                             )}
                             {expanded && (
-                                <button
-                                    type="button"
+                                <span
                                     onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
-                                    style={{ backgroundColor: 'transparent', border: 'none', color: "#28a745", cursor: "pointer", fontWeight: "bold", marginLeft: "5px", fontSize: "0.75rem", padding: 0 }}
-                                    aria-expanded="true"
-                                    aria-label="Show less description"
+                                    style={{ color: "#28a745", cursor: "pointer", fontWeight: "bold", marginLeft: "5px", fontSize: "0.75rem" }}
                                 >
                                     (less)
-                                </button>
+                                </span>
                             )}
                         </BootstrapCard.Text>
                         
@@ -214,21 +208,19 @@ export default function Card(props) {
                             <div className="d-flex align-items-center mb-3 justify-content-between">
                                 <div className="d-flex">
                                     <select 
-                                        className="me-2 p-1 bg-success text-white rounded-pill border-0 px-3 shadow-sm focus-ring"
+                                        className="me-2 p-1 bg-success text-white rounded-pill border-0 px-3 shadow-sm"
                                         style={{ outline: "none", cursor: "pointer", fontSize: "0.85rem", appearance: "none" }}
                                         onChange={(e) => setQty(e.target.value)}
-                                        aria-label="Select quantity"
                                     >
                                         {Array.from(Array(6), (e, i) => (
                                             <option key={i + 1} value={i + 1}>{i + 1}</option>
                                         ))}
                                     </select>
                                     <select 
-                                        className="p-1 bg-success text-white rounded-pill border-0 px-3 shadow-sm focus-ring"
+                                        className="p-1 bg-success text-white rounded-pill border-0 px-3 shadow-sm"
                                         style={{ outline: "none", cursor: "pointer", fontSize: "0.85rem", appearance: "none" }}
                                         ref={priceRef} 
                                         onChange={(e) => setSize(e.target.value)}
-                                        aria-label="Select size"
                                     >
                                         {priceOptions.map((data) => (
                                             <option key={data} value={data}>{data}</option>

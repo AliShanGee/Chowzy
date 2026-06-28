@@ -6,8 +6,8 @@ const { connectRedis } = require('./redis');
 const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 let path, fs;
 if (isNode) {
-    path = require('path');
-    fs = require('fs');
+  path = require('path');
+  fs = require('fs');
 }
 
 const app = express();
@@ -23,12 +23,12 @@ app.use(cors({
 
 // Serve static files from uploads directory with absolute path
 if (isNode && path && fs) {
-    const uploadsPath = path.resolve(__dirname, 'uploads');
-    if (!fs.existsSync(uploadsPath)) {
-        fs.mkdirSync(uploadsPath, { recursive: true });
-    }
-    app.use('/uploads', express.static(uploadsPath));
-    console.log(`Serving static files from: ${uploadsPath}`);
+  const uploadsPath = path.resolve(__dirname, 'uploads');
+  if (!fs.existsSync(uploadsPath)) {
+      fs.mkdirSync(uploadsPath, { recursive: true });
+  }
+  app.use('/uploads', express.static(uploadsPath));
+  console.log(`Serving static files from: ${uploadsPath}`);
 }
 
 // Routes

@@ -1,11 +1,13 @@
 const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 let redis, client;
+
 if (isNode) {
     redis = require('redis');
     client = redis.createClient({
         url: process.env.REDIS_URL || 'redis://localhost:6379'
     });
 } else {
+    // Mock client for non-Node environments
     client = { on: () => {}, isOpen: false, connect: async () => {} };
 }
 
