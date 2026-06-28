@@ -98,7 +98,7 @@ const SearchBar = ({ items, onSearch }) => {
               onSearch('');
             }}
             style={{ 
-              background: 'none', 
+              background: 'none',
               border: 'none', 
               fontSize: '24px', 
               color: '#999', 
