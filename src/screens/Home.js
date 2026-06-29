@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -46,6 +46,43 @@ export default function Home() {
     });
   }, []);
 
+  // Performance Optimization: Memoize unique categories to avoid O(C^2) filtering in render
+  const uniqueCategories = useMemo(() => {
+    const categories = [];
+    const seen = new Set();
+    foodCat.forEach(cat => {
+      if (cat.CategoryName && !seen.has(cat.CategoryName)) {
+        seen.add(cat.CategoryName);
+        categories.push(cat);
+      }
+    });
+    return categories;
+  }, [foodCat]);
+
+  // Performance Optimization: Memoize filtered and deduplicated food items to avoid O(N^2) processing in render
+  const filteredAndUniqueItems = useMemo(() => {
+    const grouped = new Map();
+    const searchLower = search.toLowerCase();
+    const seenNamesPerCategory = new Set();
+
+    foodItem.forEach(item => {
+      if (!item.name) return;
+      if (!item.name.toLowerCase().includes(searchLower)) return;
+
+      // Unique constraint: one item per name per category
+      const uniqueKey = `${item.CategoryName}|${item.name}`;
+      if (seenNamesPerCategory.has(uniqueKey)) return;
+
+      seenNamesPerCategory.add(uniqueKey);
+
+      if (!grouped.has(item.CategoryName)) {
+        grouped.set(item.CategoryName, []);
+      }
+      grouped.get(item.CategoryName).push(item);
+    });
+    return grouped;
+  }, [foodItem, search]);
+
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
       {theme !== 'dark' && (
@@ -89,29 +126,23 @@ export default function Home() {
           </div>
         {
           (() => {
-            if (foodCat.length === 0) return "";
+            if (uniqueCategories.length === 0) return "";
             
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
             const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
             return (
               <>
                 {currentCategories.map((data) => {
+                  const itemsInCategory = filteredAndUniqueItems.get(data.CategoryName) || [];
                   return (
                     <div className='row mb-3' key={data._id}>
                       <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
+              {itemsInCategory.length > 0
+              ? itemsInCategory.map(filterItems => {
                   return (
                     <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
                       <Card foodItem={filterItems} options={filterItems.options[0]} />
