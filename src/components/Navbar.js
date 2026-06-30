@@ -142,19 +142,13 @@ function NavScrollExample() {
               :
               <div className='d-flex align-items-center'>
                 <ThemeToggle />
-                <button
-                  type="button"
-                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px" }}
-                  onClick={toggleChatbot}
-                  aria-label="Toggle chatbot"
-                  className="focus-ring"
-                >
+                <div style={{ cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px" }} onClick={toggleChatbot}>
                   <Lottie
                     animationData={helloChatBotAnimation}
                     loop={true}
                     autoplay={true}
                   />
-                </button>
+                </div>
                 <Link className="btn bg-white text-success mx-2 d-flex align-items-center" to="/cart" style={{ textDecoration: 'none' }}>
                   <div style={{ width: "30px", height: "30px" }}>
                     <Lottie

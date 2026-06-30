@@ -1,3 +1,3 @@
-## 2025-05-14 - Accessibility Refactoring of Interactive Elements
-**Learning:** In many React components, interactive elements like toggles and expansion links were implemented using non-semantic `div` or `span` tags. These elements are not reachable via keyboard navigation and lack the necessary ARIA attributes for screen readers.
-**Action:** Always refactor non-semantic interactive elements to semantic `<button type="button">` elements. Add descriptive `aria-label` attributes and use Bootstrap's `.focus-ring` utility to ensure consistent and accessible focus indicators.
+## 2025-05-14 - Semantic Button Refactoring for Theme Toggles
+**Learning:** Icon-only toggles implemented as `div` elements are invisible to keyboard navigation and screen readers.
+**Action:** Use `<button type="button">` with `aria-label` and Bootstrap's `.focus-ring` to ensure interactive elements are accessible and provide clear visual focus indicators.
