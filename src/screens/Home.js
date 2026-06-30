@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -46,6 +46,47 @@ export default function Home() {
     });
   }, []);
 
+  // Performance Optimization: Memoize category grouping and item filtering
+  // This reduces the complexity from O(C * N^2) to O(N) by pre-processing items
+  const { currentCategories, groupedFilteredItems, totalPages } = useMemo(() => {
+    if (foodCat.length === 0) return { currentCategories: [], groupedFilteredItems: new Map(), totalPages: 0 };
+
+    // 1. Get unique categories using a Set for O(C) complexity
+    const seenCategories = new Set();
+    const uniqueCategories = foodCat.filter(cat => {
+      if (seenCategories.has(cat.CategoryName)) return false;
+      seenCategories.add(cat.CategoryName);
+      return true;
+    });
+
+    // 2. Pre-filter and group food items by category to avoid nested O(N) filters
+    const groupedItems = new Map();
+    const searchLower = search.toLowerCase();
+
+    foodItem.forEach(item => {
+      if (item.name && item.name.toLowerCase().includes(searchLower)) {
+        if (!groupedItems.has(item.CategoryName)) {
+          groupedItems.set(item.CategoryName, new Map());
+        }
+        const categoryMap = groupedItems.get(item.CategoryName);
+        // Deduplicate items by name within the category
+        if (!categoryMap.has(item.name)) {
+          categoryMap.set(item.name, item);
+        }
+      }
+    });
+
+    const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedCategories = uniqueCategories.slice(startIndex, startIndex + itemsPerPage);
+
+    return {
+      currentCategories: paginatedCategories,
+      groupedFilteredItems: groupedItems,
+      totalPages
+    };
+  }, [foodCat, foodItem, search, currentPage, itemsPerPage]);
+
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
       {theme !== 'dark' && (
@@ -79,59 +120,40 @@ export default function Home() {
                 />
               </div>
             </div>
-            {/* Tags */}
-            {/* <div className="col-12 text-center mt-3">
-              <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>latest food item</span>
-              <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>offer</span>
-              <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>new pizza</span>
-              <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>50% off foods</span>
-            </div> */}
           </div>
         {
-          (() => {
-            if (foodCat.length === 0) return "";
-            
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
-            const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
-            const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-            return (
-              <>
-                {currentCategories.map((data) => {
-                  return (
-                    <div className='row mb-3' key={data._id}>
-                      <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
-                        {data.CategoryName}
-                      </div>
-                      <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
+          currentCategories.length > 0 ? (
+            <>
+              {currentCategories.map((data) => {
+                const categoryItems = Array.from(groupedFilteredItems.get(data.CategoryName)?.values() || []);
+                return (
+                  <div className='row mb-3' key={data._id}>
+                    <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
+                      {data.CategoryName}
                     </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
-                    </div>
-                  );
-                })}
-                {totalPages > 1 && (
-                  <Page
-                    totalPages={totalPages}
-                    currentPage={currentPage}
-                    onPageChange={setCurrentPage}
-                  />
-                )}
-              </>
-            );
-          })()
+                    <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
+                    {categoryItems.length > 0
+                      ? categoryItems.map(filterItems => {
+                          return (
+                            <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                              <Card foodItem={filterItems} options={filterItems.options[0]} />
+                            </div>
+                          )
+                        })
+                      : <div>No Such Data Found</div>
+                    }
+                  </div>
+                );
+              })}
+              {totalPages > 1 && (
+                <Page
+                  totalPages={totalPages}
+                  currentPage={currentPage}
+                  onPageChange={setCurrentPage}
+                />
+              )}
+            </>
+          ) : ""
         }
         </div>
         <Footer/>
