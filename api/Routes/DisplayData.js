@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 router.get('/foodData', async (req, res) => {
     try {
+        const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
         if (global.food_items && global.foodCategory) {
             return res.send([global.food_items, global.foodCategory]);
         }
@@ -9,7 +10,7 @@ router.get('/foodData', async (req, res) => {
         const mongoose = require('mongoose');
         // Ensure connection if not available
         if (mongoose.connection.readyState !== 1) {
-            if (!process.env.MONGODB_URI) {
+            if (!isNode || !process.env.MONGODB_URI) {
                 return res.status(500).send("Database connection URI not found");
             }
             await mongoose.connect(process.env.MONGODB_URI, {
