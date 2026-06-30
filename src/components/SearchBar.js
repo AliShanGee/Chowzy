@@ -81,6 +81,7 @@ const SearchBar = ({ items, onSearch }) => {
           {...getInputProps()}
           className="form-control"
           placeholder="What are you craving today?"
+          aria-label="Search for food"
           style={{
             border: 'none',
             fontSize: '18px',
@@ -93,6 +94,8 @@ const SearchBar = ({ items, onSearch }) => {
 
         {inputValue && (
           <button
+            type="button"
+            aria-label="Clear search"
             onClick={() => {
               setInputValue('');
               onSearch('');
@@ -116,6 +119,8 @@ const SearchBar = ({ items, onSearch }) => {
         )}
         
         <button
+          type="button"
+          aria-label="Search"
           className="btn btn-primary"
           style={{
             borderRadius: '40px',
