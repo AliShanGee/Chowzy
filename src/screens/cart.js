@@ -49,6 +49,8 @@ const MockPaymentForm = ({ totalPrice, onSuccess, onCancel }) => {
             >
                 <button 
                     onClick={onCancel} 
+                    className="focus-ring"
+                    aria-label="Close modal"
                     style={{ position: 'absolute', top: 15, right: 20, background: 'transparent', border: 'none', fontSize: '24px', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', zIndex: 10 }}
                 >
                     ✕
@@ -79,7 +81,7 @@ const MockPaymentForm = ({ totalPrice, onSuccess, onCancel }) => {
                     <button 
                         type="submit"
                         disabled={processing} 
-                        className="btn btn-primary w-100 py-3 mt-2 fs-5 rounded-3 border-0"
+                        className="btn btn-primary w-100 py-3 mt-2 fs-5 rounded-3 border-0 focus-ring"
                         style={{ background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)' }}
                     >
                         {processing ? "Verifying..." : `Pay Now`}
@@ -206,7 +208,13 @@ export default function Cart() {
                                     <td >{food.size}</td>
                                     <td >{food.price}</td>
                                     <td >
-                                        <button type="button" className="btn p-0" style={{ background: 'transparent', border: 'none' }} onClick={() => { dispatch({ type: "REMOVE", index: index }) }}>
+                                        <button
+                                            type="button"
+                                            className="btn p-0 focus-ring"
+                                            style={{ background: 'transparent', border: 'none' }}
+                                            onClick={() => { dispatch({ type: "REMOVE", index: index }) }}
+                                            aria-label="Remove item from cart"
+                                        >
                                             <Lottie 
                                                 animationData={deleteAnimation} 
                                                 loop={true} 
@@ -227,7 +235,7 @@ export default function Cart() {
                     <div className="mt-4 p-4 rounded shadow-lg text-center" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}>
                         <h2 className='fs-2 text-white mb-4'>Total Price: {totalPrice}/-</h2>
                         <button 
-                            className='btn btn-success px-5 py-3 fs-5'
+                            className='btn btn-success px-5 py-3 fs-5 focus-ring'
                             onClick={() => setShowPaymentModal(true)}
                         >
                             Proceed to Payment
@@ -251,6 +259,8 @@ export default function Cart() {
                                 >
                                     <button 
                                         onClick={() => { setShowPaymentModal(false); setPaymentMethod(null); }} 
+                                        className="focus-ring"
+                                        aria-label="Close modal"
                                         style={{ position: 'absolute', top: 15, right: 20, background: 'transparent', border: 'none', fontSize: '24px', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', zIndex: 1 }}
                                     >
                                         ✕
@@ -295,7 +305,7 @@ export default function Cart() {
                                     <div className="mt-4">
                                         {paymentMethod === 'cod' && (
                                             <button 
-                                                className='btn btn-success w-100 py-3 fs-5 rounded-3' 
+                                                className='btn btn-success w-100 py-3 fs-5 rounded-3 focus-ring'
                                                 onClick={() => handleFinalCheckout()} 
                                                 disabled={isProcessing}
                                             >
