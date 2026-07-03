@@ -11,19 +11,23 @@ const path = require('path');
 const fs = require('fs');
 const { client } = require('../redis');
 
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+
 // Configure Multer storage
-const storage = multer.diskStorage({
+const storage = (isNode && multer.diskStorage) ? multer.diskStorage({
     destination: function (req, file, cb) {
         const uploadDir = path.join(__dirname, '..', 'uploads', 'reels');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
+        if (fs.existsSync && fs.mkdirSync) {
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+            }
         }
         cb(null, uploadDir);
     },
     filename: function (req, file, cb) {
         cb(null, Date.now() + '-' + file.originalname);
     }
-});
+}) : undefined;
 
 const upload = multer({ 
     storage: storage,
