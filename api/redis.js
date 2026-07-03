@@ -1,7 +1,9 @@
 const redis = require('redis');
 
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+
 const client = redis.createClient({
-    url: process.env.REDIS_URL || 'redis://localhost:6379'
+    url: (isNode && process.env.REDIS_URL) || 'redis://localhost:6379'
 });
 
 client.on('error', (err) => {
