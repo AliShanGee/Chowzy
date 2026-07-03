@@ -160,7 +160,6 @@ export default function Card(props) {
                     <BootstrapCard.Img 
                         variant="top" 
                         src={foodItem.img} 
-                        loading="lazy"
                         style={{ 
                             height: '210px', 
                             objectFit: 'cover',

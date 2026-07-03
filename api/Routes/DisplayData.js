@@ -23,10 +23,8 @@ router.get('/foodData', async (req, res) => {
         const foodItemsCollection = mongoose.connection.db.collection("food_items");
         const foodCategoryCollection = mongoose.connection.db.collection("foodCategory");
 
-        const [foodItemsData, catData] = await Promise.all([
-            foodItemsCollection.find({}).toArray(),
-            foodCategoryCollection.find({}).toArray()
-        ]);
+        const foodItemsData = await foodItemsCollection.find({}).toArray();
+        const catData = await foodCategoryCollection.find({}).toArray();
 
         // Update global cache
         global.food_items = foodItemsData;
