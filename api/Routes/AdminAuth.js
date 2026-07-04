@@ -1,10 +1,11 @@
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 const express = require('express');
 const router = express.Router();
 const Admin = require('../models/Admin');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const jwtSecret = process.env.JWT_SECRET || 'fallback_secret'; // Use environment variable
+const jwtSecret = isNode ? process.env.JWT_SECRET : undefined;
 
 router.post(
   "/admin/login",
@@ -37,6 +38,9 @@ router.post(
         }
       };
 
+      if (!jwtSecret) {
+          return res.status(500).json({ success: false, message: "JWT Secret not configured." });
+      }
       const authToken = jwt.sign(payload, jwtSecret);
 
       res.status(200).json({
