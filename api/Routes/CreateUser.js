@@ -1,10 +1,11 @@
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const jwtSecret = process.env.JWT_SECRET;
+const jwtSecret = isNode ? process.env.JWT_SECRET : undefined;
 
 router.post(
   "/createuser", // Corrected the route from "/creatuser" to "/createuser"
@@ -87,6 +88,9 @@ router.post(
       };
 
       // --- Sign the token ---
+      if (!jwtSecret) {
+          return res.status(500).json({ success: false, message: "JWT Secret not configured." });
+      }
       const authToken = jwt.sign(payload, jwtSecret);
 
       // Send back the auth token and user details
