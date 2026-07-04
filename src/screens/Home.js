@@ -97,6 +97,13 @@ export default function Home() {
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div className="container">
           {/* Search Bar */}
+          {processedData.uniqueCategories.length > 0 && Array.from(processedData.itemsByCategory.values()).every(m => m.size === 0) && search && (
+            <div className="row">
+              <div className="col-12 text-center mt-5">
+                <div className="fs-2 text-muted">No Such Data Found</div>
+              </div>
+            </div>
+          )}
           <div className="row mb-2 mt-2" data-aos="fade-down" style={{ position: 'relative', zIndex: 5000 }}>
             <div className="col-12 text-center mb-3">
               <h1 style={{ 
@@ -139,15 +146,16 @@ export default function Home() {
                       <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
                         {data.CategoryName}
                       </div>
-                      <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-                      {filteredItems.length > 0
-                        ? filteredItems.map(filterItems => (
-                          <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                            <Card foodItem={filterItems} options={filterItems.options[0]} />
-                          </div>
-                        ))
-                        : <div>No Such Data Found</div>
-                      }
+                      {filteredItems.length > 0 && (
+                        <>
+                          <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
+                          {filteredItems.map(filterItems => (
+                            <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                              <Card foodItem={filterItems} options={filterItems.options[0]} />
+                            </div>
+                          ))}
+                        </>
+                      )}
                     </div>
                   );
                 })}
