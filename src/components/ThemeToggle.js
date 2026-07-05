@@ -37,7 +37,7 @@ const ThemeToggle = () => {
   return (
     <button
       type="button"
-      className="btn focus-ring"
+      className="btn focus-ring p-0"
       style={{
         cursor: 'pointer',
         width: '50px',
@@ -48,7 +48,6 @@ const ThemeToggle = () => {
         borderRadius: '50%',
         backgroundColor: 'transparent',
         border: 'none',
-        padding: 0,
       }}
       onClick={toggleTheme}
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
