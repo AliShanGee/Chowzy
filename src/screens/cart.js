@@ -49,6 +49,7 @@ const MockPaymentForm = ({ totalPrice, onSuccess, onCancel }) => {
             >
                 <button 
                     onClick={onCancel} 
+                    aria-label="Close modal"
                     style={{ position: 'absolute', top: 15, right: 20, background: 'transparent', border: 'none', fontSize: '24px', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', zIndex: 10 }}
                 >
                     ✕
@@ -206,7 +207,13 @@ export default function Cart() {
                                     <td >{food.size}</td>
                                     <td >{food.price}</td>
                                     <td >
-                                        <button type="button" className="btn p-0" style={{ background: 'transparent', border: 'none' }} onClick={() => { dispatch({ type: "REMOVE", index: index }) }}>
+                                        <button
+                                            type="button"
+                                            className="btn p-0 focus-ring"
+                                            style={{ background: 'transparent', border: 'none' }}
+                                            onClick={() => { dispatch({ type: "REMOVE", index: index }) }}
+                                            aria-label="Remove item from cart"
+                                        >
                                             <Lottie 
                                                 animationData={deleteAnimation} 
                                                 loop={true} 
@@ -251,6 +258,7 @@ export default function Cart() {
                                 >
                                     <button 
                                         onClick={() => { setShowPaymentModal(false); setPaymentMethod(null); }} 
+                                        aria-label="Close modal"
                                         style={{ position: 'absolute', top: 15, right: 20, background: 'transparent', border: 'none', fontSize: '24px', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', zIndex: 1 }}
                                     >
                                         ✕
