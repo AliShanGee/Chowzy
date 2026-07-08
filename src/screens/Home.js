@@ -19,6 +19,42 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
 
+  // 1. Pre-calculate unique categories O(C^2) but only when foodCat changes.
+  // This is independent of search, avoiding redundant work when typing.
+  const { uniqueCategories, totalPages } = React.useMemo(() => {
+    const unique = foodCat.filter((cat, index, self) =>
+      index === self.findIndex(c => c.CategoryName === cat.CategoryName)
+    );
+    return {
+      uniqueCategories: unique,
+      totalPages: Math.ceil(unique.length / itemsPerPage)
+    };
+  }, [foodCat]);
+
+  // 2. Optimized data processing to avoid O(N^2) complexity in the render loop.
+  // We use useMemo to group items by category and deduplicate them by name in O(N) time.
+  const itemMap = React.useMemo(() => {
+    const map = new Map();
+    if (foodCat.length === 0) return map;
+
+    // Group items by category and deduplicate by name in one pass O(N)
+    foodItem.forEach(item => {
+      if (!item.name || !item.name.toLowerCase().includes(search.toLowerCase())) return;
+
+      if (!map.has(item.CategoryName)) {
+        map.set(item.CategoryName, new Map());
+      }
+
+      const catItems = map.get(item.CategoryName);
+      // Deduplicate by name per category
+      if (!catItems.has(item.name)) {
+        catItems.set(item.name, item);
+      }
+    });
+
+    return map;
+  }, [foodItem, search, foodCat.length]);
+
   const loadData = async ()=>{
     try {
       let response = await fetch(`${API_BASE_URL}/api/foodData`,{
@@ -88,50 +124,41 @@ export default function Home() {
             </div> */}
           </div>
         {
-          (() => {
-            if (foodCat.length === 0) return "";
-            
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
-            const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
-            const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+          foodCat.length > 0 && (
+            <>
+              {uniqueCategories
+                .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                .map((data) => {
+                  const categoryItemsMap = itemMap.get(data.CategoryName);
+                  const filteredItems = categoryItemsMap ? Array.from(categoryItemsMap.values()) : [];
 
-            return (
-              <>
-                {currentCategories.map((data) => {
                   return (
                     <div className='row mb-3' key={data._id}>
                       <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
-                    </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
+                      {foodItem.length > 0 ? (
+                        filteredItems.map(filterItems => (
+                          <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                            <Card foodItem={filterItems} options={filterItems.options[0]} />
+                          </div>
+                        ))
+                      ) : (
+                        <div>No Such Data Found</div>
+                      )}
                     </div>
                   );
                 })}
-                {totalPages > 1 && (
-                  <Page
-                    totalPages={totalPages}
-                    currentPage={currentPage}
-                    onPageChange={setCurrentPage}
-                  />
-                )}
-              </>
-            );
-          })()
+              {totalPages > 1 && (
+                <Page
+                  totalPages={totalPages}
+                  currentPage={currentPage}
+                  onPageChange={setCurrentPage}
+                />
+              )}
+            </>
+          )
         }
         </div>
         <Footer/>

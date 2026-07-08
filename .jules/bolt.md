@@ -1,0 +1,3 @@
+## 2025-05-14 - Optimized React Render Loop in Home.js
+**Learning:** Found a major performance bottleneck where the `Home.js` component was performing $O(C * N^2)$ operations (nested filters and deduplication) directly in the render loop. This caused significant lag during search input. Refactoring this into $O(N)$ using `useMemo` and `Map` for grouping/deduplication improved performance by ~20x.
+**Action:** Always look for nested array operations (filter, some, findIndex) inside `.map()` calls in React components. Replace them with pre-processed `Map` or `Set` lookups memoized with `useMemo`. Split `useMemo` hooks when dependencies have different update frequencies (e.g., categories vs. search-filtered items).
