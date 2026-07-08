@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-require('dotenv').config();
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+if (isNode) require('dotenv').config();
 
 const ReelSchema = new mongoose.Schema({
     videoUrl: String,
@@ -12,14 +13,18 @@ const Reel = mongoose.model('Reel', ReelSchema);
 
 async function checkReels() {
     try {
+        if (!isNode || !process.env.MONGODB_URI) {
+            console.log("MONGODB_URI not found or not in Node environment");
+            return;
+        }
         await mongoose.connect(process.env.MONGODB_URI, { dbName: 'gofood' });
         console.log("Connected to MongoDB");
         const reels = await Reel.find({});
         console.log("Reels in database:", JSON.stringify(reels, null, 2));
-        process.exit(0);
+        if (isNode) process.exit(0);
     } catch (error) {
         console.error("Error:", error);
-        process.exit(1);
+        if (isNode) process.exit(1);
     }
 }
 
