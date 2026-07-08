@@ -1,11 +1,11 @@
 const express = require('express');
-const path = require('path');
-const { Annotation, END, START, StateGraph } = require('@langchain/langgraph');
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+const path = isNode ? require('path') : null;
+const { Annotation, END, START, StateGraph } = isNode ? require('@langchain/langgraph') : { Annotation: { Root: () => ({}) }, END: null, START: null, StateGraph: function() { this.addNode = () => this; this.addEdge = () => this; this.compile = () => ({ invoke: async () => ({ response: "AI Unavailable" }) }); } };
 const FoodItem = require('../models/FoodItem');
 
 const router = express.Router();
 
-const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 if (isNode) {
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 require('dotenv').config();

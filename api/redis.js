@@ -2,7 +2,7 @@ const isNode = typeof process !== 'undefined' && process.versions && process.ver
 const redis = isNode ? require('redis') : null;
 
 const client = isNode ? redis.createClient({
-    url: process.env.REDIS_URL || 'redis://localhost:6379'
+    url: (isNode && process.env.REDIS_URL) || 'redis://localhost:6379'
 }) : {
     on: () => {},
     connect: async () => {},
