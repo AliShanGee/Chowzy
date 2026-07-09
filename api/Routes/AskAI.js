@@ -1,12 +1,15 @@
 const express = require('express');
-const path = require('path');
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+const path = isNode ? require('path') : null;
 const { Annotation, END, START, StateGraph } = require('@langchain/langgraph');
 const FoodItem = require('../models/FoodItem');
 
 const router = express.Router();
 
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
-require('dotenv').config();
+if (isNode) {
+  require('dotenv').config({ path: path.join(__dirname, '../.env') });
+  require('dotenv').config();
+}
 
 const SUPPORTED_INTENTS = [
   'greeting',
@@ -22,9 +25,9 @@ const SUPPORTED_INTENTS = [
   'out_of_scope',
 ];
 
-const ZAI_BASE_URL = process.env.ZAI_BASE_URL || 'https://api.z.ai/api/paas/v4';
+const ZAI_BASE_URL = (isNode && process.env.ZAI_BASE_URL) || 'https://api.z.ai/api/paas/v4';
 const MODEL_CANDIDATES = [
-  process.env.ZAI_MODEL,
+  isNode && process.env.ZAI_MODEL,
   'glm-5.1',
   'glm-4.6',
 ].filter(Boolean);
@@ -110,7 +113,7 @@ function formatSeconds(ms) {
 }
 
 async function invokeZaiChat(messages, options = {}) {
-  if (!process.env.ZAI_API_KEY) {
+  if (!(isNode && process.env.ZAI_API_KEY)) {
     return null;
   }
 
@@ -454,7 +457,7 @@ function buildTemporaryAiUnavailableReply(state, error) {
 async function classifyQuery(state) {
   const fallback = keywordFallbackClassification(state.prompt);
 
-  if (!process.env.ZAI_API_KEY) {
+  if (!(isNode && process.env.ZAI_API_KEY)) {
     return { classification: fallback };
   }
 
@@ -607,7 +610,7 @@ function buildGroundedReply(state) {
 async function writeReply(state) {
   const deterministicReply = buildGroundedReply(state);
 
-  if (!process.env.ZAI_API_KEY) {
+  if (!(isNode && process.env.ZAI_API_KEY)) {
     return { response: deterministicReply };
   }
 
