@@ -1,8 +1,9 @@
 const redis = require('redis');
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 
-const client = redis.createClient({
+const client = isNode ? redis.createClient({
     url: process.env.REDIS_URL || 'redis://localhost:6379'
-});
+}) : { on: () => {}, connect: () => {}, isOpen: false };
 
 client.on('error', (err) => {
     // Suppress repeated connection logs to avoid console noise when offline

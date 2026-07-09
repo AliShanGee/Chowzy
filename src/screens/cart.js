@@ -164,6 +164,7 @@ export default function Cart() {
                     cursor: 'pointer',
                     background: theme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.15)',
                     backdropFilter: 'blur(12px)',
+                    border: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(20, 20, 20, 0.2)'}`,
                     borderRadius: '50%',
                     width: '50px',
                     height: '50px',
