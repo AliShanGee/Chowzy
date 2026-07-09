@@ -164,7 +164,6 @@ export default function Cart() {
                     cursor: 'pointer',
                     background: theme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.15)',
                     backdropFilter: 'blur(12px)',
-                    border: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(20, 20, 20, 0.2)'}`,
                     borderRadius: '50%',
                     width: '50px',
                     height: '50px',
@@ -172,7 +171,9 @@ export default function Cart() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: theme === 'dark' ? 'white' : 'black',
-                    boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+                    boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+                    padding: 0,
+                    border: 'none'
                 }}
             >
                 <BsArrowLeft size={24} />
