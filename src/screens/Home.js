@@ -34,19 +34,27 @@ export default function Home() {
   const itemMap = useMemo(() => {
     const map = new Map();
     const searchLower = search.toLowerCase();
+
+    // First pass: Group and deduplicate items by category
     foodItem.forEach(item => {
       if (item.name && item.name.toLowerCase().includes(searchLower)) {
         if (!map.has(item.CategoryName)) {
           map.set(item.CategoryName, new Map());
         }
         const catMap = map.get(item.CategoryName);
-        // Deduplicate by name within the category
+        // Deduplicate by name within the category to maintain functional parity
         if (!catMap.has(item.name)) {
           catMap.set(item.name, item);
         }
       }
     });
-    return map;
+
+    // Second pass: Pre-convert category maps to arrays to avoid Array.from() in render loop
+    const result = new Map();
+    map.forEach((catMap, categoryName) => {
+      result.set(categoryName, Array.from(catMap.values()));
+    });
+    return result;
   }, [foodItem, search]);
 
   const loadData = async ()=>{
@@ -126,8 +134,7 @@ export default function Home() {
             return (
               <>
                 {currentCategories.map((data) => {
-                  const itemsForCategory = itemMap.get(data.CategoryName);
-                  const filteredItems = itemsForCategory ? Array.from(itemsForCategory.values()) : [];
+                  const filteredItems = itemMap.get(data.CategoryName) || [];
 
                   return (
                     <div className='row mb-3' key={data._id}>
