@@ -1,0 +1,3 @@
+## 2025-05-15 - Accessible Toggles and Engaging Empty States
+**Learning:** Interactive elements implemented as `div` or `span` (like the chatbot and theme toggles) lack default focusability and ARIA roles, making them inaccessible to keyboard and screen reader users. Additionally, plain text empty states can be a dead-end for users.
+**Action:** Always use semantic `<button type="button">` for toggles, ensuring they have `aria-label` and proper focus indicators. Enhance empty states with visual feedback (like Lottie animations) and clear call-to-action buttons to guide users back to the main experience.
