@@ -28,7 +28,7 @@ export default function Home() {
       uniqueCategories: unique,
       totalPages: Math.ceil(unique.length / itemsPerPage)
     };
-  }, [foodCat]);
+  }, [foodCat, itemsPerPage]);
 
   // Optimize item processing: O(N) pass instead of O(C * N^2)
   const filteredItemMap = React.useMemo(() => {
@@ -139,17 +139,13 @@ export default function Home() {
                     </div>
                     <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
                     {foodItem.length > 0 ? (
-                      items.length > 0 ? (
-                        items.map(filterItems => (
-                          <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                            <Card foodItem={filterItems} options={filterItems.options[0]} />
-                          </div>
-                        ))
-                      ) : (
-                        <div className="ms-3" style={{ color: theme === 'dark' ? '#adb5bd' : '#6c757d' }}>No Such Data Found</div>
-                      )
+                      items.map(filterItems => (
+                        <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                          <Card foodItem={filterItems} options={filterItems.options[0]} />
+                        </div>
+                      ))
                     ) : (
-                      <div className="ms-3" style={{ color: theme === 'dark' ? '#adb5bd' : '#6c757d' }}>Loading items...</div>
+                      <div className="ms-3" style={{ color: theme === 'dark' ? '#adb5bd' : '#6c757d' }}>No Such Data Found</div>
                     )}
                   </div>
                 );
