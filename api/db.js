@@ -20,14 +20,14 @@ const mongoDB = async () => {
     });
     console.log("Connected to MongoDB successfully");
 
-    // Fetch food items
+    // Fetch collections in parallel
     const foodItemsCollection = mongoose.connection.db.collection("food_items");
-    const foodItemsData = await foodItemsCollection.find({}).toArray();
+    const foodCategoryCollection = mongoose.connection.db.collection("foodCategory");
 
-    // Fetch food categories
-    const foodCategoryCollection =
-      mongoose.connection.db.collection("foodCategory");
-    const catData = await foodCategoryCollection.find({}).toArray();
+    const [foodItemsData, catData] = await Promise.all([
+        foodItemsCollection.find({}).toArray(),
+        foodCategoryCollection.find({}).toArray()
+    ]);
 
     // Seed Admin user if collection is empty
     const Admin = require('./models/Admin');
