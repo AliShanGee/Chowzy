@@ -19,6 +19,45 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
 
+  // Optimize category processing: O(C)
+  const { uniqueCategories, totalPages } = React.useMemo(() => {
+    const unique = foodCat.filter((cat, index, self) =>
+      index === self.findIndex(c => c.CategoryName === cat.CategoryName)
+    );
+    return {
+      uniqueCategories: unique,
+      totalPages: Math.ceil(unique.length / itemsPerPage)
+    };
+  }, [foodCat, itemsPerPage]);
+
+  // Optimize item processing: O(N) pass instead of O(C * N^2)
+  const filteredItemMap = React.useMemo(() => {
+    const itemMap = new Map();
+    if (foodItem.length === 0) return itemMap;
+
+    const searchTerm = search.toLowerCase();
+
+    foodItem.forEach(item => {
+      if (item.name && item.name.toLowerCase().includes(searchTerm)) {
+        if (!itemMap.has(item.CategoryName)) {
+          itemMap.set(item.CategoryName, new Map());
+        }
+        const categoryMap = itemMap.get(item.CategoryName);
+        // Deduplicate by name per category
+        if (!categoryMap.has(item.name)) {
+          categoryMap.set(item.name, item);
+        }
+      }
+    });
+
+    // Convert internal Maps to arrays for easier rendering
+    const result = new Map();
+    for (const [catName, itemsByName] of itemMap) {
+      result.set(catName, Array.from(itemsByName.values()));
+    }
+    return result;
+  }, [foodItem, search]);
+
   const loadData = async ()=>{
     try {
       let response = await fetch(`${API_BASE_URL}/api/foodData`,{
@@ -87,52 +126,39 @@ export default function Home() {
               <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>50% off foods</span>
             </div> */}
           </div>
-        {
-          (() => {
-            if (foodCat.length === 0) return "";
-            
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
-            const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
-            const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-            return (
-              <>
-                {currentCategories.map((data) => {
-                  return (
-                    <div className='row mb-3' key={data._id}>
-                      <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
-                        {data.CategoryName}
-                      </div>
-                      <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
+        {foodCat.length > 0 && (
+          <>
+            {uniqueCategories
+              .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+              .map((data) => {
+                const items = filteredItemMap.get(data.CategoryName) || [];
+                return (
+                  <div className='row mb-3' key={data._id}>
+                    <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
+                      {data.CategoryName}
                     </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
-                    </div>
-                  );
-                })}
-                {totalPages > 1 && (
-                  <Page
-                    totalPages={totalPages}
-                    currentPage={currentPage}
-                    onPageChange={setCurrentPage}
-                  />
-                )}
-              </>
-            );
-          })()
-        }
+                    <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
+                    {foodItem.length > 0 ? (
+                      items.map(filterItems => (
+                        <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                          <Card foodItem={filterItems} options={filterItems.options[0]} />
+                        </div>
+                      ))
+                    ) : (
+                      <div className="ms-3" style={{ color: theme === 'dark' ? '#adb5bd' : '#6c757d' }}>No Such Data Found</div>
+                    )}
+                  </div>
+                );
+              })}
+            {totalPages > 1 && (
+              <Page
+                totalPages={totalPages}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+              />
+            )}
+          </>
+        )}
         </div>
         <Footer/>
       </div>

@@ -28,4 +28,7 @@ const DeliveredOrderSchema = new Schema({
     }
 });
 
+// Performance: Compound index for faster filtering by email and sorting by date
+DeliveredOrderSchema.index({ email: 1, delivered_at: -1 });
+
 module.exports = mongoose.model('DeliveredOrder', DeliveredOrderSchema);
