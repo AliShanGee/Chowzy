@@ -1,8 +1,11 @@
 const mongoose = require("mongoose");
-require("dotenv").config();
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+if (isNode) {
+    require("dotenv").config();
+}
 
 // It's a good practice to hide your credentials, you can use environment variables for this.
-const mongoURL = process.env.MONGODB_URI;
+const mongoURL = isNode ? process.env.MONGODB_URI : undefined;
 
 const mongoDB = async () => {
   if (!mongoURL) {
@@ -51,22 +54,26 @@ const mongoDB = async () => {
     }
 
     // Make data available globally
-    global.food_items = foodItemsData;
-    global.foodCategory = catData;
+    if (typeof global !== 'undefined') {
+        global.food_items = foodItemsData;
+        global.foodCategory = catData;
+    }
   } catch (error) {
     console.error("Error connecting to MongoDB:", error.message);
-    if (error.code === "ECONNREFUSED") {
-      console.error(
-        "Connection refused - check your MongoDB Atlas connection string and network access",
-      );
-    } else if (error.name === "MongooseServerSelectionError") {
-      console.error(
-        "Server selection failed - check if your IP is whitelisted in MongoDB Atlas",
-      );
+    if (isNode) {
+        if (error.code === "ECONNREFUSED") {
+            console.error(
+                "Connection refused - check your MongoDB Atlas connection string and network access",
+            );
+        } else if (error.name === "MongooseServerSelectionError") {
+            console.error(
+                "Server selection failed - check if your IP is whitelisted in MongoDB Atlas",
+            );
+        }
+        console.error("Full error details:", error);
+        // Exit process with failure
+        process.exit(1);
     }
-    console.error("Full error details:", error);
-    // Exit process with failure
-    process.exit(1);
   }
 };
 
