@@ -2,11 +2,11 @@ const express = require('express')
 const router = express.Router()
 router.get('/foodData', async (req, res) => {
     try {
-        if (global.food_items && global.foodCategory) {
-            return res.send([global.food_items, global.foodCategory]);
+        const currentGlobal = isNode ? global : {};
+        if (currentGlobal.food_items && currentGlobal.foodCategory) {
+            return res.send([currentGlobal.food_items, currentGlobal.foodCategory]);
         }
         
-        const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
         const mongoose = require('mongoose');
         // Ensure connection if not available
         if (mongoose.connection.readyState !== 1) {
@@ -29,8 +29,10 @@ router.get('/foodData', async (req, res) => {
         const catData = await foodCategoryCollection.find({}).toArray();
 
         // Update global cache
-        global.food_items = foodItemsData;
-        global.foodCategory = catData;
+        if (isNode) {
+            global.food_items = foodItemsData;
+            global.foodCategory = catData;
+        }
 
         res.send([foodItemsData, catData]);
     } catch (error) {

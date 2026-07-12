@@ -54,8 +54,10 @@ const mongoDB = async () => {
     }
 
     // Make data available globally
-    global.food_items = foodItemsData;
-    global.foodCategory = catData;
+    if (isNode) {
+      global.food_items = foodItemsData;
+      global.foodCategory = catData;
+    }
   } catch (error) {
     console.error("Error connecting to MongoDB:", error.message);
     if (error.code === "ECONNREFUSED") {
@@ -69,7 +71,7 @@ const mongoDB = async () => {
     }
     console.error("Full error details:", error);
     // Exit process with failure
-    process.exit(1);
+    if (isNode) process.exit(1);
   }
 };
 
