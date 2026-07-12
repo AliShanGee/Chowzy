@@ -6,35 +6,48 @@ const Order = require('../models/Orders');
 const User = require('../models/User');
 const Cart = require('../models/Cart');
 const Reel = require('../models/Reel');
-const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { client } = require('../redis');
 
-// Configure Multer storage
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadDir = path.join(__dirname, '..', 'uploads', 'reels');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 
-const upload = multer({ 
-    storage: storage,
-    fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith('video/')) {
-            cb(null, true);
-        } else {
-            cb(new Error('Only video files are allowed!'), false);
+let upload;
+if (isNode) {
+    const multer = require('multer');
+    // Configure Multer storage
+    const storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+            const uploadDir = path.join(__dirname, '..', 'uploads', 'reels');
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+            }
+            cb(null, uploadDir);
+        },
+        filename: function (req, file, cb) {
+            cb(null, Date.now() + '-' + file.originalname);
         }
-    }
-});
+    });
+
+    upload = multer({
+        storage: storage,
+        fileFilter: (req, file, cb) => {
+            if (file.mimetype.startsWith('video/')) {
+                cb(null, true);
+            } else {
+                cb(new Error('Only video files are allowed!'), false);
+            }
+        }
+    });
+} else {
+    // Mock upload middleware for non-Node environments
+    upload = {
+        single: () => (req, res, next) => next(),
+        array: () => (req, res, next) => next(),
+        fields: () => (req, res, next) => next(),
+        any: () => (req, res, next) => next()
+    };
+}
 
 // Helper for sending list response with Content-Range
 const sendListResponse = (res, data, total) => {
@@ -491,7 +504,7 @@ router.put('/reels/:id', upload.single('video'), async (req, res) => {
 router.delete('/reels/:id', async (req, res) => {
     try {
         const reel = await Reel.findById(req.params.id);
-        if (reel && reel.videoUrl && reel.videoUrl.startsWith('/uploads/')) {
+        if (isNode && reel && reel.videoUrl && reel.videoUrl.startsWith('/uploads/')) {
             const filePath = path.join(__dirname, '..', reel.videoUrl);
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
@@ -534,4 +547,3 @@ router.delete('/reels', async (req, res) => {
 });
 
 module.exports = router;
-
