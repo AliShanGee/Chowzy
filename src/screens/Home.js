@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -46,6 +46,51 @@ export default function Home() {
     });
   }, []);
 
+  // BOLT OPTIMIZATION: Extract unique categories once in O(C) instead of O(C^2)
+  const uniqueCategories = useMemo(() => {
+    const categories = [];
+    const seen = new Set();
+    for (const cat of foodCat) {
+      if (!seen.has(cat.CategoryName)) {
+        seen.add(cat.CategoryName);
+        categories.push(cat);
+      }
+    }
+    return categories;
+  }, [foodCat]);
+
+  const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
+
+  const currentCategories = useMemo(() => {
+    return uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  }, [uniqueCategories, currentPage]);
+
+  // BOLT OPTIMIZATION: Pre-filter and group food items by category in a single O(N) pass.
+  // This avoids nested filtering/reducing in the render loop which was O(C * N^2).
+  const filteredItemMap = useMemo(() => {
+    const map = new Map();
+    const searchLower = search.toLowerCase();
+    const categoryNames = new Set(currentCategories.map(c => c.CategoryName));
+
+    for (const item of foodItem) {
+      if (item.name &&
+        categoryNames.has(item.CategoryName) &&
+        item.name.toLowerCase().includes(searchLower)) {
+
+        if (!map.has(item.CategoryName)) {
+          map.set(item.CategoryName, []);
+        }
+
+        const categoryItems = map.get(item.CategoryName);
+        // Ensure uniqueness by name (parity with original logic)
+        if (!categoryItems.some(i => i.name === item.name)) {
+          categoryItems.push(item);
+        }
+      }
+    }
+    return map;
+  }, [foodItem, currentCategories, search]);
+
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
       {theme !== 'dark' && (
@@ -87,52 +132,37 @@ export default function Home() {
               <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>50% off foods</span>
             </div> */}
           </div>
-        {
-          (() => {
-            if (foodCat.length === 0) return "";
-            
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
-            const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
-            const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-            return (
-              <>
-                {currentCategories.map((data) => {
-                  return (
-                    <div className='row mb-3' key={data._id}>
-                      <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
-                        {data.CategoryName}
+        {foodCat.length > 0 && (
+          <>
+            {currentCategories.map((data) => {
+              const items = filteredItemMap.get(data.CategoryName) || [];
+              return (
+                <div className='row mb-3' key={data._id}>
+                  <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
+                    {data.CategoryName}
+                  </div>
+                  <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
+                  {foodItem.length > 0 ? (
+                    items.map(filterItems => (
+                      <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                        <Card foodItem={filterItems} options={filterItems.options[0]} />
                       </div>
-                      <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
-                    </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
-                    </div>
-                  );
-                })}
-                {totalPages > 1 && (
-                  <Page
-                    totalPages={totalPages}
-                    currentPage={currentPage}
-                    onPageChange={setCurrentPage}
-                  />
-                )}
-              </>
-            );
-          })()
-        }
+                    ))
+                  ) : (
+                    <div>No Such Data Found</div>
+                  )}
+                </div>
+              );
+            })}
+            {totalPages > 1 && (
+              <Page
+                totalPages={totalPages}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+              />
+            )}
+          </>
+        )}
         </div>
         <Footer/>
       </div>
