@@ -137,7 +137,7 @@ async function invokeZaiChat(messages, options = {}) {
       const response = await fetch(`${ZAI_BASE_URL.replace(/\/$/, '')}/chat/completions`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${process.env.ZAI_API_KEY}`,
+          Authorization: `Bearer ${isNode ? process.env.ZAI_API_KEY : ''}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
