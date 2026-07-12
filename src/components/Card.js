@@ -7,7 +7,7 @@ import { useTheme } from "next-themes";
 import { Rating, ThinStar } from '@smastrom/react-rating';
 import '@smastrom/react-rating/style.css';
 
-export default function Card(props) {
+function Card(props) {
     let dispatch = useDispatchCart();
     const { theme } = useTheme();
     const [qty, setQty] = useState(1);
@@ -245,3 +245,7 @@ export default function Card(props) {
         </div>
     );
 }
+
+// BOLT OPTIMIZATION: Wrap Card with React.memo to skip re-renders
+// when parent (Home) state updates if props remain identical.
+export default React.memo(Card);

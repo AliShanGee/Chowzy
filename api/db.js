@@ -1,8 +1,11 @@
 const mongoose = require("mongoose");
-require("dotenv").config();
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+if (isNode) {
+  require("dotenv").config();
+}
 
 // It's a good practice to hide your credentials, you can use environment variables for this.
-const mongoURL = process.env.MONGODB_URI;
+const mongoURL = isNode ? process.env.MONGODB_URI : null;
 
 const mongoDB = async () => {
   if (!mongoURL) {
@@ -51,8 +54,10 @@ const mongoDB = async () => {
     }
 
     // Make data available globally
-    global.food_items = foodItemsData;
-    global.foodCategory = catData;
+    if (isNode) {
+      global.food_items = foodItemsData;
+      global.foodCategory = catData;
+    }
   } catch (error) {
     console.error("Error connecting to MongoDB:", error.message);
     if (error.code === "ECONNREFUSED") {
@@ -66,7 +71,7 @@ const mongoDB = async () => {
     }
     console.error("Full error details:", error);
     // Exit process with failure
-    process.exit(1);
+    if (isNode) process.exit(1);
   }
 };
 

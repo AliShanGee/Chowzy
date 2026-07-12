@@ -1,3 +1,4 @@
+const isNode = typeof process !== "undefined" && process.versions && process.versions.node;
 const express = require('express');
 const router = express.Router();
 const Cart = require('../models/Cart');
