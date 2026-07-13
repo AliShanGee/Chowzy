@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, memo } from "react";
 import BootstrapCard from "react-bootstrap/Card";
 import { useDispatchCart } from "./ContextReducer";
 import IconSlideButton from "./IconSlideButton";
@@ -7,7 +7,7 @@ import { useTheme } from "next-themes";
 import { Rating, ThinStar } from '@smastrom/react-rating';
 import '@smastrom/react-rating/style.css';
 
-export default function Card(props) {
+const Card = memo(function Card(props) {
     let dispatch = useDispatchCart();
     const { theme } = useTheme();
     const [qty, setQty] = useState(1);
@@ -244,4 +244,6 @@ export default function Card(props) {
             </motion.div>
         </div>
     );
-}
+});
+
+export default Card;
