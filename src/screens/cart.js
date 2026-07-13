@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Lottie from "lottie-react";
 import animationData from "../animations/Order success.json";
 import deleteAnimation from "../animations/Delete.json";
+import shoppingCartAnimation from "../animations/shopping cart.json";
 import { useCart, useDispatchCart } from '../components/ContextReducer.js';
 import { BsArrowLeft, BsCreditCard, BsHouseDoor } from 'react-icons/bs';
 import API_BASE_URL from '../config.js';
@@ -49,6 +50,7 @@ const MockPaymentForm = ({ totalPrice, onSuccess, onCancel }) => {
             >
                 <button 
                     onClick={onCancel} 
+                    aria-label="Close modal"
                     style={{ position: 'absolute', top: 15, right: 20, background: 'transparent', border: 'none', fontSize: '24px', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', zIndex: 10 }}
                 >
                     ✕
@@ -153,6 +155,15 @@ export default function Cart() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => navigate("/")}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        navigate("/");
+                    }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label="Back to home"
                 style={{
                     position: 'fixed',
                     top: '90px',
@@ -176,12 +187,21 @@ export default function Cart() {
             </motion.div>
 
             {showSuccess ? (
-                <div className='m-5 w-100 text-center fs-3 text-white'>
+                <div className={`m-5 w-100 text-center fs-3 ${theme === 'dark' ? 'text-white' : 'text-dark'}`}>
                     <Lottie animationData={animationData} style={{ height: 300, width: 300, margin: 'auto' }} />
                     <p>Order Placed Successfully!</p>
                 </div>
             ) : data.length === 0 ? (
-                <div className='m-5 w-100 text-center fs-3 text-white pt-5'>The Cart is Empty!</div>
+                <div className='m-5 w-100 text-center fs-3 pt-5 d-flex flex-column align-items-center justify-content-center'>
+                    <Lottie animationData={shoppingCartAnimation} style={{ height: 300, width: 300 }} />
+                    <p className={theme === 'dark' ? 'text-white' : 'text-dark'}>The Cart is Empty!</p>
+                    <button
+                        className="btn btn-success px-4 py-2 mt-3 fs-5 rounded-pill shadow"
+                        onClick={() => navigate("/")}
+                    >
+                        Browse Foods
+                    </button>
+                </div>
             ) : (
                 <div className='container m-auto mt-5 table-responsive' >
                     <table className='table table-hover'>
@@ -198,7 +218,7 @@ export default function Cart() {
                         </thead>
                         <tbody>
                             {data.map((food, index) => (
-                                <tr className='text-white' key={index} style={{ verticalAlign: 'middle' }}>
+                                <tr className={theme === 'dark' ? 'text-white' : 'text-dark'} key={index} style={{ verticalAlign: 'middle' }}>
                                     <th scope='row' >{index + 1}</th>
                                     <td><img src={food.img || 'https://via.placeholder.com/60'} alt={food.name} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd' }} /></td>
                                     <td >{food.name}</td>
@@ -206,7 +226,13 @@ export default function Cart() {
                                     <td >{food.size}</td>
                                     <td >{food.price}</td>
                                     <td >
-                                        <button type="button" className="btn p-0" style={{ background: 'transparent', border: 'none' }} onClick={() => { dispatch({ type: "REMOVE", index: index }) }}>
+                                        <button
+                                            type="button"
+                                            className="btn p-0"
+                                            style={{ background: 'transparent', border: 'none' }}
+                                            onClick={() => { dispatch({ type: "REMOVE", index: index }) }}
+                                            aria-label="Remove item from cart"
+                                        >
                                             <Lottie 
                                                 animationData={deleteAnimation} 
                                                 loop={true} 
@@ -224,8 +250,8 @@ export default function Cart() {
                         </tbody>
                     </table>
                     
-                    <div className="mt-4 p-4 rounded shadow-lg text-center" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                        <h2 className='fs-2 text-white mb-4'>Total Price: {totalPrice}/-</h2>
+                    <div className="mt-4 p-4 rounded shadow-lg text-center" style={{ background: theme === 'dark' ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)', border: `1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}` }}>
+                        <h2 className={`fs-2 ${theme === 'dark' ? 'text-white' : 'text-dark'} mb-4`}>Total Price: {totalPrice}/-</h2>
                         <button 
                             className='btn btn-success px-5 py-3 fs-5'
                             onClick={() => setShowPaymentModal(true)}
@@ -251,6 +277,7 @@ export default function Cart() {
                                 >
                                     <button 
                                         onClick={() => { setShowPaymentModal(false); setPaymentMethod(null); }} 
+                                        aria-label="Close modal"
                                         style={{ position: 'absolute', top: 15, right: 20, background: 'transparent', border: 'none', fontSize: '24px', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', zIndex: 1 }}
                                     >
                                         ✕
