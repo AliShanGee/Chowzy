@@ -1,12 +1,15 @@
 const express = require('express');
-const path = require('path');
 const { Annotation, END, START, StateGraph } = require('@langchain/langgraph');
 const FoodItem = require('../models/FoodItem');
+const { isNode } = require('../redis');
 
 const router = express.Router();
 
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
-require('dotenv').config();
+if (isNode) {
+  const path = require('path');
+  require('dotenv').config({ path: path.join(__dirname, '../.env') });
+  require('dotenv').config();
+}
 
 const SUPPORTED_INTENTS = [
   'greeting',
