@@ -1,0 +1,3 @@
+## 2026-07-13 - Enhanced Cart UX and Accessibility
+**Learning:** In legacy React applications with theme support (e.g., via `next-themes`), hardcoded text color classes like `text-white` can lead to invisibility or poor contrast in light mode. Transitioning interactive elements like `motion.div` to accessible buttons requires adding explicit keyboard event handlers (`onKeyDown`) and ARIA roles.
+**Action:** Always use theme-aware conditional classes (e.g., `theme === 'dark' ? 'text-white' : 'text-dark'`) and ensure custom interactive components have `role="button"`, `tabIndex={0}`, and support both `Enter` and `Space` keys.
