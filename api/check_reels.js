@@ -1,3 +1,4 @@
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 const mongoose = require('mongoose');
 require('dotenv').config();
 
@@ -12,7 +13,7 @@ const Reel = mongoose.model('Reel', ReelSchema);
 
 async function checkReels() {
     try {
-        await mongoose.connect(process.env.MONGODB_URI, { dbName: 'gofood' });
+        await mongoose.connect((isNode && process.env.MONGODB_URI), { dbName: 'gofood' });
         console.log("Connected to MongoDB");
         const reels = await Reel.find({});
         console.log("Reels in database:", JSON.stringify(reels, null, 2));
