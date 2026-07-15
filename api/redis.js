@@ -1,10 +1,21 @@
-const redis = require('redis');
+const { isNode } = require('./runtime-check');
 
-const client = redis.createClient({
-    url: process.env.REDIS_URL || 'redis://localhost:6379'
-});
+let client;
+if (isNode) {
+    const redis = require('redis');
+    client = redis.createClient({
+        url: process.env.REDIS_URL || 'redis://localhost:6379'
+    });
+} else {
+    // Mock client for non-Node environments like Cloudflare Workers
+    client = {
+        on: () => {},
+        connect: async () => {},
+        isOpen: false
+    };
+}
 
-client.on('error', (err) => {
+client.on?.('error', (err) => {
     // Suppress repeated connection logs to avoid console noise when offline
     if (err.code !== 'ECONNREFUSED') {
         console.log('Redis Client Error', err);
