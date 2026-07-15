@@ -1,7 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
 const mongoDB = require('./db');
 const { connectRedis } = require('./redis');
 
@@ -20,6 +18,8 @@ app.use(cors({
 
 // Serve static files from uploads directory with absolute path
 if (isNode) {
+    const path = require('path');
+    const fs = require('fs');
     const uploadsPath = path.resolve(__dirname, 'uploads');
     if (!fs.existsSync(uploadsPath)) {
         fs.mkdirSync(uploadsPath, { recursive: true });
@@ -56,3 +56,6 @@ if (isNode) {
         process.exit(1);
     });
 }
+
+// For Cloudflare Workers / Serverless compatibility
+module.exports = app;
