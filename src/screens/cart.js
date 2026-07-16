@@ -243,8 +243,8 @@ export default function Cart() {
                         </tbody>
                     </table>
                     
-                    <div className="mt-4 p-4 rounded shadow-lg text-center" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                        <h2 className='fs-2 text-white mb-4'>Total Price: {totalPrice}/-</h2>
+                    <div className="mt-4 p-4 rounded shadow-lg text-center" style={{ background: theme === 'dark' ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)', border: `1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}` }}>
+                        <h2 className={`fs-2 ${theme === 'dark' ? 'text-white' : 'text-dark'} mb-4`}>Total Price: {totalPrice}/-</h2>
                         <button 
                             className='btn btn-success px-5 py-3 fs-5'
                             onClick={() => setShowPaymentModal(true)}
