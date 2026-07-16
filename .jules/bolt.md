@@ -1,0 +1,3 @@
+## 2025-05-15 - Optimized Home page data processing
+**Learning:** Nested data processing logic (filtering and deduplication) inside a React component's render function can create a significant performance bottleneck as the dataset grows ($O(C \cdot N^2)$ complexity where $C$ is categories and $N$ is items).
+**Action:** Use `useMemo` to pre-calculate a category-keyed Map in a single $O(N)$ pass and deduplicate items using another Map/Set. This ensures that expensive computations only run when the raw data or search query change, significantly improving UI responsiveness during search interactions.

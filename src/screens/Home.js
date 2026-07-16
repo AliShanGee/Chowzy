@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -18,6 +18,52 @@ export default function Home() {
   const [foodItem,setFoodItem] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
+
+  // Memoize unique categories and total pages
+  const { uniqueCategories, totalPages } = useMemo(() => {
+    if (!foodCat || foodCat.length === 0) return { uniqueCategories: [], totalPages: 0 };
+
+    // O(C) deduplication using a Set for CategoryName
+    const seen = new Set();
+    const unique = foodCat.filter(cat => {
+      if (seen.has(cat.CategoryName)) return false;
+      seen.add(cat.CategoryName);
+      return true;
+    });
+
+    return {
+      uniqueCategories: unique,
+      totalPages: Math.ceil(unique.length / itemsPerPage)
+    };
+  }, [foodCat]);
+
+  // Memoize filtered items grouped by category
+  const itemMap = useMemo(() => {
+    if (!foodItem || foodItem.length === 0) return new Map();
+
+    const map = new Map();
+    const searchLower = search.toLowerCase();
+
+    // Single pass O(N) to filter and group by category
+    for (const item of foodItem) {
+      if (
+        item.name &&
+        item.CategoryName &&
+        item.name.toLowerCase().includes(searchLower)
+      ) {
+        if (!map.has(item.CategoryName)) {
+          map.set(item.CategoryName, new Map());
+        }
+        const categoryItems = map.get(item.CategoryName);
+
+        // Deduplicate items by name within the category
+        if (!categoryItems.has(item.name)) {
+          categoryItems.set(item.name, item);
+        }
+      }
+    }
+    return map;
+  }, [foodItem, search]);
 
   const loadData = async ()=>{
     try {
@@ -89,36 +135,35 @@ export default function Home() {
           </div>
         {
           (() => {
-            if (foodCat.length === 0) return "";
+            if (uniqueCategories.length === 0) return "";
             
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
-            const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
             return (
               <>
                 {currentCategories.map((data) => {
+                  const filteredItems = itemMap.has(data.CategoryName)
+                    ? Array.from(itemMap.get(data.CategoryName).values())
+                    : [];
+
                   return (
                     <div className='row mb-3' key={data._id}>
                       <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
-                    </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
+
+                      {filteredItems.length > 0 ? (
+                        filteredItems.map(filterItems => (
+                          <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                            <Card foodItem={filterItems} options={filterItems.options[0]} />
+                          </div>
+                        ))
+                      ) : (
+                        <div className="ms-3" style={{ color: theme === 'dark' ? '#adb5bd' : '#6c757d' }}>
+                          No items found in this category matching your search.
+                        </div>
+                      )}
                     </div>
                   );
                 })}
