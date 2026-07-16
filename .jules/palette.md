@@ -1,0 +1,3 @@
+## 2025-05-14 - Micro-UX and Accessibility in Cart
+**Learning:** Hardcoded utility classes for color (e.g., `text-white`) create accessibility failures in dual-theme applications; use theme-aware logic (e.g., `theme === 'dark' ? 'text-white' : 'text-dark'`) to maintain legibility in light mode. Non-semantic elements used as buttons (like motion.div) lack keyboard accessibility and screen reader support unless refactored to semantic <button> elements.
+**Action:** Always verify legibility in both light and dark modes when using hardcoded color classes. Prefer semantic <button> elements for interactive components to ensure native keyboard support and ARIA compatibility.
