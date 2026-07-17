@@ -30,6 +30,10 @@ const UserSchema = new Schema({
         default: Date.now,
     }
 });
+
+// Index email for faster query performance during login and order retrieval
+UserSchema.index({ email: 1 });
+
 UserSchema.set('toJSON', {
     virtuals: true,
     versionKey: false,
