@@ -1,0 +1,3 @@
+## 2025-02-25 - Non-Semantic Divs and Inline Styles in React
+**Learning:** Converting interactive, custom-styled non-semantic elements (like `div`) to standard `<button>` elements can break visual layout in CSS-in-JS or inline style environments. Standard HTML buttons carry browser-default margins, paddings, borders, and backgrounds, which must be explicitly reset (`border: 'none'`, `background: 'none'`, `padding: 0`, `outline: 'none'`) to preserve the original visual layout while granting correct keyboard navigation and screen reader accessibility.
+**Action:** Always include a CSS reset object inside the inline `style` prop of any custom button refactored from a `div` or `span`, and ensure focus indicators are preserved by combining a focus class with standard resets.
