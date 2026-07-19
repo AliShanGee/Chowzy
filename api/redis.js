@@ -1,4 +1,4 @@
-const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
+const isNode = typeof process !== 'undefined' && process.versions && !!process.versions.node;
 
 let client;
 
@@ -7,7 +7,6 @@ if (isNode) {
     client = redis.createClient({
         url: process.env.REDIS_URL || 'redis://localhost:6379'
     });
-
     client.on('error', (err) => {
         // Suppress repeated connection logs to avoid console noise when offline
         if (err.code !== 'ECONNREFUSED') {
@@ -15,23 +14,26 @@ if (isNode) {
         }
     });
 } else {
-    // Mock client for non-Node.js runtimes (e.g., Cloudflare Workers) to avoid runtime errors
     client = {
+        isOpen: false,
         on: () => {},
         connect: async () => {},
-        isOpen: false
+        get: async () => null,
+        set: async () => {},
+        del: async () => {}
     };
 }
 
 const connectRedis = async () => {
-    if (!isNode) return;
-    try {
-        if (!client.isOpen) {
-            await client.connect();
-            console.log('Connected to Redis');
+    if (isNode) {
+        try {
+            if (!client.isOpen) {
+                await client.connect();
+                console.log('Connected to Redis');
+            }
+        } catch (err) {
+            console.warn('Could not connect to Redis. App will continue without caching.');
         }
-    } catch (err) {
-        console.warn('Could not connect to Redis. App will continue without caching.');
     }
 };
 
