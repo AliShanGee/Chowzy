@@ -5,6 +5,8 @@ const FoodItem = require('../models/FoodItem');
 
 const router = express.Router();
 
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 require('dotenv').config();
 
@@ -22,9 +24,9 @@ const SUPPORTED_INTENTS = [
   'out_of_scope',
 ];
 
-const ZAI_BASE_URL = process.env.ZAI_BASE_URL || 'https://api.z.ai/api/paas/v4';
+const ZAI_BASE_URL = (isNode && process.env.ZAI_BASE_URL) || 'https://api.z.ai/api/paas/v4';
 const MODEL_CANDIDATES = [
-  process.env.ZAI_MODEL,
+  isNode && process.env.ZAI_MODEL,
   'glm-5.1',
   'glm-4.6',
 ].filter(Boolean);
@@ -110,7 +112,8 @@ function formatSeconds(ms) {
 }
 
 async function invokeZaiChat(messages, options = {}) {
-  if (!process.env.ZAI_API_KEY) {
+  const zaiApiKey = isNode && process.env.ZAI_API_KEY;
+  if (!zaiApiKey) {
     return null;
   }
 
@@ -134,7 +137,7 @@ async function invokeZaiChat(messages, options = {}) {
       const response = await fetch(`${ZAI_BASE_URL.replace(/\/$/, '')}/chat/completions`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${process.env.ZAI_API_KEY}`,
+          Authorization: `Bearer ${zaiApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -454,7 +457,8 @@ function buildTemporaryAiUnavailableReply(state, error) {
 async function classifyQuery(state) {
   const fallback = keywordFallbackClassification(state.prompt);
 
-  if (!process.env.ZAI_API_KEY) {
+  const zaiApiKey = isNode && process.env.ZAI_API_KEY;
+  if (!zaiApiKey) {
     return { classification: fallback };
   }
 
@@ -607,7 +611,8 @@ function buildGroundedReply(state) {
 async function writeReply(state) {
   const deterministicReply = buildGroundedReply(state);
 
-  if (!process.env.ZAI_API_KEY) {
+  const zaiApiKey = isNode && process.env.ZAI_API_KEY;
+  if (!zaiApiKey) {
     return { response: deterministicReply };
   }
 
