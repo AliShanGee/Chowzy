@@ -5,8 +5,10 @@ const fs = require('fs');
 const mongoDB = require('./db');
 const { connectRedis } = require('./redis');
 
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+
 const app = express();
-const port = process.env.PORT || 5000;
+const port = (isNode && process.env.PORT) || 5000;
 
 // Middleware
 app.use(express.json());

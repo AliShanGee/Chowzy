@@ -97,6 +97,7 @@ const SearchBar = ({ items, onSearch }) => {
               setInputValue('');
               onSearch('');
             }}
+            aria-label="Clear search"
             style={{ 
               background: 'none', 
               border: 'none', 

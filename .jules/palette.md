@@ -1,0 +1,3 @@
+## 2025-07-20 - Forms and Icon Button Accessibility Enhancements
+**Learning:** React Bootstrap Form Group components require an explicit `controlId` prop to bind the `<Form.Label>` and `<Form.Control>` semantic elements together with the correct `id`/`htmlFor` association, which is critical for screen reader visibility. Additionally, icon-only toggle buttons (like password visibility or clearing an input search bar) are completely invisible to screen readers without a dynamically updating `aria-label` or static descriptive accessibility tags.
+**Action:** Always assign a specific `controlId` to `Form.Group` in Bootstrap forms, and explicitly attach an `aria-label` attribute on any button that relies solely on visual icons or glyphs to represent its actions.
