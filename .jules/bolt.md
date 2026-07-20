@@ -1,0 +1,3 @@
+## 2025-03-05 - Optimize Search Re-renders on Interactive Lists
+**Learning:** Performing O(C * N) filtering and O(M^2) deduplication inside the render loop of a main component like Home.js causes substantial typing lag on keypresses. By pre-computing unique categories in O(C) and grouping filtered/deduplicated items into a category-keyed Map in a single O(N) pass inside `useMemo`, we completely avoid redundant calculations on keypress and non-search renders.
+**Action:** Always use a single-pass `useMemo` map to group and filter items by category instead of doing nested filters and reduces in JSX loops.
