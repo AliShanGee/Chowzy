@@ -19,6 +19,41 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
 
+  // Extract unique categories (O(C) complexity instead of O(C^2) index searches)
+  const uniqueCategories = React.useMemo(() => {
+    const seen = new Set();
+    return foodCat.filter((cat) => {
+      if (!cat.CategoryName || seen.has(cat.CategoryName)) {
+        return false;
+      }
+      seen.add(cat.CategoryName);
+      return true;
+    });
+  }, [foodCat]);
+
+  // Pre-process, filter, and deduplicate food items by CategoryName in a single O(N) pass
+  // to avoid expensive nested filtering operations inside the rendering loop.
+  const filteredItemsByCategory = React.useMemo(() => {
+    const itemMap = {};
+    const lowercaseSearch = search.toLowerCase();
+
+    foodItem.forEach((item) => {
+      if (!item.name || !item.CategoryName) return;
+      if (!item.name.toLowerCase().includes(lowercaseSearch)) return;
+
+      if (!itemMap[item.CategoryName]) {
+        itemMap[item.CategoryName] = [];
+      }
+
+      const list = itemMap[item.CategoryName];
+      if (!list.some(i => i.name === item.name)) {
+        list.push(item);
+      }
+    });
+
+    return itemMap;
+  }, [foodItem, search]);
+
   const loadData = async ()=>{
     try {
       let response = await fetch(`${API_BASE_URL}/api/foodData`,{
@@ -91,34 +126,30 @@ export default function Home() {
           (() => {
             if (foodCat.length === 0) return "";
             
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
             const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
             return (
               <>
                 {currentCategories.map((data) => {
+                  const categoryItems = filteredItemsByCategory[data.CategoryName] || [];
                   return (
                     <div className='row mb-3' key={data._id}>
                       <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
-                    </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
+                      {foodItem.length > 0 ? (
+                        categoryItems.map(filterItems => {
+                          return (
+                            <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                              <Card foodItem={filterItems} options={filterItems.options[0]} />
+                            </div>
+                          )
+                        })
+                      ) : (
+                        <div>No Such Data Found</div>
+                      )}
                     </div>
                   );
                 })}
