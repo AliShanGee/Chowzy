@@ -28,4 +28,7 @@ const DeliveredOrderSchema = new Schema({
     }
 });
 
+// Compound index on { email: 1, delivered_at: -1 } to optimize user history lookups and sorting
+DeliveredOrderSchema.index({ email: 1, delivered_at: -1 });
+
 module.exports = mongoose.model('DeliveredOrder', DeliveredOrderSchema);

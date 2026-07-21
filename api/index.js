@@ -16,10 +16,14 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+
 // Serve static files from uploads directory with absolute path
 const uploadsPath = path.resolve(__dirname, 'uploads');
-if (!fs.existsSync(uploadsPath)) {
-    fs.mkdirSync(uploadsPath, { recursive: true });
+if (isNode) {
+    if (!fs.existsSync(uploadsPath)) {
+        fs.mkdirSync(uploadsPath, { recursive: true });
+    }
 }
 app.use('/uploads', express.static(uploadsPath));
 console.log(`Serving static files from: ${uploadsPath}`);
@@ -48,5 +52,7 @@ mongoDB().then(() => {
     });
 }).catch(err => {
     console.error("Failed to connect to MongoDB:", err);
-    process.exit(1);
+    if (isNode) {
+        process.exit(1);
+    }
 });
