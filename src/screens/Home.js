@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -18,6 +18,58 @@ export default function Home() {
   const [foodItem,setFoodItem] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
+
+  // ⚡ OPTIMIZATION: Extract unique categories using a Set.
+  // This reduces complexity from O(C^2) (using findIndex/indexOf) to O(C) where C is foodCat.length.
+  const { uniqueCategories, totalPages } = useMemo(() => {
+    const seen = new Set();
+    const unique = [];
+    for (let i = 0; i < foodCat.length; i++) {
+      const cat = foodCat[i];
+      if (cat && cat.CategoryName && !seen.has(cat.CategoryName)) {
+        seen.add(cat.CategoryName);
+        unique.push(cat);
+      }
+    }
+    const pages = Math.ceil(unique.length / itemsPerPage);
+    return { uniqueCategories: unique, totalPages: pages };
+  }, [foodCat]);
+
+  // ⚡ OPTIMIZATION: Get current categories for the current page.
+  const currentCategories = useMemo(() => {
+    return uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  }, [uniqueCategories, currentPage]);
+
+  // ⚡ OPTIMIZATION: Pre-process and group matching unique food items by category.
+  // Instead of nesting O(N^2) filtering logic inside the render function for each category
+  // (which is re-evaluated on every keystroke/render), we filter and group in a single O(N) pass.
+  const filteredItemMap = useMemo(() => {
+    const map = new Map();
+    // Initialize lists for each current category to avoid undefined checks in the JSX
+    currentCategories.forEach(cat => {
+      map.set(cat.CategoryName, []);
+    });
+
+    const lowercaseSearch = search.toLowerCase();
+    const seenNames = new Set();
+
+    // Single-pass O(N) grouping
+    for (let i = 0; i < foodItem.length; i++) {
+      const item = foodItem[i];
+      if (item && item.name && item.name.toLowerCase().includes(lowercaseSearch)) {
+        const catName = item.CategoryName;
+        if (map.has(catName)) {
+          // Filter out duplicates by name to match previous reduce logic
+          const key = `${catName}:${item.name}`;
+          if (!seenNames.has(key)) {
+            seenNames.add(key);
+            map.get(catName).push(item);
+          }
+        }
+      }
+    }
+    return map;
+  }, [foodItem, currentCategories, search]);
 
   const loadData = async ()=>{
     try {
@@ -88,50 +140,36 @@ export default function Home() {
             </div> */}
           </div>
         {
-          (() => {
-            if (foodCat.length === 0) return "";
-            
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
-            const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
-            const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-            return (
-              <>
-                {currentCategories.map((data) => {
-                  return (
-                    <div className='row mb-3' key={data._id}>
-                      <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
-                        {data.CategoryName}
-                      </div>
-                      <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
+          foodCat.length > 0 ? (
+            <>
+              {currentCategories.map((data) => {
+                return (
+                  <div className='row mb-3' key={data._id}>
+                    <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
+                      {data.CategoryName}
                     </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
-                    </div>
-                  );
-                })}
-                {totalPages > 1 && (
-                  <Page
-                    totalPages={totalPages}
-                    currentPage={currentPage}
-                    onPageChange={setCurrentPage}
-                  />
-                )}
-              </>
-            );
-          })()
+                    <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
+                    {foodItem.length > 0
+                    ? (filteredItemMap.get(data.CategoryName) || []).map(filterItems => {
+                        return (
+                          <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                            <Card foodItem={filterItems} options={filterItems.options[0]} />
+                          </div>
+                        )
+                      })
+                    : <div>No Such Data Found</div>}
+                  </div>
+                );
+              })}
+              {totalPages > 1 && (
+                <Page
+                  totalPages={totalPages}
+                  currentPage={currentPage}
+                  onPageChange={setCurrentPage}
+                />
+              )}
+            </>
+          ) : ""
         }
         </div>
         <Footer/>
