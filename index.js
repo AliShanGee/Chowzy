@@ -1,3 +1,7 @@
+if (typeof process === 'undefined') {
+  globalThis.process = { env: {}, versions: {} };
+}
+
 import 'dotenv/config';
 import { serve } from '@hono/node-server';
 import app from './api/index.js';
