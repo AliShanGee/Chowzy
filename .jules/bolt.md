@@ -1,0 +1,3 @@
+## 2026-07-22 - O(C * N^2) Inline IIFE Rendering Anti-Pattern in Home.js
+**Learning:** In JSX, nesting IIFEs with nested loop operations (such as `filter().reduce().map()`) executes heavy filtering/deduplication logic on *every single render* (e.g., search query keystrokes). For larger datasets, this causes severe main-thread blocking and keyboard input lag.
+**Action:** Extract unique categories into an O(C) Set-based `useMemo` hook, and group matching unique items into a category-keyed `Map` in a single O(N) pass. Always hoist expensive logic out of inline JSX/IIFE blocks into dedicated memoization hooks.
