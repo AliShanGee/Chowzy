@@ -1,0 +1,3 @@
+## 2025-02-12 - Linear-Time Grouping and Memoization on Home Feed
+**Learning:** Nested array operations like `.filter()`, `.reduce()`, `.some()`, and `.findIndex()` inside a React render loop create a hidden quadratic $O(C \times N^2)$ bottleneck that degrades feed search performance as the dataset grows. Moving category extraction and item deduplication to separate `useMemo` hooks using `Set` and `Map` achieves $O(C + N)$ linear complexity and prevents redundant array filtering on non-dependent state updates (e.g. pagination or theme toggling).
+**Action:** Always identify nested array searches/filters inside rendering loops and lift them into linear-time `useMemo` pre-processing maps to achieve smooth, lightning-fast UI responsiveness.
