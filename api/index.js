@@ -5,8 +5,10 @@ const fs = require('fs');
 const mongoDB = require('./db');
 const { connectRedis } = require('./redis');
 
+const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
+
 const app = express();
-const port = process.env.PORT || 5000;
+const port = (isNode && process.env.PORT) || 5000;
 
 // Middleware
 app.use(express.json());
@@ -16,13 +18,15 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Serve static files from uploads directory with absolute path
-const uploadsPath = path.resolve(__dirname, 'uploads');
-if (!fs.existsSync(uploadsPath)) {
-    fs.mkdirSync(uploadsPath, { recursive: true });
+// Serve static files from uploads directory with absolute path (Node.js only)
+if (isNode) {
+    const uploadsPath = path.resolve(__dirname, 'uploads');
+    if (!fs.existsSync(uploadsPath)) {
+        fs.mkdirSync(uploadsPath, { recursive: true });
+    }
+    app.use('/uploads', express.static(uploadsPath));
+    console.log(`Serving static files from: ${uploadsPath}`);
 }
-app.use('/uploads', express.static(uploadsPath));
-console.log(`Serving static files from: ${uploadsPath}`);
 
 // Routes
 app.use('/api', require('./Routes/CreateUser'));
@@ -40,13 +44,17 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-// Connect to MongoDB and Redis then start server
-mongoDB().then(() => {
-    connectRedis(); // Connect to Redis in background
-    app.listen(port, () => {
-        console.log(`Server running on port ${port}`);
+// Connect to MongoDB and Redis then start server (Node.js only)
+if (isNode) {
+    mongoDB().then(() => {
+        connectRedis(); // Connect to Redis in background
+        app.listen(port, () => {
+            console.log(`Server running on port ${port}`);
+        });
+    }).catch(err => {
+        console.error("Failed to connect to MongoDB:", err);
+        process.exit(1);
     });
-}).catch(err => {
-    console.error("Failed to connect to MongoDB:", err);
-    process.exit(1);
-});
+}
+
+module.exports = app;
