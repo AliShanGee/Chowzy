@@ -5,7 +5,9 @@ let connectRedis;
 
 if (isNode) {
     try {
-        const redis = require('redis');
+        // Use eval('require') to prevent bundlers (like esbuild/webpack) from
+        // statically resolving and trying to bundle the 'redis' native package.
+        const redis = eval('require')('redis');
         client = redis.createClient({
             url: process.env.REDIS_URL || 'redis://localhost:6379'
         });
