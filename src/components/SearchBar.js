@@ -110,6 +110,7 @@ const SearchBar = ({ items, onSearch }) => {
             }}
             onMouseOver={(e) => e.currentTarget.style.color = '#dc3545'}
             onMouseOut={(e) => e.currentTarget.style.color = '#999'}
+            aria-label="Clear search input"
           >
             <IoCloseCircleOutline />
           </button>

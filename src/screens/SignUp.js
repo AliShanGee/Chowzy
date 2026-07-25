@@ -272,7 +272,7 @@ export default function SignUp() {
 
             <Form onSubmit={handleSubmit}>
 
-              <Form.Group className="mb-3">
+              <Form.Group className="mb-3" controlId="signUpName">
                 <Form.Label>Name</Form.Label>
                 <Form.Control
                   type="text"
@@ -283,7 +283,7 @@ export default function SignUp() {
                 />
               </Form.Group>
 
-              <Form.Group className="mb-3">
+              <Form.Group className="mb-3" controlId="signUpEmail">
                 <Form.Label>Email</Form.Label>
                 <Form.Control
                   type="email"
@@ -294,11 +294,12 @@ export default function SignUp() {
                 />
               </Form.Group>
 
-              <Form.Group className="mb-3">
+              <Form.Group className="mb-3" controlId="signUpPhone">
                 <Form.Label>Phone Number</Form.Label>
 
                 <PhoneInput
                   international
+                  id="signUpPhone"
                   defaultCountry="PK"
                   value={credentials.phone}
                   onChange={(value) =>
@@ -312,7 +313,7 @@ export default function SignUp() {
 
               </Form.Group>
 
-              <Form.Group className="mb-2">
+              <Form.Group className="mb-2" controlId="signUpPassword">
 
                 <Form.Label>Password</Form.Label>
 
@@ -330,6 +331,8 @@ export default function SignUp() {
                     variant="light"
                     onClick={togglePasswordVisibility}
                     style={{ border: '1px solid #ced4da', borderLeft: 'none' }}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-pressed={showPassword}
                   >
                     <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
                   </Button>
@@ -340,7 +343,7 @@ export default function SignUp() {
 
               </Form.Group>
 
-              <Form.Group className="mb-3">
+              <Form.Group className="mb-3" controlId="signUpAddress">
 
                 <Form.Label>Address</Form.Label>
 
@@ -359,6 +362,7 @@ export default function SignUp() {
                     variant="outline-secondary"
                     onClick={handleGetLocation}
                     disabled={isFetchingLocation}
+                    aria-label="Get current location"
                   >
 
                     {isFetchingLocation
