@@ -187,20 +187,26 @@ export default function Card(props) {
                         }}>
                             {expanded ? foodItem.description : `${foodItem.description.substring(0, 60)}${foodItem.description.length > 60 ? '' : ''}`}
                             {!expanded && foodItem.description && foodItem.description.length > 60 && (
-                                <span 
+                                <button
                                     onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
-                                    style={{ color: "#28a745", cursor: "pointer", fontWeight: "bold" }}
+                                    style={{ border: 'none', background: 'none', padding: 0, color: "#28a745", cursor: "pointer", fontWeight: "bold", display: "inline" }}
+                                    className="focus-ring"
+                                    aria-label={`Read more description for ${foodItem.name}`}
+                                    aria-expanded="false"
                                 >
                                     ...
-                                </span>
+                                </button>
                             )}
                             {expanded && (
-                                <span 
+                                <button
                                     onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
-                                    style={{ color: "#28a745", cursor: "pointer", fontWeight: "bold", marginLeft: "5px", fontSize: "0.75rem" }}
+                                    style={{ border: 'none', background: 'none', padding: 0, color: "#28a745", cursor: "pointer", fontWeight: "bold", marginLeft: "5px", fontSize: "0.75rem", display: "inline" }}
+                                    className="focus-ring"
+                                    aria-label={`Read less description for ${foodItem.name}`}
+                                    aria-expanded="true"
                                 >
                                     (less)
-                                </span>
+                                </button>
                             )}
                         </BootstrapCard.Text>
                         
