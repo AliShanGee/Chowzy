@@ -1,0 +1,3 @@
+## 2025-07-26 - Semantic Inline Expansion Controls
+**Learning:** Using non-semantic elements like `<span>` with `onClick` for description/content toggle controls (e.g., read more/less) completely locks out screen readers and keyboard users from discovering hidden details. Refactoring them to native `<button>` tags with `aria-expanded` and explicit `aria-label` provides correct screen reader announces and native keyboard focusability. Applying CSS resets (`border: none`, `background: none`, `padding: 0`) and `.focus-ring` preserves pixel-perfect layouts while ensuring accessibility.
+**Action:** Always avoid `<span>` or `<div>` for interactive content controls. Use styled `<button>` elements with `aria-expanded` to represent collapse states.
