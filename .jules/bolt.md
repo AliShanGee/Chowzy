@@ -1,0 +1,3 @@
+## 2025-03-01 - O(N) Memoization with Category-Keyed Map on Home Screen
+**Learning:** In screens displaying long lists grouped by categories with filtering (e.g., searches, tag selection), performing nested list filters inside maps results in O(C * N^2) runtime complexity. Lifting this filtering and grouping logic into a single-pass O(N) Map generator wrapped in `useMemo` significantly reduces computational overhead and avoids laggy typing experiences on search.
+**Action:** Always optimize heavy list operations by grouping and indexing items using native JS Maps or objects within `useMemo` hooks, eliminating nested filtering loops entirely.
