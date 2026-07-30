@@ -7,12 +7,14 @@ router.get('/foodData', async (req, res) => {
         }
         
         const mongoose = require('mongoose');
+        const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
         // Ensure connection if not available
         if (mongoose.connection.readyState !== 1) {
-            if (!process.env.MONGODB_URI) {
+            const mongoURI = isNode && process.env.MONGODB_URI;
+            if (!mongoURI) {
                 return res.status(500).send("Database connection URI not found");
             }
-            await mongoose.connect(process.env.MONGODB_URI, {
+            await mongoose.connect(mongoURI, {
                 dbName: 'gofood',
                 maxPoolSize: 10,
                 minPoolSize: 2,
