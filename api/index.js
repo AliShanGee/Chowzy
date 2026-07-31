@@ -40,13 +40,21 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-// Connect to MongoDB and Redis then start server
-mongoDB().then(() => {
-    connectRedis(); // Connect to Redis in background
-    app.listen(port, () => {
-        console.log(`Server running on port ${port}`);
-    });
-}).catch(err => {
-    console.error("Failed to connect to MongoDB:", err);
-    process.exit(1);
-});
+const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
+
+// Connect to MongoDB and Redis then start server only if in Node environment
+if (isNode) {
+  mongoDB().then(() => {
+      connectRedis(); // Connect to Redis in background
+      app.listen(port, () => {
+          console.log(`Server running on port ${port}`);
+      });
+  }).catch(err => {
+      console.error("Failed to connect to MongoDB:", err);
+      if (isNode) {
+          process.exit(1);
+      }
+  });
+}
+
+module.exports = app;
