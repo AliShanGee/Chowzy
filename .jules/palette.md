@@ -1,0 +1,3 @@
+## 2025-03-01 - Semantic Theme Toggle Button
+**Learning:** Using non-semantic elements like a `div` as an interactive control for theme transitions (containing Lottie/SVG animations) breaks keyboard navigation. Users relying on keyboards or screen readers cannot access, focus, or activate these components because they lack focus markers, role definitions, and semantic properties.
+**Action:** Always refactor interactive containers to semantic `<button type="button">` elements with specific CSS resets (`border: 'none'`, `background: 'none'`, `padding: 0`) and preserve native focus rings to achieve flawless accessibility without altering the visual presentation or container layout.
