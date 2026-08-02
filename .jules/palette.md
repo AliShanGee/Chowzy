@@ -1,0 +1,3 @@
+## 2025-08-02 - Semantic Theme Toggles for Accessibility
+**Learning:** Converting interactive `div` elements into semantic `<button>` elements immediately restores crucial keyboard accessibility, focus indicators, and screen reader compatibility. Standard button styling resets (`border: 'none'`, `background: 'none'`, `padding: 0`) must be applied to preserve the design system layout without breaking visual consistency.
+**Action:** Always audit control elements for semantic correctness. If custom click handlers are attached to a wrapper, refactor it to a standard `<button>` or custom accessible control with proper `aria-label` tags, and ensure the focus ring style behaves natively.
