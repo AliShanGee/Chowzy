@@ -1,0 +1,3 @@
+## 2025-03-02 - O(N) Memoization of Category and Food Item Filtering
+**Learning:** Performing multiple iterations (like nested `.findIndex` or `.filter` followed by `.reduce` and `.some`) in React rendering loops causes significant performance degradation. Grouping and filtering items in a single, linear $O(N)$ pass using a single `useMemo` with `Map` and `Set` is extremely efficient, reducing complexity from quadratic to linear ($O(C \times N^2)$ to $O(N)$).
+**Action:** Always prefer linear preprocessing with `useMemo` for nested search structures instead of rendering-time nested array functions.
