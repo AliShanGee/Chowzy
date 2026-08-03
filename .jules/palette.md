@@ -1,0 +1,3 @@
+## 2025-02-18 - Semantic ThemeToggle Button Refactoring
+**Learning:** Refactoring interactive `div` elements (such as `ThemeToggle` or custom visual controls) to semantic `<button>` elements improves keyboard navigation, but requires explicit visual style overrides (`border: 'none'`, `background: 'none'`, `padding: 0`) and restoring the native outline (`outline: 'revert'`) to align perfectly with the original custom layout.
+**Action:** When encountering non-semantic click handlers on `div` or `span` elements, refactor them to semantic elements while preserving custom layout behaviors using complete styling resets.
