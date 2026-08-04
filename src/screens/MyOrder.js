@@ -127,7 +127,7 @@ export default function MyOrder() {
     <div className="orderhistory-container">
       <div className="container my-4">
         <div className="d-flex align-items-center mb-4">
-          <button className="btn btn-secondary me-3" onClick={() => navigate(-1)}>
+          <button className="btn btn-secondary me-3" onClick={() => navigate(-1)} aria-label="Go back to the previous page">
             &larr; Back
           </button>
           <h3 className="m-0" style={{ color: 'var(--text-color, white)' }}>My Orders</h3>
