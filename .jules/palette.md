@@ -1,0 +1,3 @@
+## 2026-08-05 - Semantic Button Refactoring for Interactive Custom Controls
+**Learning:** Replacing non-semantic, non-focusable clickable `div` elements with semantic `<button>` elements natively restores full keyboard focusability and interaction (using Space and Enter keys). When normalizing default browser styles for these buttons, omitting `outline: 'none'` is essential to preserve native focus-visible indicators for screen reader and keyboard-only users.
+**Action:** Always refactor custom interactive container div designs to semantic `<button type="button">` components, normalizing with `border: 'none'`, `padding: 0`, and `background: 'transparent'`, while ensuring `aria-label` dynamically describes the state and keeping native outlines intact.
