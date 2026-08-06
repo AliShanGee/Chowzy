@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -18,6 +18,55 @@ export default function Home() {
   const [foodItem,setFoodItem] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
+
+  // Memoize unique category list based on foodCat, converting O(C^2) findIndex lookup to O(C) Set lookup.
+  const uniqueCategories = useMemo(() => {
+    const seen = new Set();
+    return foodCat.filter(cat => {
+      if (!cat.CategoryName || seen.has(cat.CategoryName)) {
+        return false;
+      }
+      seen.add(cat.CategoryName);
+      return true;
+    });
+  }, [foodCat]);
+
+  // Memoize total pages depending on the uniqueCategories count.
+  const totalPages = useMemo(() => {
+    return Math.ceil(uniqueCategories.length / itemsPerPage);
+  }, [uniqueCategories]);
+
+  // Memoize a filtered, de-duplicated and category-grouped Map of food items.
+  // Uniqueness is checked per-category using a composite key (CategoryName + name) to ensure
+  // items belonging to multiple categories are shown in each, matching original functional behavior.
+  // This reduces overall rendering complexity from O(C * N^2) to O(N) linear scan during searches.
+  const itemMap = useMemo(() => {
+    const map = new Map();
+    if (foodItem.length === 0) return map;
+
+    const seenCategoryItems = new Set();
+    const query = search.toLowerCase();
+
+    foodItem.forEach(item => {
+      if (!item.name) return;
+
+      // Filter by search query
+      if (query && !item.name.toLowerCase().includes(query)) return;
+
+      // De-duplicate per category
+      const compositeKey = `${item.CategoryName || ''}_${item.name}`;
+      if (seenCategoryItems.has(compositeKey)) return;
+      seenCategoryItems.add(compositeKey);
+
+      // Group by CategoryName
+      if (!map.has(item.CategoryName)) {
+        map.set(item.CategoryName, []);
+      }
+      map.get(item.CategoryName).push(item);
+    });
+
+    return map;
+  }, [foodItem, search]);
 
   const loadData = async ()=>{
     try {
@@ -91,34 +140,27 @@ export default function Home() {
           (() => {
             if (foodCat.length === 0) return "";
             
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
-            const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
             return (
               <>
                 {currentCategories.map((data) => {
+                  const itemsInCategory = itemMap.get(data.CategoryName) || [];
                   return (
                     <div className='row mb-3' key={data._id}>
                       <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
-                    </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
+                      {foodItem.length > 0 ? (
+                        itemsInCategory.map(filterItems => (
+                          <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                            <Card foodItem={filterItems} options={filterItems.options[0]} />
+                          </div>
+                        ))
+                      ) : (
+                        <div>No Such Data Found</div>
+                      )}
                     </div>
                   );
                 })}
