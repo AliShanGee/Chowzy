@@ -1,0 +1,3 @@
+## 2025-03-01 - Semantic Button Controls vs. Interactive Div Toggles
+**Learning:** In this application, interactive components (like the ThemeToggle) were built using non-semantic `div` elements with `onClick` listeners. This pattern completely isolates keyboard and screen reader users since divs are non-focusable, lack role representation, and do not listen to standard keyboard trigger events like Space or Enter.
+**Action:** Always refactor interactive `div` elements to semantic `<button type="button">` wrappers, overriding default browser styles (using `border: 'none'`, `background: 'none'`, and `padding: 0`), and ensure they carry descriptive, state-dependent `aria-label` attributes to make the application fully accessible.
