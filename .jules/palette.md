@@ -1,3 +1,0 @@
-## 2025-11-20 - Semantic Toggles and Accessible Theme Selection
-**Learning:** Hardcoded text triggers or interactive elements using non-semantic tags like `div` are inaccessible to keyboard navigators and screen readers. When implementing a lottie-based toggle, wrapped in a simple `div`, the component lacks keyboard focusability and ARIA descriptors.
-**Action:** Use a semantic `<button type="button">` element with `border: 'none'`, `background: 'none'`, and `padding: 0` to preserve styling while ensuring keyboard interactivity and clean screen reader announcements with a dynamic `aria-label`.
