@@ -1,0 +1,3 @@
+## 2026-08-08 - Optimized Category Extractions and Deduplications on Home Screen
+**Learning:** Nested rendering of arrays involving redundant array search, filter, and unique identification inside the render loop leads to $O(C \times N^2)$ execution times, causing UI lag during search re-renders. Decoupling this through memoization split across dual useMemo hooks converts category deduplication and item mapping into highly optimized $O(C)$ and $O(N)$ operations.
+**Action:** Group list items using useMemo and unique keys by pagination categories to completely eliminate rendering computation overhead on search-driven updates.
