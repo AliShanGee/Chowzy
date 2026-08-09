@@ -1,13 +1,15 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+let path, fs;
+if (isNode) {
+    path = require('path');
+    fs = require('fs');
+}
 const mongoDB = require('./db');
 const { connectRedis } = require('./redis');
-const serverless = require('serverless-http');
 
 const app = express();
-const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 const port = (isNode && process.env.PORT) || 5000;
 
 // Middleware
@@ -18,8 +20,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Serve static files from uploads directory with absolute path
 if (isNode) {
-    // Serve static files from uploads directory with absolute path
     const uploadsPath = path.resolve(__dirname, 'uploads');
     if (!fs.existsSync(uploadsPath)) {
         fs.mkdirSync(uploadsPath, { recursive: true });
@@ -44,11 +46,8 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-// Setup serverless fetch handler for Cloudflare Workers / Hono compatibility
-app.fetch = serverless(app);
-
-if (isNode) {
-    // Connect to MongoDB and Redis then start server
+// Connect to MongoDB and Redis then start server
+if (isNode && require.main === module) {
     mongoDB().then(() => {
         connectRedis(); // Connect to Redis in background
         app.listen(port, () => {
@@ -56,7 +55,9 @@ if (isNode) {
         });
     }).catch(err => {
         console.error("Failed to connect to MongoDB:", err);
-        process.exit(1);
+        if (typeof process !== 'undefined' && process.exit) {
+            process.exit(1);
+        }
     });
 }
 
