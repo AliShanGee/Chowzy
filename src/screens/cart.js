@@ -150,6 +150,15 @@ export default function Cart() {
     return (
         <div style={{ position: 'relative', minHeight: '100vh', paddingTop: '20px' }}>
             <motion.div 
+                role="button"
+                tabIndex={0}
+                aria-label="Go back to menu"
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        navigate("/");
+                    }
+                }}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => navigate("/")}
@@ -181,7 +190,20 @@ export default function Cart() {
                     <p>Order Placed Successfully!</p>
                 </div>
             ) : data.length === 0 ? (
-                <div className='m-5 w-100 text-center fs-3 text-white pt-5'>The Cart is Empty!</div>
+                <div className="d-flex flex-column align-items-center justify-content-center text-center px-4" style={{ minHeight: '60vh' }}>
+                    <div style={{ fontSize: '72px', marginBottom: '20px' }}>🛒</div>
+                    <h3 className={`${theme === 'dark' ? 'text-white' : 'text-dark'} fw-bold mb-2`}>Your Cart is Empty</h3>
+                    <p className={`${theme === 'dark' ? 'text-white-50' : 'text-muted'} mb-4`} style={{ maxWidth: '420px', fontSize: '1.1rem', lineHeight: '1.5' }}>
+                        Looks like you haven't added anything to your cart yet. Explore our delicious menu to find your next meal!
+                    </p>
+                    <button
+                        className="btn btn-success px-4 py-2 fs-5 rounded-pill shadow-sm"
+                        onClick={() => navigate("/")}
+                        style={{ fontWeight: '600', letterSpacing: '0.5px' }}
+                    >
+                        Browse Foods
+                    </button>
+                </div>
             ) : (
                 <div className='container m-auto mt-5 table-responsive' >
                     <table className='table table-hover'>
