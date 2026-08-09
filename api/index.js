@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const mongoDB = require('./db');
 const { connectRedis } = require('./redis');
+const serverless = require('serverless-http');
 
 const app = express();
 const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
@@ -42,6 +43,9 @@ app.use('/api', require('./Routes/ReelUserRoutes'));
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
+
+// Setup serverless fetch handler for Cloudflare Workers / Hono compatibility
+app.fetch = serverless(app);
 
 if (isNode) {
     // Connect to MongoDB and Redis then start server
