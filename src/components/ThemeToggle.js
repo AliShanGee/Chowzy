@@ -34,8 +34,11 @@ const ThemeToggle = () => {
     }
   }, [theme]);
 
+  const nextTheme = theme === 'dark' ? 'light' : 'dark';
+
   return (
-    <div
+    <button
+      type="button"
       style={{
         cursor: 'pointer',
         width: '50px',
@@ -45,18 +48,21 @@ const ThemeToggle = () => {
         justifyContent: 'center',
         borderRadius: '50%',
         backgroundColor: 'transparent',
+        border: 'none',
+        padding: 0,
       }}
       onClick={toggleTheme}
-      title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+      aria-label={`Switch to ${nextTheme} mode`}
+      title={`Switch to ${nextTheme} mode`}
     >
       <Lottie
         lottieRef={lottieRef}
         animationData={darkModeAnimation}
         loop={false}
         autoplay={false}
-        style={{ width: '100%', height: '100%' }}
+        style={{ width: '100%', height: '100%', pointerEvents: 'none' }}
       />
-    </div>
+    </button>
   );
 };
 
