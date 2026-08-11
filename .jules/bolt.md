@@ -1,0 +1,3 @@
+## 2025-03-01 - O(N) Memoization Optimization in Home.js
+**Learning:** Nested array operations like `.filter().reduce()` inside a nested Category map render loop scale at O(C * N^2) complexity, causing significant performance degradation and search latency as food item or category lists grow. Pre-processing the filtered lists into a memoized category-keyed Map using a single-pass `useMemo` reduces render-time processing from O(C * N^2) to O(N) and prevents redundant computations during user typing or theme switching.
+**Action:** Lift high-complexity nested filtering out of the render return and organize them into structured, single-pass `useMemo` structures utilizing `Set` or `Map` data structures.
