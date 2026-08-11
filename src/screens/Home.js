@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -18,6 +18,50 @@ export default function Home() {
   const [foodItem,setFoodItem] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
+
+  // Optimizes category extraction to O(C) complexity using a Set instead of O(C^2) nested lookup
+  const { uniqueCategories, totalPages } = useMemo(() => {
+    const seen = new Set();
+    const unique = [];
+    for (let i = 0; i < foodCat.length; i++) {
+      const cat = foodCat[i];
+      if (cat && cat.CategoryName && !seen.has(cat.CategoryName)) {
+        seen.add(cat.CategoryName);
+        unique.push(cat);
+      }
+    }
+    const total = Math.ceil(unique.length / itemsPerPage);
+    return { uniqueCategories: unique, totalPages: total };
+  }, [foodCat]);
+
+  // Decouples and pagination-slices current categories
+  const currentCategories = useMemo(() => {
+    return uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  }, [uniqueCategories, currentPage]);
+
+  // Single-pass O(N) filtering & grouping for search-filtered items by category, preventing O(C * N^2) nested rendering complexity
+  const filteredItemsByCategory = useMemo(() => {
+    const itemMap = new Map();
+    const searchLower = search.toLowerCase();
+    const seenComposite = new Set();
+
+    for (let i = 0; i < foodItem.length; i++) {
+      const item = foodItem[i];
+      if (item && item.name && item.CategoryName) {
+        if (item.name.toLowerCase().includes(searchLower)) {
+          const compositeKey = `${item.CategoryName}_${item.name}`;
+          if (!seenComposite.has(compositeKey)) {
+            seenComposite.add(compositeKey);
+            if (!itemMap.has(item.CategoryName)) {
+              itemMap.set(item.CategoryName, []);
+            }
+            itemMap.get(item.CategoryName).push(item);
+          }
+        }
+      }
+    }
+    return itemMap;
+  }, [foodItem, search]);
 
   const loadData = async ()=>{
     try {
@@ -88,50 +132,37 @@ export default function Home() {
             </div> */}
           </div>
         {
-          (() => {
-            if (foodCat.length === 0) return "";
-            
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
-            const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
-            const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-            return (
-              <>
-                {currentCategories.map((data) => {
-                  return (
-                    <div className='row mb-3' key={data._id}>
-                      <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
-                        {data.CategoryName}
-                      </div>
-                      <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
+          foodCat.length > 0 && (
+            <>
+              {currentCategories.map((data) => {
+                const categoryItems = filteredItemsByCategory.get(data.CategoryName) || [];
+                return (
+                  <div className='row mb-3' key={data._id}>
+                    <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
+                      {data.CategoryName}
                     </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
-                    </div>
-                  );
-                })}
-                {totalPages > 1 && (
-                  <Page
-                    totalPages={totalPages}
-                    currentPage={currentPage}
-                    onPageChange={setCurrentPage}
-                  />
-                )}
-              </>
-            );
-          })()
+                    <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
+                    {categoryItems.length > 0 ? (
+                      categoryItems.map(filterItems => (
+                        <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                          <Card foodItem={filterItems} options={filterItems.options[0]} />
+                        </div>
+                      ))
+                    ) : (
+                      <div className="ms-3" style={{ color: theme === 'dark' ? '#adb5bd' : '#555' }}>No Such Data Found</div>
+                    )}
+                  </div>
+                );
+              })}
+              {totalPages > 1 && (
+                <Page
+                  totalPages={totalPages}
+                  currentPage={currentPage}
+                  onPageChange={setCurrentPage}
+                />
+              )}
+            </>
+          )
         }
         </div>
         <Footer/>
