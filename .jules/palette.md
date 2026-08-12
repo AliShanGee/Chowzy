@@ -1,0 +1,3 @@
+## 2025-03-04 - Semantic Button Refactoring for Animated Controls
+**Learning:** Refactoring non-semantic interactive components (like custom dark/light theme toggles built with div tags and Lottie animations) to standard semantic `<button>` elements requires reset styles (`border: none`, `background: none`, `padding: 0`) and `pointer-events: none` on nested SVG/animation structures so that clicks bubble correctly, enabling full keyboard and screen reader accessibility without disrupting existing visual designs.
+**Action:** Use a semantic `<button type="button">` with custom reset styles instead of non-semantic div elements for all clickable toggles, and pair with appropriate `aria-label` tags and nested animation click-bubbling safeguards.
