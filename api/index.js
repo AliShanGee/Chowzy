@@ -6,7 +6,7 @@ const mongoDB = require('./db');
 const { connectRedis } = require('./redis');
 
 const app = express();
-const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 const port = isNode ? (process.env.PORT || 5000) : 5000;
 
 // Middleware

@@ -1,4 +1,4 @@
-const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
 
 let client;
 if (isNode) {
