@@ -1,0 +1,3 @@
+## 2025-03-01 - Semantic Button For Accessible Lottie Theme Toggles
+**Learning:** Wrapping a keyboard-interactive, dynamic Lottie animation with a non-semantic `div` rather than a `<button type="button">` prevents keyboard focus and screen reader discovery, rendering it inaccessible. Additionally, mouse click events on nested Lottie components may be swallowed or fail to bubble correctly without setting pointer-events to none.
+**Action:** Always refactor interactive toggles to semantic `<button>` elements with clear, state-dependent `aria-label` tags, and disable pointer-events on nested Lottie animations to ensure flawless event delegation and screen reader support.
