@@ -1,0 +1,3 @@
+## 2025-03-04 - Screen Capturing and Page Stabilization in Sandboxed Environments
+**Learning:** During Playwright visual verification in restricted sandboxed environments, screenshot capturing can fail/timeout because the browser hangs waiting for external resources (like fonts or images on external domains) or because of continuous animation rendering loops (such as unmounted/hidden Lottie-react elements).
+**Action:** Bypass these hangs by mocking `document.fonts` to resolve immediately, intercepting/mocking external HTTP image calls, and forcing a static theme state (e.g. `dark`) in localStorage to completely unmount background Lottie elements and stabilize the page for immediate capture.
