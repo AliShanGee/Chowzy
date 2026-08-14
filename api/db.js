@@ -66,7 +66,7 @@ const mongoDB = async () => {
     }
     console.error("Full error details:", error);
     // Exit process with failure
-    const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
+    const isNode = typeof process !== 'undefined' && process.versions && process.versions.node && typeof globalThis.caches === 'undefined';
     if (isNode) {
       process.exit(1);
     }

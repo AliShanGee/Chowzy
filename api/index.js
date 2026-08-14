@@ -16,7 +16,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node && typeof globalThis.caches === 'undefined';
 
 // Serve static files from uploads directory with absolute path
 if (isNode) {
