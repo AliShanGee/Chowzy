@@ -1,0 +1,3 @@
+## 2025-03-01 - Home Category Filtering Optimization
+**Learning:** In screens where rendering involves nested loops over lists (e.g., categories containing multiple food items), performing filters, deduplications, and checks within nested iterations leads to $O(C \times N^2)$ time complexity. This can degrade frame rates and render responsiveness when datasets grow large or when the user types in a search filter. By pre-aggregating the visible items into an $O(N)$ lookup Map during a single pass, the complexity can be dramatically reduced to $O(N)$.
+**Action:** Always identify sequential or nested list processing patterns (such as filters inside map loops) and lift the operation into a single-pass `useMemo` pass mapping items by category or composite key.
