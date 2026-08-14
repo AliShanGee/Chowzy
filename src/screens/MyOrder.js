@@ -134,8 +134,34 @@ export default function MyOrder() {
         </div>
 
         {orders.length === 0 ? (
-          <div className="text-center text-white">
-            <h5>No past orders found.</h5>
+          <div className="text-center py-5 rounded-4 mt-4" style={{ background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+            <div role="img" aria-label="Decorative package icon" style={{ fontSize: '4rem', marginBottom: '1.5rem', display: 'inline-block', animation: 'bounce 2s infinite' }}>
+              📦
+            </div>
+            <h4 className="text-white fw-bold mb-2">No Past Orders Found</h4>
+            <p className="text-white-50 mx-auto mb-4" style={{ maxWidth: '400px', fontSize: '0.95rem' }}>
+              Looks like you haven't placed any orders yet. Discover our amazing foods and satisfy your cravings today!
+            </p>
+            <button
+              className="btn btn-success rounded-pill px-4 py-2.5 fw-semibold shadow-sm"
+              onClick={() => navigate('/')}
+              style={{ transition: 'all 0.2s ease-in-out' }}
+              onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
+              onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+            >
+              Browse Foods
+            </button>
+            <style>{`
+              @keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+              }
+              @media (prefers-reduced-motion: reduce) {
+                div {
+                  animation: none !important;
+                }
+              }
+            `}</style>
           </div>
         ) : (
           <div className="row">
