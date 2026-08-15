@@ -188,7 +188,18 @@ export default function Card(props) {
                             {expanded ? foodItem.description : `${foodItem.description.substring(0, 60)}${foodItem.description.length > 60 ? '' : ''}`}
                             {!expanded && foodItem.description && foodItem.description.length > 60 && (
                                 <span 
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-expanded={false}
+                                    aria-label="Expand description"
                                     onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setExpanded(true);
+                                        }
+                                    }}
                                     style={{ color: "#28a745", cursor: "pointer", fontWeight: "bold" }}
                                 >
                                     ...
@@ -196,7 +207,18 @@ export default function Card(props) {
                             )}
                             {expanded && (
                                 <span 
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-expanded={true}
+                                    aria-label="Collapse description"
                                     onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setExpanded(false);
+                                        }
+                                    }}
                                     style={{ color: "#28a745", cursor: "pointer", fontWeight: "bold", marginLeft: "5px", fontSize: "0.75rem" }}
                                 >
                                     (less)
@@ -210,6 +232,7 @@ export default function Card(props) {
                                     <select 
                                         className="me-2 p-1 bg-success text-white rounded-pill border-0 px-3 shadow-sm" 
                                         style={{ outline: "none", cursor: "pointer", fontSize: "0.85rem", appearance: "none" }}
+                                        aria-label="Select quantity"
                                         onChange={(e) => setQty(e.target.value)}
                                     >
                                         {Array.from(Array(6), (e, i) => (
@@ -219,6 +242,7 @@ export default function Card(props) {
                                     <select 
                                         className="p-1 bg-success text-white rounded-pill border-0 px-3 shadow-sm" 
                                         style={{ outline: "none", cursor: "pointer", fontSize: "0.85rem", appearance: "none" }}
+                                        aria-label="Select portion size"
                                         ref={priceRef} 
                                         onChange={(e) => setSize(e.target.value)}
                                     >
