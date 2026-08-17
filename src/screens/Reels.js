@@ -128,20 +128,48 @@ const ReelVideo = ({ reel, userId, handleLike, handleSave }) => {
                 textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
                 zIndex: 10
             }}>
-                <div className="action-item" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => handleLike(reel._id)}>
+                <button
+                    type="button"
+                    className="action-item"
+                    style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        color: 'inherit',
+                        textAlign: 'center',
+                        cursor: 'pointer'
+                    }}
+                    onClick={() => handleLike(reel._id)}
+                    aria-label={reel.likes && reel.likes.includes(userId) ? "Unlike reel" : "Like reel"}
+                    aria-pressed={Boolean(reel.likes && reel.likes.includes(userId))}
+                >
                     {reel.likes && reel.likes.includes(userId) ? 
                         <FaHeart size={30} color="red" /> : 
                         <FaRegHeart size={30} />
                     }
                     <div style={{ fontSize: '12px' }}>{reel.likes ? reel.likes.length : 0}</div>
-                </div>
-                <div className="action-item" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => handleSave(reel._id)}>
+                </button>
+                <button
+                    type="button"
+                    className="action-item"
+                    style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        color: 'inherit',
+                        textAlign: 'center',
+                        cursor: 'pointer'
+                    }}
+                    onClick={() => handleSave(reel._id)}
+                    aria-label={reel.saves && reel.saves.includes(userId) ? "Unsave reel" : "Save reel"}
+                    aria-pressed={Boolean(reel.saves && reel.saves.includes(userId))}
+                >
                     {reel.saves && reel.saves.includes(userId) ? 
                         <FaBookmark size={25} color="#FFE13C" /> : 
                         <FaRegBookmark size={25} />
                     }
                     <div style={{ fontSize: '12px' }}>Save</div>
-                </div>
+                </button>
             </div>
             <div className="reel-info" style={{
                 position: 'absolute',
