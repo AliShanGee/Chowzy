@@ -22,7 +22,7 @@ const FloatingReelButton = () => {
                 alignItems: 'center'
             }}
         >
-            <Link to="/reels" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Link to="/reels" aria-label="Explore food reels" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <div style={{
                     position: 'relative',
                     width: '100px',
