@@ -1,8 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, memo } from "react";
 import Carousel from "react-bootstrap/Carousel";
 // import Container from "react-bootstrap/Container";
 import { gsap } from 'gsap';
 import { TextPlugin } from 'gsap/TextPlugin';
+
+// Register GSAP plugin once outside component render loop to avoid duplicate registrations
+gsap.registerPlugin(TextPlugin);
 
 const carouselItems = [
   {
@@ -27,9 +30,8 @@ const carouselItems = [
   }
 ];
 
-export default function HomeCarousel() {
-  gsap.registerPlugin(TextPlugin);
-
+// Memoize HomeCarousel to prevent unnecessary re-renders when parent components (Navbar, etc.) re-render
+function HomeCarousel() {
   useEffect(() => {
     const tl = gsap.timeline({ repeat: -1, yoyo: true });
     tl.to(".animated-text", {
@@ -42,6 +44,11 @@ export default function HomeCarousel() {
       ease: "none",
       delay: 0.5
     });
+
+    // Clean up GSAP animation timeline on unmount to prevent memory leaks and stray animations
+    return () => {
+      tl.kill();
+    };
   }, []);
 
   return (
@@ -75,3 +82,5 @@ export default function HomeCarousel() {
     </>
   );
 }
+
+export default memo(HomeCarousel);
