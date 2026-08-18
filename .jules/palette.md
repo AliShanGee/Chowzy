@@ -1,0 +1,3 @@
+## 2025-08-18 - Interactive Lottie Buttons and ARIA States in Navbar
+**Learning:** Icon-only interactive controls rendered via Lottie animations in navigation bars (such as chatbot toggles and profile menus) need native `<button>` markup with explicit `aria-label` and `aria-expanded` attributes. Adding `pointer-events: 'none'` to inner Lottie containers ensures mouse click events bubble up cleanly without focus capture bugs on the animation canvas.
+**Action:** Always wrap Lottie animated icons inside standard `<button>` or `<a aria-label="...">` elements with inline reset styles (`border: 'none'`, `background: 'none'`, `padding: 0`) and `pointer-events: 'none'` on inner animation containers.
