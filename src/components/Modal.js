@@ -38,7 +38,12 @@ export default function Modal({ children, onClose }) {
 
   return ReactDom.createPortal(
     <>
-      <div style={OVERLAY_STYLES} onClick={onClose} />
+      <div
+        style={OVERLAY_STYLES}
+        onClick={onClose}
+        role="presentation"
+        aria-hidden="true"
+      />
       <div
         style={MODAL_STYLES}
         role="dialog"
