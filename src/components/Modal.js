@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import ReactDom from 'react-dom'
 
 const MODAL_STYLES = {
@@ -24,11 +24,36 @@ const OVERLAY_STYLES = {
 }
 
 export default function Modal({ children, onClose }) {
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
+
   return ReactDom.createPortal(
     <>
-      <div style={OVERLAY_STYLES} />
-      <div style={MODAL_STYLES}>
-        <button className='btn bg-danger fs-4' style={{ marginLeft: "90%", marginTop: "-35px" }} onClick={onClose}> X </button>
+      <div style={OVERLAY_STYLES} onClick={onClose} />
+      <div
+        style={MODAL_STYLES}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Modal dialog"
+      >
+        <button
+          className='btn bg-danger fs-4'
+          style={{ marginLeft: "90%", marginTop: "-35px" }}
+          onClick={onClose}
+          aria-label="Close modal"
+          type="button"
+        >
+          X
+        </button>
         {children}
       </div>
     </>,
