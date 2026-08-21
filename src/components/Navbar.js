@@ -205,7 +205,7 @@ function NavScrollExample() {
       {location.pathname === '/' && <Carousel search={search} setSearch={setSearch} />}
       {showChatbot &&
         <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000 }}>
-          <Chatbot />
+          <Chatbot onClose={() => setShowChatbot(false)} />
         </div>
       }
     </>
