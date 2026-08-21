@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import Container from 'react-bootstrap/Container';
 import { useCart, useDispatchCart } from './ContextReducer.js';
@@ -50,32 +50,41 @@ function NavScrollExample() {
   const logoRef = useRef(null);
   const [search, setSearch] = useState(''); // Add search state for the carousel
 
-  useLayoutEffect(() => {
-    // No need to manually fetch user from localStorage here anymore, Zustand handles it
-    // ... remaining logic
+  // Bolt Optimization: Use useEffect with explicit event listener cleanup on location/route changes.
+  // This prevents memory leaks and accumulating duplicate GSAP event listeners on nav links and logo.
+  useEffect(() => {
+    if (!navbarRef.current) return;
 
-    // Add hover animations to nav links
-    const links = navbarRef.current.querySelectorAll('.nav-link');
-
-    links.forEach(link => {
-      link.addEventListener('mouseenter', () => {
-        gsap.to(link, { scale: 1.1, duration: 0.3, ease: 'power1.out' });
-      });
-      link.addEventListener('mouseleave', () => {
-        gsap.to(link, { scale: 1, duration: 0.3, ease: 'power1.out' });
-      });
+    const links = Array.from(navbarRef.current.querySelectorAll('.nav-link'));
+    const linkHandlers = links.map(link => {
+      const onEnter = () => gsap.to(link, { scale: 1.1, duration: 0.3, ease: 'power1.out' });
+      const onLeave = () => gsap.to(link, { scale: 1, duration: 0.3, ease: 'power1.out' });
+      link.addEventListener('mouseenter', onEnter);
+      link.addEventListener('mouseleave', onLeave);
+      return { link, onEnter, onLeave };
     });
 
-    // Add hover animation to the logo
     const logo = logoRef.current;
-    logo.addEventListener('mouseenter', () => {
-      gsap.to(logo.children, { y: -5, stagger: 0.05, duration: 0.2, ease: 'power1.out' });
-    });
-    logo.addEventListener('mouseleave', () => {
-      gsap.to(logo.children, { y: 0, stagger: { from: "end", amount: 0.05 }, duration: 0.2, ease: 'power1.in' });
-    });
+    let logoEnter, logoLeave;
+    if (logo) {
+      logoEnter = () => gsap.to(logo.children, { y: -5, stagger: 0.05, duration: 0.2, ease: 'power1.out' });
+      logoLeave = () => gsap.to(logo.children, { y: 0, stagger: { from: "end", amount: 0.05 }, duration: 0.2, ease: 'power1.in' });
+      logo.addEventListener('mouseenter', logoEnter);
+      logo.addEventListener('mouseleave', logoLeave);
+    }
 
-  }, [location]); // Re-run on location change to update user state if needed
+    // Cleanup listeners when location changes or component unmounts
+    return () => {
+      linkHandlers.forEach(({ link, onEnter, onLeave }) => {
+        link.removeEventListener('mouseenter', onEnter);
+        link.removeEventListener('mouseleave', onLeave);
+      });
+      if (logo) {
+        if (logoEnter) logo.removeEventListener('mouseenter', logoEnter);
+        if (logoLeave) logo.removeEventListener('mouseleave', logoLeave);
+      }
+    };
+  }, [location]);
 
   // Play animation when cart items change
   useEffect(() => {
