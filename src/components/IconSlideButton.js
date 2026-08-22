@@ -2,11 +2,14 @@ import React from "react";
 import { motion } from "framer-motion";
 import { BsCartPlus } from "react-icons/bs";
 
-const IconSlideButton = ({ text, onClick, className, style, ...props }) => {
+const IconSlideButton = ({ text, onClick, className, style, ariaLabel, 'aria-label': ariaLabelAttr, ...props }) => {
+  const computedAriaLabel = ariaLabel || ariaLabelAttr || text;
+
   return (
     <motion.button
       onClick={onClick}
       className={className}
+      aria-label={computedAriaLabel}
       style={{
         ...style,
         position: "relative",
@@ -23,6 +26,7 @@ const IconSlideButton = ({ text, onClick, className, style, ...props }) => {
       {...props}
     >
       <motion.div
+        aria-hidden="true"
         variants={{
           initial: { x: -40, opacity: 0 },
           hover: { x: 0, opacity: 1 },
@@ -65,6 +69,7 @@ const IconSlideButton = ({ text, onClick, className, style, ...props }) => {
       
       {/* Optional: Add a subtle overlay or shine effect like Framer buttons often have */}
       <motion.div
+        aria-hidden="true"
         variants={{
           initial: { x: "-100%" },
           hover: { x: "100%" }
