@@ -238,6 +238,7 @@ export default function Card(props) {
                             style={{ borderRadius: "16px", fontWeight: "700", letterSpacing: "0.5px" }}
                             onClick={handleAddToCart} 
                             text="ADD TO CART"
+                            ariaLabel={`Add ${foodItem.name} to cart`}
                         />
                     </BootstrapCard.Body>
                 </BootstrapCard>
