@@ -207,6 +207,7 @@ export default function Login() {
                     className="rounded-pill"
                     style={{ backgroundColor: 'white', border: '1px solid #ced4da' }}
                     name="email"
+                    autoComplete="email"
                     value={credentials.email}
                     onChange={onChange}
                   />
@@ -221,11 +222,19 @@ export default function Login() {
                       className="border-0"
                       style={{ backgroundColor: 'white' }}
                       name="password"
+                      autoComplete="current-password"
                       value={credentials.password}
                       onChange={onChange}
                     />
-                    <Button variant="light" onClick={togglePasswordVisibility} className="border-0" style={{ cursor: 'pointer', backgroundColor: 'white' }}>
-                      <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
+                    <Button
+                      type="button"
+                      variant="light"
+                      onClick={togglePasswordVisibility}
+                      className="border-0"
+                      style={{ cursor: 'pointer', backgroundColor: 'white' }}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"} aria-hidden="true"></i>
                     </Button>
                   </InputGroup>
                 </Form.Group>
