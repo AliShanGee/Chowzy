@@ -1,0 +1,3 @@
+## 2025-02-23 - Memoize Category Filtering and Item Grouping in Home.js
+**Learning:** Performing `filter` + `findIndex` ($O(N^2)$) on category lists and nested `.filter().reduce()` with array spreading (`[...unique, item]`) on food items during every render cycle causes significant main thread blocking and garbage collection overhead during search input typing.
+**Action:** Split memoization in `src/screens/Home.js` into two `useMemo` hooks: one for unique categories and pagination using an $O(N)$ `Set`, and one for search-filtered items grouped by category using a single linear pass over items corresponding to the active page's categories.
