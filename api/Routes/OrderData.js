@@ -195,8 +195,12 @@ router.delete('/admin/delivered-orders/:id', async (req, res) => {
 
 router.post('/myOrderData', async (req, res) => {
     try {
-        let activeOrder = await Order.findOne({ 'email': req.body.email });
-        let deliveredOrders = await DeliveredOrder.find({ 'email': req.body.email }).sort({ delivered_at: -1 });
+        // Bolt Optimization: Execute independent MongoDB database queries concurrently with Promise.all
+        // to cut endpoint latency in half.
+        const [activeOrder, deliveredOrders] = await Promise.all([
+            Order.findOne({ 'email': req.body.email }),
+            DeliveredOrder.find({ 'email': req.body.email }).sort({ delivered_at: -1 })
+        ]);
         
         // Combine active and delivered orders for the frontend
         res.json({ 
