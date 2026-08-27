@@ -109,13 +109,13 @@ const Chatbot = () => {
             <span>Food Assistant</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Button variant="link" onClick={moveLeft} style={{ color: '#fff', padding: '0 5px' }}>
-              <FiChevronLeft size={20} />
+            <Button variant="link" onClick={moveLeft} aria-label="Move chatbot to left" style={{ color: '#fff', padding: '0 5px' }}>
+              <FiChevronLeft size={20} aria-hidden="true" />
             </Button>
-            <Button variant="link" onClick={moveRight} style={{ color: '#fff', padding: '0 5px' }}>
-              <FiChevronRight size={20} />
+            <Button variant="link" onClick={moveRight} aria-label="Move chatbot to right" style={{ color: '#fff', padding: '0 5px' }}>
+              <FiChevronRight size={20} aria-hidden="true" />
             </Button>
-            <Button variant="link" onClick={() => setShowHistory(true)} style={{ color: '#fff', padding: 0 }}>
+            <Button variant="link" onClick={() => setShowHistory(true)} aria-label="View chat history" style={{ color: '#fff', padding: 0 }}>
               History
             </Button>
           </div>
@@ -173,13 +173,14 @@ const Chatbot = () => {
           <div style={{ display: 'flex' }}>
             <Form.Control
               type="text"
+              aria-label="Chatbot input prompt"
               placeholder="Ask about menu, prices, ingredients, or AI..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               style={{ flex: 1, marginRight: '10px' }}
             />
-            <Button onClick={handleSend} disabled={loading} style={{ backgroundColor: '#EF6C00', borderColor: '#EF6C00' }}>
+            <Button onClick={handleSend} disabled={loading} aria-label="Send message" style={{ backgroundColor: '#EF6C00', borderColor: '#EF6C00' }}>
               Send
             </Button>
           </div>
