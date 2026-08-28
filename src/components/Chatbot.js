@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button, Form, ListGroup } from 'react-bootstrap';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi';
 import ChatHistory from './ChatHistory.js';
 import API_BASE_URL from '../config';
 
-const Chatbot = () => {
+const Chatbot = ({ onClose }) => {
   const [messages, setMessages] = useState([
     { user: false, message: 'Hello! I\'m your food assistant. I can help with menu items, prices, ingredients, ordering help, and basic AI questions. Try prompts like:\n- "List all menu items"\n- "Give only food item which price 100"\n- "Show food items under 200"\n- "What are the ingredients in Veg Pizza?"\n- "Which category has Chicken Biryani?"\n- "Recommend the best starters"\n- "What is AI?"' }
   ]);
@@ -109,15 +109,20 @@ const Chatbot = () => {
             <span>Food Assistant</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Button variant="link" onClick={moveLeft} style={{ color: '#fff', padding: '0 5px' }}>
+            <Button variant="link" onClick={moveLeft} aria-label="Move chatbot left" style={{ color: '#fff', padding: '0 5px' }}>
               <FiChevronLeft size={20} />
             </Button>
-            <Button variant="link" onClick={moveRight} style={{ color: '#fff', padding: '0 5px' }}>
+            <Button variant="link" onClick={moveRight} aria-label="Move chatbot right" style={{ color: '#fff', padding: '0 5px' }}>
               <FiChevronRight size={20} />
             </Button>
-            <Button variant="link" onClick={() => setShowHistory(true)} style={{ color: '#fff', padding: 0 }}>
+            <Button variant="link" onClick={() => setShowHistory(true)} aria-label="View chat history" style={{ color: '#fff', padding: '0 5px' }}>
               History
             </Button>
+            {onClose && (
+              <Button variant="link" onClick={onClose} aria-label="Close chatbot" style={{ color: '#fff', padding: '0 0 0 5px' }}>
+                <FiX size={20} />
+              </Button>
+            )}
           </div>
         </div>
         <div style={{
@@ -173,6 +178,7 @@ const Chatbot = () => {
           <div style={{ display: 'flex' }}>
             <Form.Control
               type="text"
+              aria-label="Chatbot input"
               placeholder="Ask about menu, prices, ingredients, or AI..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
