@@ -2,7 +2,7 @@ import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 
-const ChatHistory = ({ show, handleClose, chatHistory }) => {
+const ChatHistory = ({ show, handleClose, chatHistory = [] }) => {
   return (
     <Modal show={show} onHide={handleClose} centered size="lg">
       <Modal.Header closeButton>
