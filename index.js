@@ -1,14 +1,30 @@
 import 'dotenv/config';
 import { serve } from '@hono/node-server';
-import app from './api/index.js';
+import expressApp from './api/index.js';
 
-const port = parseInt(process.env.PORT || '3001', 10);
+const app = expressApp.default || expressApp;
+const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
-console.log('Starting server on port', port);
+const fetchHandler = (req, env, executionCtx) => {
+  if (typeof app.fetch === 'function') {
+    return app.fetch(req, env, executionCtx);
+  }
+  if (typeof app === 'function') {
+    return app(req, env, executionCtx);
+  }
+  return new Response('Not Found', { status: 404 });
+};
 
-serve({
-  fetch: app.fetch,
-  port,
-});
+if (isNode) {
+  const port = parseInt(process.env.PORT || '3001', 10);
+  console.log('Starting server on port', port);
+  serve({
+    fetch: fetchHandler,
+    port,
+  });
+  console.log(`Server running at http://localhost:${port}`);
+}
 
-console.log(`Server running at http://localhost:${port}`);
+export default {
+  fetch: fetchHandler,
+};
