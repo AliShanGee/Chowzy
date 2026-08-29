@@ -60,3 +60,4 @@ mongoDB().then(() => {
 });
 
 module.exports = app;
+module.exports.default = app;
