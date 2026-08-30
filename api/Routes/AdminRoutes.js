@@ -241,8 +241,9 @@ router.delete('/foodCategories', async (req, res) => {
 // --- Dashboard Stats ---
 router.get('/admin/stats', async (req, res) => {
     try {
+        // Fetch order data as plain JS objects with .lean() to bypass unnecessary Mongoose document hydration
         const [orders, totalUsers, totalFoodItems, totalCategories, totalReels] = await Promise.all([
-            Order.find({}),
+            Order.find({}).lean(),
             User.countDocuments({}),
             FoodItem.countDocuments({}),
             FoodCategory.countDocuments({}),
