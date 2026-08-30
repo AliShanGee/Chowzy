@@ -1,0 +1,3 @@
+## 2025-05-18 - Modal Dialog Accessibility and Empty State Micro-UX in Chat History
+**Learning:** Modal components wrapping lists (like chat histories) often omit default props for array parameters, leading to runtime null/undefined errors when opened prior to state initialization. Combining default parameter fallbacks (`chatHistory = []`) with `aria-labelledby` modal title binding, an explicit close button `aria-label`, and a friendly emoji-backed empty state ensures robust modal UX and complete screen reader accessibility.
+**Action:** Always provide safe default array/object parameters to modal presentation components, bind `aria-labelledby` to `Modal.Title`, and design empty states with clear iconography (`role="img"`) and encouraging microcopy.
