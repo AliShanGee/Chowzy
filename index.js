@@ -1,9 +1,9 @@
-import 'dotenv/config';
 import app from './api/index.js';
 
 const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
 if (isNode) {
+  import('dotenv/config');
   const port = parseInt(process.env.PORT || '3001', 10);
   console.log('Starting server on port', port);
 
