@@ -73,12 +73,12 @@ const SearchBar = ({ items, onSearch }) => {
           ...(isOpen ? { borderColor: '#007bff' } : {})
         }}
       >
-        <span style={{ fontSize: '24px', color: '#007bff', marginLeft: '10px' }}>
+        <span style={{ fontSize: '24px', color: '#007bff', marginLeft: '10px' }} aria-hidden="true">
           <IoSearchOutline />
         </span>
         
         <input
-          {...getInputProps()}
+          {...getInputProps({ 'aria-label': 'Search food items' })}
           className="form-control"
           placeholder="What are you craving today?"
           style={{
@@ -93,6 +93,8 @@ const SearchBar = ({ items, onSearch }) => {
 
         {inputValue && (
           <button
+            type="button"
+            aria-label="Clear search input"
             onClick={() => {
               setInputValue('');
               onSearch('');
@@ -111,11 +113,12 @@ const SearchBar = ({ items, onSearch }) => {
             onMouseOver={(e) => e.currentTarget.style.color = '#dc3545'}
             onMouseOut={(e) => e.currentTarget.style.color = '#999'}
           >
-            <IoCloseCircleOutline />
+            <IoCloseCircleOutline aria-hidden="true" />
           </button>
         )}
         
         <button
+          type="button"
           className="btn btn-primary"
           style={{
             borderRadius: '40px',
@@ -196,7 +199,7 @@ const SearchBar = ({ items, onSearch }) => {
             ))
           ) : (
             <li style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-              <div style={{ fontSize: '24px', marginBottom: '10px' }}>🍽️</div>
+              <div style={{ fontSize: '24px', marginBottom: '10px' }} role="img" aria-label="Food plate icon">🍽️</div>
               <div>No results found for "<strong>{inputValue}</strong>"</div>
               <div style={{ fontSize: '13px', marginTop: '5px' }}>Try searching for something else!</div>
             </li>
