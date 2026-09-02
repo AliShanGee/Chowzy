@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Cart = require('../models/Cart');
 
-// Route to update/save user's cart
+// Route to update/save user's cart (optimized with single atomic query)
 router.post('/updatecart', async (req, res) => {
     const { email, cartData } = req.body;
     if (!email) {
@@ -10,19 +10,12 @@ router.post('/updatecart', async (req, res) => {
     }
 
     try {
-        let cart = await Cart.findOne({ email });
-        if (cart) {
-            // Update existing cart
-            cart.items = cartData;
-            cart.date = Date.now();
-            await cart.save();
-        } else {
-            // Create new cart
-            await Cart.create({
-                email,
-                items: cartData
-            });
-        }
+        // Atomic findOneAndUpdate reduces DB roundtrips from 2 to 1
+        await Cart.findOneAndUpdate(
+            { email },
+            { items: cartData, date: Date.now() },
+            { upsert: true, new: true }
+        );
         res.status(200).json({ success: true, message: "Cart updated successfully" });
     } catch (error) {
         console.error("Error updating cart:", error.message);
@@ -30,7 +23,7 @@ router.post('/updatecart', async (req, res) => {
     }
 });
 
-// Route to fetch user's cart
+// Route to fetch user's cart (optimized with .lean())
 router.post('/getcart', async (req, res) => {
     const { email } = req.body;
     if (!email) {
@@ -38,7 +31,8 @@ router.post('/getcart', async (req, res) => {
     }
 
     try {
-        const cart = await Cart.findOne({ email });
+        // Bypass Mongoose document hydration for faster read performance
+        const cart = await Cart.findOne({ email }).lean();
         if (!cart) {
             return res.status(200).json({ success: true, cartData: [] });
         }
@@ -49,10 +43,11 @@ router.post('/getcart', async (req, res) => {
     }
 });
 
-// Admin route to get all user carts
+// Admin route to get all user carts (optimized with .lean())
 router.get('/admin/allcarts', async (req, res) => {
     try {
-        const carts = await Cart.find({});
+        // Bypass Mongoose document hydration for plain array response
+        const carts = await Cart.find({}).lean();
         res.status(200).json({ success: true, carts });
     } catch (error) {
         console.error("Error fetching all carts:", error.message);
