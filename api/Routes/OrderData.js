@@ -195,8 +195,11 @@ router.delete('/admin/delivered-orders/:id', async (req, res) => {
 
 router.post('/myOrderData', async (req, res) => {
     try {
-        let activeOrder = await Order.findOne({ 'email': req.body.email });
-        let deliveredOrders = await DeliveredOrder.find({ 'email': req.body.email }).sort({ delivered_at: -1 });
+        // Bolt Optimization: Parallelize independent DB queries using Promise.all and append .lean() to bypass Mongoose document hydration
+        const [activeOrder, deliveredOrders] = await Promise.all([
+            Order.findOne({ 'email': req.body.email }).lean(),
+            DeliveredOrder.find({ 'email': req.body.email }).sort({ delivered_at: -1 }).lean()
+        ]);
         
         // Combine active and delivered orders for the frontend
         res.json({ 
