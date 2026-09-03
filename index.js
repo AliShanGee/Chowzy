@@ -10,11 +10,18 @@ if (isNode) {
     const port = parseInt(process.env.PORT || '3001', 10);
     console.log('Starting server on port', port);
     serve({
-      fetch: app.fetch,
+      fetch: (app && typeof app.fetch === 'function') ? app.fetch : app,
       port,
     });
     console.log(`Server running at http://localhost:${port}`);
-  });
+  }).catch(() => {});
 }
 
-export default app;
+export default {
+  async fetch(request, env, ctx) {
+    if (app && typeof app.fetch === 'function') {
+      return app.fetch(request, env, ctx);
+    }
+    return new Response('GoFood API', { status: 200 });
+  }
+};
