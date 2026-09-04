@@ -79,7 +79,8 @@ const getQueryOptions = (query) => {
 router.get('/carts', async (req, res) => {
     try {
         const { filter, sort, skip, limit } = getQueryOptions(req.query);
-        const data = await Cart.find(filter).sort(sort).skip(skip).limit(limit || 0);
+        // Performance optimization: use .lean() to bypass Mongoose document hydration
+        const data = await Cart.find(filter).sort(sort).skip(skip).limit(limit || 0).lean();
         const total = await Cart.countDocuments(filter);
         sendListResponse(res, data, total);
     } catch (error) {
@@ -89,7 +90,7 @@ router.get('/carts', async (req, res) => {
 
 router.get('/carts/:id', async (req, res) => {
     try {
-        const cart = await Cart.findById(req.params.id);
+        const cart = await Cart.findById(req.params.id).lean();
         if (!cart) return res.status(404).json({ error: "Not found" });
         res.json(cart);
     } catch (error) {
@@ -110,7 +111,8 @@ router.delete('/carts/:id', async (req, res) => {
 router.get('/foodItems', async (req, res) => {
     try {
         const { filter, sort, skip, limit } = getQueryOptions(req.query);
-        const data = await FoodItem.find(filter).sort(sort).skip(skip).limit(limit || 0);
+        // Performance optimization: use .lean() to bypass Mongoose document hydration
+        const data = await FoodItem.find(filter).sort(sort).skip(skip).limit(limit || 0).lean();
         const total = await FoodItem.countDocuments(filter);
         sendListResponse(res, data, total);
     } catch (error) {
@@ -120,7 +122,7 @@ router.get('/foodItems', async (req, res) => {
 
 router.get('/foodItems/:id', async (req, res) => {
     try {
-        const item = await FoodItem.findById(req.params.id);
+        const item = await FoodItem.findById(req.params.id).lean();
         if (!item) return res.status(404).json({ error: "Not found" });
         res.json(item);
     } catch (error) {
@@ -176,7 +178,8 @@ router.delete('/foodItems', async (req, res) => {
 router.get('/foodCategories', async (req, res) => {
     try {
         const { filter, sort, skip, limit } = getQueryOptions(req.query);
-        const data = await FoodCategory.find(filter).sort(sort).skip(skip).limit(limit || 0);
+        // Performance optimization: use .lean() to bypass Mongoose document hydration
+        const data = await FoodCategory.find(filter).sort(sort).skip(skip).limit(limit || 0).lean();
         const total = await FoodCategory.countDocuments(filter);
         sendListResponse(res, data, total);
     } catch (error) {
@@ -186,7 +189,7 @@ router.get('/foodCategories', async (req, res) => {
 
 router.get('/foodCategories/:id', async (req, res) => {
     try {
-        const cat = await FoodCategory.findById(req.params.id);
+        const cat = await FoodCategory.findById(req.params.id).lean();
         if (!cat) return res.status(404).json({ error: "Not found" });
         res.json(cat);
     } catch (error) {
@@ -242,7 +245,8 @@ router.delete('/foodCategories', async (req, res) => {
 router.get('/admin/stats', async (req, res) => {
     try {
         const [orders, totalUsers, totalFoodItems, totalCategories, totalReels] = await Promise.all([
-            Order.find({}),
+            // Performance optimization: use .lean() to avoid hydrating all Order documents
+            Order.find({}).lean(),
             User.countDocuments({}),
             FoodItem.countDocuments({}),
             FoodCategory.countDocuments({}),
@@ -315,7 +319,8 @@ router.get('/admin/stats', async (req, res) => {
 router.get('/users', async (req, res) => {
     try {
         const { filter, sort, skip, limit } = getQueryOptions(req.query);
-        const data = await User.find(filter).sort(sort).skip(skip).limit(limit || 0);
+        // Performance optimization: use .lean() to bypass Mongoose document hydration
+        const data = await User.find(filter).sort(sort).skip(skip).limit(limit || 0).lean();
         const total = await User.countDocuments(filter);
         sendListResponse(res, data, total);
     } catch (error) {
@@ -324,7 +329,7 @@ router.get('/users', async (req, res) => {
 });
 router.get('/users/:id', async (req, res) => {
     try {
-        const item = await User.findById(req.params.id);
+        const item = await User.findById(req.params.id).lean();
         res.json(item || {});
     } catch (error) { res.status(500).json({ error: error.message }); }
 });
@@ -367,7 +372,8 @@ router.delete('/users', async (req, res) => {
 router.get('/admin/orders', async (req, res) => {
     try {
         const { filter, sort, skip, limit } = getQueryOptions(req.query);
-        const data = await Order.find(filter).sort(sort).skip(skip).limit(limit || 0);
+        // Performance optimization: use .lean() to bypass Mongoose document hydration
+        const data = await Order.find(filter).sort(sort).skip(skip).limit(limit || 0).lean();
         const total = await Order.countDocuments(filter);
         sendListResponse(res, data, total);
     } catch (error) {
@@ -376,7 +382,7 @@ router.get('/admin/orders', async (req, res) => {
 });
 router.get('/admin/orders/:id', async (req, res) => {
     try {
-        const item = await Order.findById(req.params.id);
+        const item = await Order.findById(req.params.id).lean();
         res.json(item || {});
     } catch (error) { res.status(500).json({ error: error.message }); }
 });
@@ -419,7 +425,8 @@ router.delete('/admin/orders', async (req, res) => {
 router.get('/reels', async (req, res) => {
     try {
         const { filter, sort, skip, limit } = getQueryOptions(req.query);
-        const data = await Reel.find(filter).sort(sort).skip(skip).limit(limit || 0);
+        // Performance optimization: use .lean() to bypass Mongoose document hydration
+        const data = await Reel.find(filter).sort(sort).skip(skip).limit(limit || 0).lean();
         const total = await Reel.countDocuments(filter);
         sendListResponse(res, data, total);
     } catch (error) {
@@ -429,7 +436,7 @@ router.get('/reels', async (req, res) => {
 
 router.get('/reels/:id', async (req, res) => {
     try {
-        const item = await Reel.findById(req.params.id);
+        const item = await Reel.findById(req.params.id).lean();
         res.json(item || {});
     } catch (error) { res.status(500).json({ error: error.message }); }
 });
