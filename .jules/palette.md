@@ -1,0 +1,3 @@
+## 2025-05-18 - Interactive Lottie Button Accessibility
+**Learning:** Wrapped Lottie animations in non-semantic `div` elements prevent keyboard navigation and screen reader interaction. Converting them to `<button type="button">` requires resetting standard button styles (`border: 'none'`, `background: 'transparent'`, `padding: 0`) and setting `pointer-events: 'none'` on the inner Lottie animation container to ensure click events cleanly bubble to the parent button.
+**Action:** When making Lottie-based interactive icons keyboard-accessible, always wrap them in a semantic button with `pointer-events: 'none'` on the nested Lottie element.
