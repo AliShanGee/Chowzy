@@ -1,14 +1,25 @@
-import 'dotenv/config';
-import { serve } from '@hono/node-server';
-import app from './api/index.js';
+const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
-const port = parseInt(process.env.PORT || '3001', 10);
+let app;
 
-console.log('Starting server on port', port);
+if (isNode) {
+  await import('dotenv/config');
+  const { serve } = await import('@hono/node-server');
+  const apiModule = await import('./api/index.js');
+  app = apiModule.default || apiModule;
+  const port = parseInt(process.env.PORT || '3001', 10);
 
-serve({
-  fetch: app.fetch,
-  port,
-});
+  console.log('Starting server on port', port);
 
-console.log(`Server running at http://localhost:${port}`);
+  serve({
+    fetch: app.fetch || app,
+    port,
+  });
+
+  console.log(`Server running at http://localhost:${port}`);
+} else {
+  const apiModule = await import('./api/index.js');
+  app = apiModule.default || apiModule;
+}
+
+export default app;
