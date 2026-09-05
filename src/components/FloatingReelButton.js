@@ -22,7 +22,11 @@ const FloatingReelButton = () => {
                 alignItems: 'center'
             }}
         >
-            <Link to="/reels" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Link
+                to="/reels"
+                aria-label="Explore food reels"
+                style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+            >
                 <div style={{
                     position: 'relative',
                     width: '100px',
@@ -37,6 +41,7 @@ const FloatingReelButton = () => {
                 }}>
                     {/* Rotating Circle Text */}
                     <motion.svg
+                        aria-hidden="true"
                         animate={{ rotate: 360 }}
                         transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
                         viewBox="0 0 100 100"
@@ -60,7 +65,7 @@ const FloatingReelButton = () => {
                     </motion.svg>
 
                     {/* Central Lottie Icon */}
-                    <div style={{ width: '60px', height: '60px', zIndex: 1 }}>
+                    <div aria-hidden="true" style={{ width: '60px', height: '60px', zIndex: 1 }}>
                         <Lottie
                             animationData={reelAnimation}
                             loop={true}
