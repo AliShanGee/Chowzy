@@ -51,7 +51,8 @@ module.exports = router;
 // Get all orders for admin panel
 router.get('/admin/orders', async (req, res) => {
   try {
-    const orders = await Order.find({});
+    // Append .lean() to return plain JSON objects and skip Mongoose document hydration
+    const orders = await Order.find({}).lean();
     res.json(orders);
   } catch (error) {
     console.error(error.message);
@@ -155,7 +156,8 @@ router.put('/admin/orders/:id/schedule', async (req, res) => {
 // Admin endpoint for Delivered Orders (List)
 router.get('/admin/delivered-orders', async (req, res) => {
     try {
-        const deliveredOrders = await DeliveredOrder.find({}).sort({ delivered_at: -1 });
+        // Append .lean() for faster query response and lower memory footprint
+        const deliveredOrders = await DeliveredOrder.find({}).sort({ delivered_at: -1 }).lean();
         res.json(deliveredOrders);
     } catch (error) {
         console.error(error.message);
@@ -166,7 +168,8 @@ router.get('/admin/delivered-orders', async (req, res) => {
 // Admin endpoint for Delivered Order (Single)
 router.get('/admin/delivered-orders/:id', async (req, res) => {
     try {
-        const order = await DeliveredOrder.findById(req.params.id);
+        // Append .lean() for lightweight document retrieval
+        const order = await DeliveredOrder.findById(req.params.id).lean();
         if (!order) {
             return res.status(404).json({ msg: 'Order not found' });
         }
@@ -195,8 +198,11 @@ router.delete('/admin/delivered-orders/:id', async (req, res) => {
 
 router.post('/myOrderData', async (req, res) => {
     try {
-        let activeOrder = await Order.findOne({ 'email': req.body.email });
-        let deliveredOrders = await DeliveredOrder.find({ 'email': req.body.email }).sort({ delivered_at: -1 });
+        // Parallelize database queries with Promise.all and append .lean() to bypass document hydration
+        const [activeOrder, deliveredOrders] = await Promise.all([
+            Order.findOne({ 'email': req.body.email }).lean(),
+            DeliveredOrder.find({ 'email': req.body.email }).sort({ delivered_at: -1 }).lean()
+        ]);
         
         // Combine active and delivered orders for the frontend
         res.json({ 
