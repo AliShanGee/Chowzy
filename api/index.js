@@ -48,5 +48,8 @@ mongoDB().then(() => {
     });
 }).catch(err => {
     console.error("Failed to connect to MongoDB:", err);
-    process.exit(1);
+    const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
+    if (isNode) {
+      process.exit(1);
+    }
 });
