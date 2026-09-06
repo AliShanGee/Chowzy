@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo, memo } from "react";
 import BootstrapCard from "react-bootstrap/Card";
 import { useDispatchCart } from "./ContextReducer";
 import IconSlideButton from "./IconSlideButton";
@@ -7,7 +7,9 @@ import { useTheme } from "next-themes";
 import { Rating, ThinStar } from '@smastrom/react-rating';
 import '@smastrom/react-rating/style.css';
 
-export default function Card(props) {
+const DEFAULT_OPTIONS = {};
+
+function Card(props) {
     let dispatch = useDispatchCart();
     const { theme } = useTheme();
     const [qty, setQty] = useState(1);
@@ -54,8 +56,9 @@ export default function Card(props) {
         y.set(0);
     };
 
-    let options = props.options || {};
-    let priceOptions = Object.keys(options);
+    const options = props.options || DEFAULT_OPTIONS;
+    // Performance Optimization (Bolt): Memoize Object.keys to prevent redundant array allocations on re-renders
+    const priceOptions = useMemo(() => Object.keys(options), [options]);
     let foodItem = props.foodItem;
 
     const handleAddToCart = async () => {
@@ -245,3 +248,6 @@ export default function Card(props) {
         </div>
     );
 }
+
+// Performance Optimization (Bolt): Wrap Card in memo to prevent redundant re-renders (Framer Motion hook setups & Rating trees) when parent state (e.g., search query in Home.js) updates
+export default memo(Card);
