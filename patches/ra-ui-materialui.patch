@@ -1,0 +1,16 @@
+diff --git a/package.json b/package.json
+index 1a5b93034ba4ff1b98d6ff43f699822bbdfc9f8c..4b565a67fe6d880b136ca879090bdc8301b32b8b 100644
+--- a/package.json
++++ b/package.json
+@@ -11,10 +11,9 @@
+     "main": "./dist/index.cjs",
+     "module": "./dist/index.js",
+     "types": "./dist/index.d.cts",
+-    "type": "module",
+     "sideEffects": false,
+     "authors": [
+-        "François Zaninotto",
++        "Fran\u00e7ois Zaninotto",
+         "Gildas Garcia"
+     ],
+     "repository": "marmelab/react-admin",
