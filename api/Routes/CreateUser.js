@@ -68,7 +68,8 @@ router.post(
 
     try {
       // Find user by email
-      const userData = await User.findOne({ email });
+      // Optimization: Use .lean() to return plain JS objects, bypassing Mongoose document hydration overhead
+      const userData = await User.findOne({ email }).lean();
       if (!userData) {
         return res.status(400).json({ success: false, message: "Invalid credentials. Please try again." });
       }
@@ -82,7 +83,7 @@ router.post(
       // --- Create JWT Payload ---
       const payload = {
         user: {
-          id: userData.id
+          id: userData._id || userData.id
         }
       };
 

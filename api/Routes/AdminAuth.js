@@ -21,7 +21,8 @@ router.post(
     const { email, password } = req.body;
 
     try {
-      const adminData = await Admin.findOne({ email });
+      // Optimization: Use .lean() to bypass full Mongoose document hydration during login query
+      const adminData = await Admin.findOne({ email }).lean();
       if (!adminData) {
         return res.status(400).json({ success: false, message: "Invalid admin credentials." });
       }
@@ -33,7 +34,7 @@ router.post(
 
       const payload = {
         admin: {
-          id: adminData.id
+          id: adminData._id || adminData.id
         }
       };
 
