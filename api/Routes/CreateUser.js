@@ -83,7 +83,7 @@ router.post(
       // --- Create JWT Payload ---
       const payload = {
         user: {
-          id: userData._id || userData.id
+          id: (userData._id || userData.id).toString()
         }
       };
 

@@ -34,7 +34,7 @@ router.post(
 
       const payload = {
         admin: {
-          id: adminData._id || adminData.id
+          id: (adminData._id || adminData.id).toString()
         }
       };
 
