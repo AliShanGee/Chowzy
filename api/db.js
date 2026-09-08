@@ -20,7 +20,7 @@ const mongoDB = async () => {
     });
     console.log("Connected to MongoDB successfully");
 
-    // Fetch food items and categories concurrently using Promise.all to reduce cold start initialization time
+    // Fetch food items and categories concurrently using Promise.all to reduce initial load time
     const foodItemsCollection = mongoose.connection.db.collection("food_items");
     const foodCategoryCollection = mongoose.connection.db.collection("foodCategory");
     const [foodItemsData, catData] = await Promise.all([
