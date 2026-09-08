@@ -20,14 +20,13 @@ const mongoDB = async () => {
     });
     console.log("Connected to MongoDB successfully");
 
-    // Fetch food items
+    // Fetch food items and categories concurrently using Promise.all to reduce initial load time
     const foodItemsCollection = mongoose.connection.db.collection("food_items");
-    const foodItemsData = await foodItemsCollection.find({}).toArray();
-
-    // Fetch food categories
-    const foodCategoryCollection =
-      mongoose.connection.db.collection("foodCategory");
-    const catData = await foodCategoryCollection.find({}).toArray();
+    const foodCategoryCollection = mongoose.connection.db.collection("foodCategory");
+    const [foodItemsData, catData] = await Promise.all([
+      foodItemsCollection.find({}).toArray(),
+      foodCategoryCollection.find({}).toArray()
+    ]);
 
     // Seed Admin user if collection is empty
     const Admin = require('./models/Admin');
@@ -65,8 +64,11 @@ const mongoDB = async () => {
       );
     }
     console.error("Full error details:", error);
-    // Exit process with failure
-    process.exit(1);
+    // Exit process with failure if in Node runtime
+    const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
+    if (isNode && process.exit) {
+      process.exit(1);
+    }
   }
 };
 
