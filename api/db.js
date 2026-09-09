@@ -3,6 +3,7 @@ require("dotenv").config();
 
 // It's a good practice to hide your credentials, you can use environment variables for this.
 const mongoURL = process.env.MONGODB_URI;
+const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
 const mongoDB = async () => {
   if (!mongoURL) {
@@ -65,8 +66,9 @@ const mongoDB = async () => {
       );
     }
     console.error("Full error details:", error);
-    // Exit process with failure
-    process.exit(1);
+    if (isNode) {
+      process.exit(1);
+    }
   }
 };
 
