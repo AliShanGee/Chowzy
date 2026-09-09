@@ -3,9 +3,11 @@ import app from './api/index.js';
 const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
 if (isNode) {
+  const dotenvModule = 'dotenv/config';
+  const nodeServerModule = '@hono/node-server';
   Promise.all([
-    import('dotenv/config'),
-    import('@hono/node-server')
+    import(dotenvModule),
+    import(nodeServerModule)
   ]).then(([{ default: dotenv }, { serve }]) => {
     const port = parseInt(process.env.PORT || '3001', 10);
     console.log('Starting server on port', port);
