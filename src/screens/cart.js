@@ -48,6 +48,8 @@ const MockPaymentForm = ({ totalPrice, onSuccess, onCancel }) => {
                 style={{ background: theme === 'dark' ? '#111' : '#fff', maxWidth: '400px', width: '90%', border: theme === 'dark' ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)' }}
             >
                 <button 
+                    type="button"
+                    aria-label="Close card payment modal"
                     onClick={onCancel} 
                     style={{ position: 'absolute', top: 15, right: 20, background: 'transparent', border: 'none', fontSize: '24px', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', zIndex: 10 }}
                 >
@@ -62,17 +64,17 @@ const MockPaymentForm = ({ totalPrice, onSuccess, onCancel }) => {
                 </div>
                 
                 <form onSubmit={handleAutomatePayment}>
-                    <label className={theme === 'dark' ? "text-white-50 small mb-1 d-block" : "text-muted small mb-1 d-block"}>Card Number</label>
-                    <input type="text" name="number" value={cardDetails.number} onChange={handleInputChange} style={inputStyle} />
+                    <label htmlFor="card-number" className={theme === 'dark' ? "text-white-50 small mb-1 d-block" : "text-muted small mb-1 d-block"}>Card Number</label>
+                    <input id="card-number" type="text" name="number" autoComplete="cc-number" value={cardDetails.number} onChange={handleInputChange} style={inputStyle} />
                     
                     <div className="d-flex gap-3">
                         <div className="flex-grow-1">
-                            <label className={theme === 'dark' ? "text-white-50 small mb-1 d-block" : "text-muted small mb-1 d-block"}>Expiry</label>
-                            <input type="text" name="expiry" value={cardDetails.expiry} onChange={handleInputChange} style={inputStyle} />
+                            <label htmlFor="card-expiry" className={theme === 'dark' ? "text-white-50 small mb-1 d-block" : "text-muted small mb-1 d-block"}>Expiry</label>
+                            <input id="card-expiry" type="text" name="expiry" autoComplete="cc-exp" value={cardDetails.expiry} onChange={handleInputChange} style={inputStyle} />
                         </div>
                         <div className="flex-grow-1">
-                            <label className={theme === 'dark' ? "text-white-50 small mb-1 d-block" : "text-muted small mb-1 d-block"}>CVC</label>
-                            <input type="text" name="cvc" value={cardDetails.cvc} onChange={handleInputChange} style={inputStyle} />
+                            <label htmlFor="card-cvc" className={theme === 'dark' ? "text-white-50 small mb-1 d-block" : "text-muted small mb-1 d-block"}>CVC</label>
+                            <input id="card-cvc" type="text" name="cvc" autoComplete="cc-csc" value={cardDetails.cvc} onChange={handleInputChange} style={inputStyle} />
                         </div>
                     </div>
 
@@ -150,9 +152,18 @@ export default function Cart() {
     return (
         <div style={{ position: 'relative', minHeight: '100vh', paddingTop: '20px' }}>
             <motion.div 
+                role="button"
+                tabIndex={0}
+                aria-label="Go back to home menu"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => navigate("/")}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        navigate('/');
+                    }
+                }}
                 style={{
                     position: 'fixed',
                     top: '90px',
@@ -206,7 +217,13 @@ export default function Cart() {
                                     <td >{food.size}</td>
                                     <td >{food.price}</td>
                                     <td >
-                                        <button type="button" className="btn p-0" style={{ background: 'transparent', border: 'none' }} onClick={() => { dispatch({ type: "REMOVE", index: index }) }}>
+                                        <button
+                                            type="button"
+                                            className="btn p-0"
+                                            aria-label={`Remove ${food.name} from cart`}
+                                            style={{ background: 'transparent', border: 'none' }}
+                                            onClick={() => { dispatch({ type: "REMOVE", index: index }) }}
+                                        >
                                             <Lottie 
                                                 animationData={deleteAnimation} 
                                                 loop={true} 
@@ -214,7 +231,8 @@ export default function Cart() {
                                                     height: 40, 
                                                     width: 40, 
                                                     filter: theme === 'dark' ? 'invert(1) brightness(2)' : 'none',
-                                                    cursor: 'pointer' 
+                                                    cursor: 'pointer',
+                                                    pointerEvents: 'none'
                                                 }} 
                                             />
                                         </button> 
@@ -250,6 +268,8 @@ export default function Cart() {
                                     }}
                                 >
                                     <button 
+                                        type="button"
+                                        aria-label="Close payment method modal"
                                         onClick={() => { setShowPaymentModal(false); setPaymentMethod(null); }} 
                                         style={{ position: 'absolute', top: 15, right: 20, background: 'transparent', border: 'none', fontSize: '24px', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', zIndex: 1 }}
                                     >
@@ -260,9 +280,18 @@ export default function Cart() {
                                     
                                     <div className="d-flex flex-column gap-3">
                                         <motion.div 
+                                            role="button"
+                                            tabIndex={0}
+                                            aria-pressed={paymentMethod === 'cod'}
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}
                                             onClick={() => setPaymentMethod('cod')}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                    e.preventDefault();
+                                                    setPaymentMethod('cod');
+                                                }
+                                            }}
                                             className={`p-3 rounded-3 cursor-pointer d-flex align-items-center gap-3 ${paymentMethod === 'cod' ? 'bg-success text-white' : (theme === 'dark' ? 'bg-dark text-white' : 'bg-light text-dark')}`}
                                             style={{ border: paymentMethod === 'cod' ? '2px solid #fff' : '1px solid rgba(128,128,128,0.2)', cursor: 'pointer' }}
                                         >
@@ -276,9 +305,18 @@ export default function Cart() {
                                         </motion.div>
 
                                         <motion.div 
+                                            role="button"
+                                            tabIndex={0}
+                                            aria-pressed={paymentMethod === 'card'}
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}
                                             onClick={() => setPaymentMethod('card')}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                    e.preventDefault();
+                                                    setPaymentMethod('card');
+                                                }
+                                            }}
                                             className={`p-3 rounded-3 cursor-pointer d-flex align-items-center gap-3 ${paymentMethod === 'card' ? 'bg-primary text-white' : (theme === 'dark' ? 'bg-dark text-white' : 'bg-light text-dark')}`}
                                             style={{ border: paymentMethod === 'card' ? '2px solid #fff' : '1px solid rgba(128,128,128,0.2)', cursor: 'pointer' }}
                                         >
