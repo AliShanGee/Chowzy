@@ -507,7 +507,12 @@ async function loadMenuContext(state) {
     };
   }
 
-  const menuItems = (await FoodItem.find({}).lean()).filter(isUsableFoodItem);
+  // Use globally cached food_items if available to eliminate DB query latency
+  const rawMenuItems = (global.food_items && Array.isArray(global.food_items) && global.food_items.length > 0)
+    ? global.food_items
+    : await FoodItem.find({}).lean();
+
+  const menuItems = rawMenuItems.filter(isUsableFoodItem);
   const matchedItem = findBestMatch(menuItems, state.prompt, classification);
   const matchedItems = classification.intent === 'price_range'
     ? filterFoodItemsByPrice(menuItems, classification)
