@@ -1,12 +1,15 @@
 const express = require('express');
-const path = require('path');
 const { Annotation, END, START, StateGraph } = require('@langchain/langgraph');
 const FoodItem = require('../models/FoodItem');
 
 const router = express.Router();
 
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
-require('dotenv').config();
+const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
+if (isNode) {
+  const path = require('path');
+  require('dotenv').config({ path: path.join(__dirname, '../.env') });
+  require('dotenv').config();
+}
 
 const SUPPORTED_INTENTS = [
   'greeting',
@@ -507,7 +510,12 @@ async function loadMenuContext(state) {
     };
   }
 
-  const menuItems = (await FoodItem.find({}).lean()).filter(isUsableFoodItem);
+  // Use globally cached food_items if available to eliminate DB query latency
+  const rawMenuItems = (global.food_items && Array.isArray(global.food_items) && global.food_items.length > 0)
+    ? global.food_items
+    : await FoodItem.find({}).lean();
+
+  const menuItems = rawMenuItems.filter(isUsableFoodItem);
   const matchedItem = findBestMatch(menuItems, state.prompt, classification);
   const matchedItems = classification.intent === 'price_range'
     ? filterFoodItemsByPrice(menuItems, classification)
