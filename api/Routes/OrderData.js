@@ -2,45 +2,56 @@ const express = require('express')
 const router = express.Router()
 const Order = require('../models/Orders')
 const DeliveredOrder = require('../models/DeliveredOrders')
-router.post('/orderData',async (req,res)=>{
+// Performance Optimization: Use atomic findOneAndUpdate with upsert: true
+// to eliminate 1 sequential DB roundtrip per order submission.
+router.post('/orderData', async (req, res) => {
     let data = req.body.order_data;
     data.splice(0, 0, { 
         order_date: req.body.order_date,
         payment_info: req.body.payment_info 
     });
 
-    let eId = await Order.findOne({ 'email': req.body.email });
+    const hasDeliveryDate = Boolean(req.body.delivery_date);
+    const hasDeliveryTime = Boolean(req.body.delivery_time);
 
-    if (eId === null) {
-        try {
-            await Order.create({
-                email: req.body.email,
-                order_data: [data],
-                delivery_date: req.body.delivery_date || null,
-                delivery_time: req.body.delivery_time || null,
-                delivery_status: req.body.delivery_date ? 'scheduled' : 'pending'
-            });
-            res.json({ success: true });
-        } catch (error) {
-            console.log(error.message);
-            res.status(500).send("Server Error: " + error.message);
-        }
+    const updateOps = {
+        $push: { order_data: data }
+    };
+
+    const setFields = {};
+    const setOnInsertFields = {};
+
+    if (hasDeliveryDate) {
+        setFields.delivery_date = req.body.delivery_date;
+        setFields.delivery_status = 'scheduled';
     } else {
-        try {
-            await Order.findOneAndUpdate(
-                { email: req.body.email },
-                { 
-                    $push: { order_data: data },
-                    ...(req.body.delivery_date && { delivery_date: req.body.delivery_date }),
-                    ...(req.body.delivery_time && { delivery_time: req.body.delivery_time }),
-                    ...(req.body.delivery_date && { delivery_status: 'scheduled' })
-                }
-            );
-            res.json({ success: true });
-        } catch (error) {
-            console.log(error.message);
-            res.status(500).send("Server Error: " + error.message);
-        }
+        setOnInsertFields.delivery_date = null;
+        setOnInsertFields.delivery_status = 'pending';
+    }
+
+    if (hasDeliveryTime) {
+        setFields.delivery_time = req.body.delivery_time;
+    } else {
+        setOnInsertFields.delivery_time = null;
+    }
+
+    if (Object.keys(setFields).length > 0) {
+        updateOps.$set = setFields;
+    }
+    if (Object.keys(setOnInsertFields).length > 0) {
+        updateOps.$setOnInsert = setOnInsertFields;
+    }
+
+    try {
+        await Order.findOneAndUpdate(
+            { email: req.body.email },
+            updateOps,
+            { upsert: true }
+        );
+        res.json({ success: true });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send("Server Error: " + error.message);
     }
 });
 
@@ -49,9 +60,10 @@ module.exports = router;
 // --- Admin endpoints ---
 
 // Get all orders for admin panel
+// Performance Optimization: Append .lean() to bypass Mongoose document hydration.
 router.get('/admin/orders', async (req, res) => {
   try {
-    const orders = await Order.find({});
+    const orders = await Order.find({}).lean();
     res.json(orders);
   } catch (error) {
     console.error(error.message);
@@ -153,9 +165,10 @@ router.put('/admin/orders/:id/schedule', async (req, res) => {
 });
 
 // Admin endpoint for Delivered Orders (List)
+// Performance Optimization: Append .lean() to bypass Mongoose document hydration.
 router.get('/admin/delivered-orders', async (req, res) => {
     try {
-        const deliveredOrders = await DeliveredOrder.find({}).sort({ delivered_at: -1 });
+        const deliveredOrders = await DeliveredOrder.find({}).sort({ delivered_at: -1 }).lean();
         res.json(deliveredOrders);
     } catch (error) {
         console.error(error.message);
@@ -164,9 +177,10 @@ router.get('/admin/delivered-orders', async (req, res) => {
 });
 
 // Admin endpoint for Delivered Order (Single)
+// Performance Optimization: Append .lean() to bypass Mongoose document hydration.
 router.get('/admin/delivered-orders/:id', async (req, res) => {
     try {
-        const order = await DeliveredOrder.findById(req.params.id);
+        const order = await DeliveredOrder.findById(req.params.id).lean();
         if (!order) {
             return res.status(404).json({ msg: 'Order not found' });
         }
@@ -193,10 +207,14 @@ router.delete('/admin/delivered-orders/:id', async (req, res) => {
 
 
 
+// Performance Optimization: Execute active and delivered order queries concurrently with Promise.all,
+// and append .lean() to bypass Mongoose document hydration, reducing response latency and memory overhead.
 router.post('/myOrderData', async (req, res) => {
     try {
-        let activeOrder = await Order.findOne({ 'email': req.body.email });
-        let deliveredOrders = await DeliveredOrder.find({ 'email': req.body.email }).sort({ delivered_at: -1 });
+        const [activeOrder, deliveredOrders] = await Promise.all([
+            Order.findOne({ 'email': req.body.email }).lean(),
+            DeliveredOrder.find({ 'email': req.body.email }).sort({ delivered_at: -1 }).lean()
+        ]);
         
         // Combine active and delivered orders for the frontend
         res.json({ 
