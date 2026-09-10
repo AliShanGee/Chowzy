@@ -1,18 +1,14 @@
-import app from './api/index.js';
+import { Hono } from 'hono';
+
+const app = new Hono();
+
+app.get('*', (c) => c.text('Hello World!'));
 
 const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
 if (isNode) {
   import('dotenv/config').then(() => {
-    import('@hono/node-server').then(({ serve }) => {
-      const port = parseInt(process.env.PORT || '3001', 10);
-      console.log('Starting server on port', port);
-      serve({
-        fetch: app.fetch || app,
-        port,
-      });
-      console.log(`Server running at http://localhost:${port}`);
-    });
+    import('./api/index.js');
   });
 }
 
