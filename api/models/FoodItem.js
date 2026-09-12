@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const FoodItemSchema = new mongoose.Schema({
     CategoryName: {
         type: String,
-        required: true
+        required: true,
+        index: true // Index CategoryName for accelerated menu category filtering
     },
     name: {
         type: String,
