@@ -23,7 +23,8 @@ const ReelSchema = new Schema({
     }],
     date: {
         type: Date,
-        default: Date.now
+        default: Date.now,
+        index: true // Index date for fast reverse chronological sorting in /getreels queries
     }
 });
 

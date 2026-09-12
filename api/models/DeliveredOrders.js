@@ -4,7 +4,8 @@ const { Schema } = mongoose;
 const DeliveredOrderSchema = new Schema({
     email: {
         type: String,
-        required: true
+        required: true,
+        index: true // Index email for fast filtering in /myOrderData queries
     },
     order_data: {
         type: Array,
@@ -24,7 +25,8 @@ const DeliveredOrderSchema = new Schema({
     },
     delivered_at: {
         type: Date,
-        default: Date.now
+        default: Date.now,
+        index: true // Index delivered_at for fast sorted retrieval without in-memory sorting
     }
 });
 

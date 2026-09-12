@@ -11,7 +11,9 @@ const UserSchema = new Schema({
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        unique: true,
+        index: true // Index email for O(1) B-tree lookups during user authentication and registration checks
     },
     phone: {
         type: String,
