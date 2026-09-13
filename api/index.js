@@ -60,3 +60,4 @@ if (isNode) {
 }
 
 module.exports = app;
+module.exports.default = app;
