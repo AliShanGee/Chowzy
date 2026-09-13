@@ -128,20 +128,36 @@ const ReelVideo = ({ reel, userId, handleLike, handleSave }) => {
                 textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
                 zIndex: 10
             }}>
-                <div className="action-item" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => handleLike(reel._id)}>
-                    {reel.likes && reel.likes.includes(userId) ? 
-                        <FaHeart size={30} color="red" /> : 
-                        <FaRegHeart size={30} />
-                    }
-                    <div style={{ fontSize: '12px' }}>{reel.likes ? reel.likes.length : 0}</div>
-                </div>
-                <div className="action-item" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => handleSave(reel._id)}>
-                    {reel.saves && reel.saves.includes(userId) ? 
-                        <FaBookmark size={25} color="#FFE13C" /> : 
-                        <FaRegBookmark size={25} />
-                    }
-                    <div style={{ fontSize: '12px' }}>Save</div>
-                </div>
+                {(() => {
+                    const isLiked = Boolean(reel.likes && reel.likes.includes(userId));
+                    const isSaved = Boolean(reel.saves && reel.saves.includes(userId));
+                    return (
+                        <>
+                            <button
+                                type="button"
+                                className="action-item"
+                                style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', textAlign: 'center', cursor: 'pointer' }}
+                                onClick={() => handleLike(reel._id)}
+                                aria-label={isLiked ? `Unlike ${reel.title}` : `Like ${reel.title}`}
+                                aria-pressed={isLiked}
+                            >
+                                {isLiked ? <FaHeart size={30} color="red" /> : <FaRegHeart size={30} />}
+                                <div style={{ fontSize: '12px' }}>{reel.likes ? reel.likes.length : 0}</div>
+                            </button>
+                            <button
+                                type="button"
+                                className="action-item"
+                                style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', textAlign: 'center', cursor: 'pointer' }}
+                                onClick={() => handleSave(reel._id)}
+                                aria-label={isSaved ? `Unsave ${reel.title}` : `Save ${reel.title}`}
+                                aria-pressed={isSaved}
+                            >
+                                {isSaved ? <FaBookmark size={25} color="#FFE13C" /> : <FaRegBookmark size={25} />}
+                                <div style={{ fontSize: '12px' }}>Save</div>
+                            </button>
+                        </>
+                    );
+                })()}
             </div>
             <div className="reel-info" style={{
                 position: 'absolute',
@@ -288,8 +304,22 @@ const Reels = () => {
                 `}
             </style>
             {reels.length === 0 ? (
-                <div className="text-white d-flex justify-content-center align-items-center h-100">
-                    <h3>No reels available. Check back later!</h3>
+                <div className="text-white d-flex flex-column justify-content-center align-items-center h-100 p-4 text-center">
+                    <div style={{ fontSize: '4rem', marginBottom: '1rem' }} role="img" aria-label="Movie reel icon">
+                        🎬
+                    </div>
+                    <h3 className="fw-bold mb-2">No Food Reels Available</h3>
+                    <p className="text-muted text-light opacity-75 mb-4" style={{ maxWidth: '420px' }}>
+                        Check back soon for mouth-watering food videos, or browse our delicious menu right now!
+                    </p>
+                    <button
+                        type="button"
+                        className="btn btn-success rounded-pill px-4 py-2"
+                        onClick={() => navigate('/')}
+                        aria-label="Browse food menu"
+                    >
+                        Browse Foods
+                    </button>
                 </div>
             ) : (
                 reels.map((reel) => (

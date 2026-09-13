@@ -1,6 +1,7 @@
 import { fetchUtils } from 'react-admin';
-import { stringify } from 'query-string';
 import API_BASE_URL from './config.js';
+
+const stringify = (obj) => new URLSearchParams(obj).toString();
 
 const apiUrl = `${API_BASE_URL}/api`;
 
