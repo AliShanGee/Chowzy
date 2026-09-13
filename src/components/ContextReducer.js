@@ -27,21 +27,37 @@ const loadInitialCart = () => {
   }
 };
 
-const persistCart = async (state) => {
+let persistTimeout = null;
+
+// Persists cart to localStorage immediately and debounces backend synchronization
+// to eliminate redundant HTTP POST requests during rapid cart updates
+const persistCart = (state) => {
   const email = getCurrentUserEmail();
   if (!email) return;
   try {
+    // Update local cache synchronously for instant UI updates and offline fallback
     localStorage.setItem(`cart_${email}`, JSON.stringify(state));
-    // Persist to backend as well
-    await fetch(`${API_BASE_URL}/api/updatecart`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, cartData: state }),
-    });
+
+    // Debounce network backend persistence (300ms) to reduce API traffic and DB load
+    if (persistTimeout) {
+      clearTimeout(persistTimeout);
+    }
+
+    persistTimeout = setTimeout(async () => {
+      try {
+        await fetch(`${API_BASE_URL}/api/updatecart`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, cartData: state }),
+        });
+      } catch (err) {
+        console.error("Failed to persist cart to backend", err);
+      }
+    }, 300);
   } catch (err) {
-    console.error("Failed to persist cart to backend", err);
+    console.error("Failed to update local cart storage", err);
   }
 };
 
