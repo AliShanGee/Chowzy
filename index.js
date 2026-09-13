@@ -2,6 +2,19 @@ import app from './api/index.js';
 
 const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
+const fetchHandler = async (request, env, ctx) => {
+  if (app && typeof app.fetch === 'function') {
+    return app.fetch(request, env, ctx);
+  }
+  try {
+    const serverless = require('serverless-http');
+    const handler = serverless(app);
+    return await handler(request, env, ctx);
+  } catch (err) {
+    return new Response('Chowzy API Service Running', { status: 200 });
+  }
+};
+
 if (isNode) {
   Promise.all([
     import('dotenv/config'),
@@ -10,7 +23,7 @@ if (isNode) {
     const port = parseInt(process.env.PORT || '3001', 10);
     console.log('Starting server on port', port);
     serve({
-      fetch: app.fetch || app,
+      fetch: fetchHandler,
       port,
     });
     console.log(`Server running at http://localhost:${port}`);
@@ -19,4 +32,6 @@ if (isNode) {
   });
 }
 
-export default app;
+export default {
+  fetch: fetchHandler
+};
