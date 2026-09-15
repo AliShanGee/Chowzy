@@ -10,11 +10,13 @@ const AnimatedLogo = ({
   // 1000 is large enough for any stroke dash array of a single character text
   const pathLength = 1000; 
 
-  return characters.map((char, i) => {
-    const color = colors[i % colors.length];
-    
-    return (
-      <span key={i} className="animated-logo-char" style={{ position: 'relative', display: 'inline-block' }}>
+  return (
+    <span className="animated-logo" role="img" aria-label={text} style={{ display: 'inline-flex', alignItems: 'center' }}>
+      {characters.map((char, i) => {
+        const color = colors[i % colors.length];
+
+        return (
+          <span key={i} className="animated-logo-char" aria-hidden="true" style={{ position: 'relative', display: 'inline-block' }}>
         {/* Invisible text for natural standard spacing */}
         <span style={{ visibility: 'hidden', fontSize: fontSize }}>{char}</span>
         
@@ -75,8 +77,10 @@ const AnimatedLogo = ({
           </motion.text>
         </svg>
       </span>
-    );
-  });
+        );
+      })}
+    </span>
+  );
 };
 
 export default AnimatedLogo;
