@@ -96,10 +96,14 @@ export default function Home() {
             );
             const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+            // Bolt Optimization: Pre-calculate lowercased search query once outside category mapping loop
+            const searchLower = search.toLowerCase();
 
             return (
               <>
                 {currentCategories.map((data) => {
+                  // Bolt Optimization: Track seen item names for O(N) deduplication per category
+                  const seenNames = new Set();
                   return (
                     <div className='row mb-3' key={data._id}>
                       <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
@@ -107,10 +111,13 @@ export default function Home() {
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
               {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
+              ? foodItem.filter((item) => {
+                  if (!item.name || item.CategoryName !== data.CategoryName) return false;
+                  if (searchLower && !item.name.toLowerCase().includes(searchLower)) return false;
+                  if (seenNames.has(item.name)) return false;
+                  seenNames.add(item.name);
+                  return true;
+                })
                 .map(filterItems => {
                   return (
                     <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
