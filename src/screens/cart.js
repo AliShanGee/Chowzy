@@ -48,6 +48,8 @@ const MockPaymentForm = ({ totalPrice, onSuccess, onCancel }) => {
                 style={{ background: theme === 'dark' ? '#111' : '#fff', maxWidth: '400px', width: '90%', border: theme === 'dark' ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)' }}
             >
                 <button 
+                    type="button"
+                    aria-label="Close payment dialog"
                     onClick={onCancel} 
                     style={{ position: 'absolute', top: 15, right: 20, background: 'transparent', border: 'none', fontSize: '24px', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', zIndex: 10 }}
                 >
@@ -149,7 +151,9 @@ export default function Cart() {
 
     return (
         <div style={{ position: 'relative', minHeight: '100vh', paddingTop: '20px' }}>
-            <motion.div 
+            <motion.button
+                type="button"
+                aria-label="Return to food menu"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => navigate("/")}
@@ -173,7 +177,7 @@ export default function Cart() {
                 }}
             >
                 <BsArrowLeft size={24} />
-            </motion.div>
+            </motion.button>
 
             {showSuccess ? (
                 <div className='m-5 w-100 text-center fs-3 text-white'>
@@ -181,7 +185,25 @@ export default function Cart() {
                     <p>Order Placed Successfully!</p>
                 </div>
             ) : data.length === 0 ? (
-                <div className='m-5 w-100 text-center fs-3 text-white pt-5'>The Cart is Empty!</div>
+                <div className="d-flex flex-column align-items-center justify-content-center text-center p-5 mt-4">
+                    <div className="display-1 mb-3" role="img" aria-label="Empty shopping cart icon">
+                        🛒
+                    </div>
+                    <h3 className={`fw-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-dark'}`}>
+                        Your Cart is Empty!
+                    </h3>
+                    <p className={`mb-4 opacity-75 ${theme === 'dark' ? 'text-white-50' : 'text-muted'}`} style={{ maxWidth: '400px' }}>
+                        Looks like you haven't added any delicious food items yet. Explore our menu to find your favorites!
+                    </p>
+                    <button
+                        type="button"
+                        aria-label="Browse food menu"
+                        className="btn btn-success px-4 py-2 fs-5 rounded-pill shadow-sm"
+                        onClick={() => navigate('/')}
+                    >
+                        Browse Foods
+                    </button>
+                </div>
             ) : (
                 <div className='container m-auto mt-5 table-responsive' >
                     <table className='table table-hover'>
@@ -206,7 +228,7 @@ export default function Cart() {
                                     <td >{food.size}</td>
                                     <td >{food.price}</td>
                                     <td >
-                                        <button type="button" className="btn p-0" style={{ background: 'transparent', border: 'none' }} onClick={() => { dispatch({ type: "REMOVE", index: index }) }}>
+                                        <button type="button" className="btn p-0" aria-label={`Remove ${food.name} from cart`} style={{ background: 'transparent', border: 'none' }} onClick={() => { dispatch({ type: "REMOVE", index: index }) }}>
                                             <Lottie 
                                                 animationData={deleteAnimation} 
                                                 loop={true} 
@@ -250,6 +272,8 @@ export default function Cart() {
                                     }}
                                 >
                                     <button 
+                                        type="button"
+                                        aria-label="Close payment selection"
                                         onClick={() => { setShowPaymentModal(false); setPaymentMethod(null); }} 
                                         style={{ position: 'absolute', top: 15, right: 20, background: 'transparent', border: 'none', fontSize: '24px', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', zIndex: 1 }}
                                     >
