@@ -1,6 +1,18 @@
 import { fetchUtils } from 'react-admin';
-import { stringify } from 'query-string';
 import API_BASE_URL from './config.js';
+
+// Safe helper to format query parameters without third-party dependencies
+const stringify = (params) => {
+    const searchParams = new URLSearchParams();
+    if (!params) return '';
+    Object.keys(params).forEach(key => {
+        const value = params[key];
+        if (value !== undefined && value !== null) {
+            searchParams.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
+        }
+    });
+    return searchParams.toString();
+};
 
 const apiUrl = `${API_BASE_URL}/api`;
 
