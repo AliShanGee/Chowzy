@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import BootstrapCard from "react-bootstrap/Card";
 import { useDispatchCart } from "./ContextReducer";
 import IconSlideButton from "./IconSlideButton";
@@ -7,7 +7,9 @@ import { useTheme } from "next-themes";
 import { Rating, ThinStar } from '@smastrom/react-rating';
 import '@smastrom/react-rating/style.css';
 
-export default function Card(props) {
+const DEFAULT_OPTIONS = {};
+
+function Card(props) {
     let dispatch = useDispatchCart();
     const { theme } = useTheme();
     const [qty, setQty] = useState(1);
@@ -54,8 +56,8 @@ export default function Card(props) {
         y.set(0);
     };
 
-    let options = props.options || {};
-    let priceOptions = Object.keys(options);
+    let options = props.options || DEFAULT_OPTIONS;
+    let priceOptions = useMemo(() => Object.keys(options), [options]);
     let foodItem = props.foodItem;
 
     const handleAddToCart = async () => {
@@ -245,3 +247,5 @@ export default function Card(props) {
         </div>
     );
 }
+
+export default React.memo(Card);
