@@ -2,11 +2,15 @@ const isNode = typeof process !== 'undefined' && process.release && process.rele
 
 if (isNode) {
   try {
-    const app = eval('require')('./api/index.js');
+    const dynamicImport = (pkg) => Function('p', 'return import(p)')(pkg);
+    const dynamicRequire = (pkg) => Function('p', 'return require(p)')(pkg);
+
+    const app = dynamicRequire('./api/index.js');
     Promise.all([
-      import('dotenv/config'),
-      import('@hono/node-server')
-    ]).then(([_, { serve }]) => {
+      dynamicImport('dotenv/config'),
+      dynamicImport('@hono/node-server')
+    ]).then(([_, nodeServer]) => {
+      const serve = nodeServer.serve;
       const port = parseInt(process.env.PORT || '3001', 10);
       console.log('Starting server on port', port);
       if (typeof serve === 'function') {
