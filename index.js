@@ -4,11 +4,12 @@ const isNode = typeof process !== 'undefined' && process.release && process.rele
 
 if (isNode) {
   Promise.all([import('dotenv/config'), import('@hono/node-server')]).then(([_, { serve }]) => {
-    if (app && app.fetch) {
+    const fetchHandler = app && (app.fetch || app);
+    if (fetchHandler) {
       const port = parseInt(process.env.PORT || '3001', 10);
       console.log('Starting server on port', port);
       serve({
-        fetch: app.fetch,
+        fetch: fetchHandler,
         port,
       });
       console.log(`Server running at http://localhost:${port}`);
