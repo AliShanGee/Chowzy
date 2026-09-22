@@ -2,8 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const mongoDB = require('./db');
-const { connectRedis } = require('./redis');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -46,6 +44,8 @@ app.get('/', (req, res) => {
 
 // Connect to MongoDB and Redis then start server
 if (isNode) {
+    const mongoDB = require('./db');
+    const { connectRedis } = require('./redis');
     mongoDB().then(() => {
         connectRedis(); // Connect to Redis in background
         app.listen(port, () => {
