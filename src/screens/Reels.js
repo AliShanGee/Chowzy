@@ -204,6 +204,8 @@ const Reels = () => {
         refetchOnMount: true
     });
 
+    // Bolt Optimization: Optimistic updates and direct query cache management for reel likes
+    // Eliminates full GET /api/getreels network re-fetches on every like interaction
     const likeMutation = useMutation({
         mutationFn: async (reelId) => {
             const response = await fetch(`${API_BASE_URL}/api/reels/${reelId}/like`, {
@@ -211,13 +213,48 @@ const Reels = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId })
             });
-            return response.json();
+            const data = await response.json();
+            if (!data.success) throw new Error(data.message);
+            return { reelId, likes: data.likes };
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['reels'] });
+        onMutate: async (reelId) => {
+            await queryClient.cancelQueries({ queryKey: ['reels'] });
+            const previousReels = queryClient.getQueryData(['reels']);
+
+            queryClient.setQueryData(['reels'], (oldReels) => {
+                if (!oldReels) return oldReels;
+                return oldReels.map((reel) => {
+                    if (reel._id !== reelId) return reel;
+                    const likes = reel.likes ? [...reel.likes] : [];
+                    const index = likes.indexOf(userId);
+                    if (index === -1) {
+                        likes.push(userId);
+                    } else {
+                        likes.splice(index, 1);
+                    }
+                    return { ...reel, likes };
+                });
+            });
+
+            return { previousReels };
+        },
+        onError: (err, reelId, context) => {
+            if (context?.previousReels) {
+                queryClient.setQueryData(['reels'], context.previousReels);
+            }
+        },
+        onSuccess: ({ reelId, likes }) => {
+            queryClient.setQueryData(['reels'], (oldReels) => {
+                if (!oldReels) return oldReels;
+                return oldReels.map((reel) =>
+                    reel._id === reelId ? { ...reel, likes: likes ?? reel.likes } : reel
+                );
+            });
         }
     });
 
+    // Bolt Optimization: Optimistic updates and direct query cache management for reel saves
+    // Eliminates full GET /api/getreels network re-fetches on every save interaction
     const saveMutation = useMutation({
         mutationFn: async (reelId) => {
             const response = await fetch(`${API_BASE_URL}/api/reels/${reelId}/save`, {
@@ -225,10 +262,43 @@ const Reels = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId })
             });
-            return response.json();
+            const data = await response.json();
+            if (!data.success) throw new Error(data.message);
+            return { reelId, saves: data.saves };
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['reels'] });
+        onMutate: async (reelId) => {
+            await queryClient.cancelQueries({ queryKey: ['reels'] });
+            const previousReels = queryClient.getQueryData(['reels']);
+
+            queryClient.setQueryData(['reels'], (oldReels) => {
+                if (!oldReels) return oldReels;
+                return oldReels.map((reel) => {
+                    if (reel._id !== reelId) return reel;
+                    const saves = reel.saves ? [...reel.saves] : [];
+                    const index = saves.indexOf(userId);
+                    if (index === -1) {
+                        saves.push(userId);
+                    } else {
+                        saves.splice(index, 1);
+                    }
+                    return { ...reel, saves };
+                });
+            });
+
+            return { previousReels };
+        },
+        onError: (err, reelId, context) => {
+            if (context?.previousReels) {
+                queryClient.setQueryData(['reels'], context.previousReels);
+            }
+        },
+        onSuccess: ({ reelId, saves }) => {
+            queryClient.setQueryData(['reels'], (oldReels) => {
+                if (!oldReels) return oldReels;
+                return oldReels.map((reel) =>
+                    reel._id === reelId ? { ...reel, saves: saves ?? reel.saves } : reel
+                );
+            });
         }
     });
 
