@@ -56,7 +56,7 @@ export default function Card(props) {
 
     let options = props.options || {};
     let priceOptions = Object.keys(options);
-    let foodItem = props.foodItem;
+    let foodItem = props.foodItem || {};
 
     const handleAddToCart = async () => {
         await dispatch({
@@ -210,6 +210,7 @@ export default function Card(props) {
                                     <select 
                                         className="me-2 p-1 bg-success text-white rounded-pill border-0 px-3 shadow-sm" 
                                         style={{ outline: "none", cursor: "pointer", fontSize: "0.85rem", appearance: "none" }}
+                                        aria-label={`Select quantity for ${foodItem?.name || 'food item'}`}
                                         onChange={(e) => setQty(e.target.value)}
                                     >
                                         {Array.from(Array(6), (e, i) => (
@@ -219,6 +220,7 @@ export default function Card(props) {
                                     <select 
                                         className="p-1 bg-success text-white rounded-pill border-0 px-3 shadow-sm" 
                                         style={{ outline: "none", cursor: "pointer", fontSize: "0.85rem", appearance: "none" }}
+                                        aria-label={`Select portion size for ${foodItem?.name || 'food item'}`}
                                         ref={priceRef} 
                                         onChange={(e) => setSize(e.target.value)}
                                     >
