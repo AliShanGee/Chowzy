@@ -2,10 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const mongoDB = require('./db');
+const { connectRedis } = require('./redis');
 
 const app = express();
-
-const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
+const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
@@ -15,15 +16,13 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Serve static files from uploads directory with absolute path in Node
-if (isNode) {
-  const uploadsPath = path.resolve(__dirname, 'uploads');
-  if (!fs.existsSync(uploadsPath)) {
-      fs.mkdirSync(uploadsPath, { recursive: true });
-  }
-  app.use('/uploads', express.static(uploadsPath));
-  console.log(`Serving static files from: ${uploadsPath}`);
+// Serve static files from uploads directory with absolute path
+const uploadsPath = path.resolve(__dirname, 'uploads');
+if (!fs.existsSync(uploadsPath)) {
+    fs.mkdirSync(uploadsPath, { recursive: true });
 }
+app.use('/uploads', express.static(uploadsPath));
+console.log(`Serving static files from: ${uploadsPath}`);
 
 // Routes
 app.use('/api', require('./Routes/CreateUser'));
@@ -41,20 +40,13 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-// Connect to MongoDB and Redis then start server when running in Node
-if (isNode) {
-  const mongoDB = require('./db');
-  const { connectRedis } = require('./redis');
-  const port = process.env.PORT || 5000;
-
-  mongoDB().then(() => {
-      connectRedis(); // Connect to Redis in background
-      app.listen(port, () => {
-          console.log(`Server running on port ${port}`);
-      });
-  }).catch(err => {
-      console.error("Failed to connect to MongoDB:", err);
-  });
-}
-
-module.exports = app;
+// Connect to MongoDB and Redis then start server
+mongoDB().then(() => {
+    connectRedis(); // Connect to Redis in background
+    app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+    });
+}).catch(err => {
+    console.error("Failed to connect to MongoDB:", err);
+    process.exit(1);
+});
