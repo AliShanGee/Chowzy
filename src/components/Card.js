@@ -185,22 +185,18 @@ export default function Card(props) {
                             lineHeight: "1.4",
                             transition: "all 0.3s ease"
                         }}>
-                            {expanded ? foodItem.description : `${foodItem.description.substring(0, 60)}${foodItem.description.length > 60 ? '' : ''}`}
-                            {!expanded && foodItem.description && foodItem.description.length > 60 && (
-                                <span 
-                                    onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
-                                    style={{ color: "#28a745", cursor: "pointer", fontWeight: "bold" }}
+                            {expanded ? foodItem.description : `${foodItem.description.substring(0, 60)}`}
+                            {foodItem.description && foodItem.description.length > 60 && (
+                                <button
+                                    type="button"
+                                    className="btn btn-link p-0 text-success fw-bold text-decoration-none ms-1 align-baseline"
+                                    style={{ border: "none", background: "none" }}
+                                    aria-expanded={expanded}
+                                    aria-label={expanded ? `Show less description for ${foodItem.name}` : `Show full description for ${foodItem.name}`}
+                                    onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
                                 >
-                                    ...
-                                </span>
-                            )}
-                            {expanded && (
-                                <span 
-                                    onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
-                                    style={{ color: "#28a745", cursor: "pointer", fontWeight: "bold", marginLeft: "5px", fontSize: "0.75rem" }}
-                                >
-                                    (less)
-                                </span>
+                                    {expanded ? "(less)" : "..."}
+                                </button>
                             )}
                         </BootstrapCard.Text>
                         
@@ -238,6 +234,7 @@ export default function Card(props) {
                             style={{ borderRadius: "16px", fontWeight: "700", letterSpacing: "0.5px" }}
                             onClick={handleAddToCart} 
                             text="ADD TO CART"
+                            aria-label={`Add ${foodItem?.name || 'item'} to cart`}
                         />
                     </BootstrapCard.Body>
                 </BootstrapCard>
