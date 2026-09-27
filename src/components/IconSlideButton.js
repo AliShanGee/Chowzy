@@ -2,9 +2,11 @@ import React from "react";
 import { motion } from "framer-motion";
 import { BsCartPlus } from "react-icons/bs";
 
-const IconSlideButton = ({ text, onClick, className, style, ...props }) => {
+const IconSlideButton = ({ text, onClick, className, style, "aria-label": ariaLabel, ...props }) => {
   return (
     <motion.button
+      type="button"
+      aria-label={ariaLabel || text}
       onClick={onClick}
       className={className}
       style={{
@@ -38,10 +40,11 @@ const IconSlideButton = ({ text, onClick, className, style, ...props }) => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          zIndex: 2
+          zIndex: 2,
+          pointerEvents: "none"
         }}
       >
-        <BsCartPlus size={22} />
+        <BsCartPlus size={22} aria-hidden="true" />
       </motion.div>
 
       <motion.span
