@@ -1,37 +1,17 @@
-const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
+const redis = require('redis');
 
-function createMockClient() {
-    return {
-        on: () => {},
-        get: async () => null,
-        set: async () => null,
-        isOpen: false,
-        connect: async () => {}
-    };
-}
+const client = redis.createClient({
+    url: process.env.REDIS_URL || 'redis://localhost:6379'
+});
 
-let client;
-
-if (isNode) {
-    try {
-        const redis = require('redis');
-        client = redis.createClient({
-            url: process.env.REDIS_URL || 'redis://localhost:6379'
-        });
-        client.on('error', (err) => {
-            if (err.code !== 'ECONNREFUSED') {
-                console.log('Redis Client Error', err);
-            }
-        });
-    } catch (err) {
-        client = createMockClient();
+client.on('error', (err) => {
+    // Suppress repeated connection logs to avoid console noise when offline
+    if (err.code !== 'ECONNREFUSED') {
+        console.log('Redis Client Error', err);
     }
-} else {
-    client = createMockClient();
-}
+});
 
 const connectRedis = async () => {
-    if (!isNode || !client || typeof client.connect !== 'function') return;
     try {
         if (!client.isOpen) {
             await client.connect();
