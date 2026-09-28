@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -46,6 +46,21 @@ export default function Home() {
     });
   }, []);
 
+  // O(N) single-pass category deduplication memoized across renders
+  const uniqueCategories = useMemo(() => {
+    if (!foodCat || foodCat.length === 0) return [];
+    const seenCategories = new Set();
+    const result = [];
+    for (let i = 0; i < foodCat.length; i++) {
+      const cat = foodCat[i];
+      if (cat && cat.CategoryName && !seenCategories.has(cat.CategoryName)) {
+        seenCategories.add(cat.CategoryName);
+        result.push(cat);
+      }
+    }
+    return result;
+  }, [foodCat]);
+
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
       {theme !== 'dark' && (
@@ -89,36 +104,53 @@ export default function Home() {
           </div>
         {
           (() => {
-            if (foodCat.length === 0) return "";
-            
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
+            if (uniqueCategories.length === 0) return null;
+
             const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+            const searchLower = search.toLowerCase();
+            const hasFoodItems = foodItem.length > 0;
 
             return (
               <>
                 {currentCategories.map((data) => {
+                  // Pre-calculate filtered and deduplicated food items in O(N) single pass
+                  const filteredItems = hasFoodItems ? (() => {
+                    const seenNames = new Set();
+                    const result = [];
+                    for (let i = 0; i < foodItem.length; i++) {
+                      const item = foodItem[i];
+                      if (
+                        item &&
+                        item.name &&
+                        item.CategoryName === data.CategoryName &&
+                        (!searchLower || item.name.toLowerCase().includes(searchLower))
+                      ) {
+                        if (!seenNames.has(item.name)) {
+                          seenNames.add(item.name);
+                          result.push(item);
+                        }
+                      }
+                    }
+                    return result;
+                  })() : [];
+
                   return (
                     <div className='row mb-3' key={data._id}>
                       <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
-                    </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
+                      {filteredItems.length > 0 ? (
+                        filteredItems.map(filterItems => (
+                          <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                            <Card foodItem={filterItems} options={filterItems.options[0]} />
+                          </div>
+                        ))
+                      ) : (
+                        <div className="ps-3 text-muted">No Such Data Found</div>
+                      )}
                     </div>
                   );
                 })}
