@@ -157,6 +157,7 @@ export default function Card(props) {
                         }}
                     />
 
+                    {/* Performance Optimization: Native browser lazy loading defers image fetching until near viewport */}
                     <BootstrapCard.Img 
                         variant="top" 
                         src={foodItem.img} 
