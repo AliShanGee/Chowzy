@@ -2,10 +2,6 @@ import app from './api/index.js';
 
 const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
-if (typeof app === 'function' && !app.fetch) {
-  app.fetch = (request, env, ctx) => new Response('Chowzy API Running', { status: 200 });
-}
-
 if (isNode) {
   Promise.all([
     import('dotenv/config'),
@@ -21,4 +17,11 @@ if (isNode) {
   });
 }
 
-export default app;
+export default {
+  async fetch(request, env, ctx) {
+    if (app && typeof app.fetch === 'function') {
+      return app.fetch(request, env, ctx);
+    }
+    return new Response('Chowzy API Running', { status: 200 });
+  }
+};
