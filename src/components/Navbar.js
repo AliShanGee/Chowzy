@@ -149,13 +149,13 @@ function NavScrollExample() {
                   style={{ border: 'none', backgroundColor: 'transparent', padding: 0, cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px" }}
                   onClick={toggleChatbot}
                 >
-                  <div style={{ width: "100%", height: "100%", pointerEvents: 'none' }}>
+                  <span style={{ width: "100%", height: "100%", display: "block", pointerEvents: 'none' }}>
                     <Lottie
                       animationData={helloChatBotAnimation}
                       loop={true}
                       autoplay={true}
                     />
-                  </div>
+                  </span>
                 </button>
                 <Link className="btn bg-white text-success mx-2 d-flex align-items-center" to="/cart" style={{ textDecoration: 'none' }}>
                   <div style={{ width: "30px", height: "30px", pointerEvents: 'none' }}>
@@ -182,9 +182,9 @@ function NavScrollExample() {
                     {user && user.img ? (
                       <img src={user.img} alt="Profile" style={{ width: "58px", height: "58px", borderRadius: "50%", objectFit: "cover" }} />
                     ) : (
-                      <div style={{ width: "100px", height: "50px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: 'none' }}>
+                      <span style={{ width: "100px", height: "50px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: 'none' }}>
                         <Lottie animationData={profileAnimation} loop={true} autoplay={true} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      </div>
+                      </span>
                     )}
                   </Dropdown.Toggle>
 
