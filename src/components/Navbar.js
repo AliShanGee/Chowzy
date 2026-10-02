@@ -115,8 +115,8 @@ function NavScrollExample() {
               navbarScroll
             >
               {(localStorage.getItem("authToken") && location.pathname !== '/orderhistory') ?
-                <Nav.Link as={Link} to="/orderhistory" className="d-flex align-items-center" style={{ textDecoration: 'none' }}>
-                  <div style={{ width: "40px", height: "40px" }}>
+                <Nav.Link as={Link} to="/orderhistory" className="d-flex align-items-center" style={{ textDecoration: 'none' }} aria-label="View order history" title="Order History">
+                  <div style={{ width: "40px", height: "40px", pointerEvents: 'none' }}>
                     <Lottie
                       animationData={historyAnimation}
                       loop={true}
@@ -142,15 +142,23 @@ function NavScrollExample() {
               :
               <div className='d-flex align-items-center'>
                 <ThemeToggle />
-                <div style={{ cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px" }} onClick={toggleChatbot}>
-                  <Lottie
-                    animationData={helloChatBotAnimation}
-                    loop={true}
-                    autoplay={true}
-                  />
-                </div>
+                <button
+                  type="button"
+                  aria-label="Toggle AI Chatbot assistant"
+                  aria-expanded={showChatbot}
+                  style={{ border: 'none', backgroundColor: 'transparent', padding: 0, cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px" }}
+                  onClick={toggleChatbot}
+                >
+                  <div style={{ width: "100%", height: "100%", pointerEvents: 'none' }}>
+                    <Lottie
+                      animationData={helloChatBotAnimation}
+                      loop={true}
+                      autoplay={true}
+                    />
+                  </div>
+                </button>
                 <Link className="btn bg-white text-success mx-2 d-flex align-items-center" to="/cart" style={{ textDecoration: 'none' }}>
-                  <div style={{ width: "30px", height: "30px" }}>
+                  <div style={{ width: "30px", height: "30px", pointerEvents: 'none' }}>
                     <Lottie
                       lottieRef={lottieRef}
                       animationData={shoppingCartAnimation}
@@ -163,11 +171,18 @@ function NavScrollExample() {
                 </Link>
                 {showHistory && <ChatHistory show={showHistory} handleClose={() => setShowHistory(false)} />}
                 <Dropdown>
-                  <Dropdown.Toggle as="div" id="dropdown-profile" className="d-flex align-items-center" style={{ cursor: 'pointer' }}>
+                  <Dropdown.Toggle
+                    as="button"
+                    type="button"
+                    id="dropdown-profile"
+                    aria-label="User profile menu"
+                    className="d-flex align-items-center"
+                    style={{ border: 'none', backgroundColor: 'transparent', padding: 0, cursor: 'pointer' }}
+                  >
                     {user && user.img ? (
                       <img src={user.img} alt="Profile" style={{ width: "58px", height: "58px", borderRadius: "50%", objectFit: "cover" }} />
                     ) : (
-                      <div style={{ width: "100px", height: "50px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <div style={{ width: "100px", height: "50px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: 'none' }}>
                         <Lottie animationData={profileAnimation} loop={true} autoplay={true} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       </div>
                     )}
