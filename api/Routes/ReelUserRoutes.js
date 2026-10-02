@@ -50,12 +50,14 @@ router.get('/getreels', async (req, res) => {
 router.post('/reels/:id/like', async (req, res) => {
     try {
         const { userId } = req.body;
+        if (!userId) return res.status(400).json({ success: false, message: "User ID is required" });
+
         // Bolt Optimization: Fetch lightweight lean object with only required field
         const reel = await Reel.findById(req.params.id).select('likes').lean();
         if (!reel) return res.status(404).json({ success: false, message: "Reel not found" });
 
         const likes = reel.likes || [];
-        const hasLiked = likes.some(id => id.toString() === userId.toString());
+        const hasLiked = likes.some(id => id && userId && id.toString() === userId.toString());
 
         // Bolt Optimization: Atomic MongoDB update avoiding full document hydration and saves
         const updatedReel = await Reel.findByIdAndUpdate(
@@ -86,12 +88,14 @@ router.post('/reels/:id/like', async (req, res) => {
 router.post('/reels/:id/save', async (req, res) => {
     try {
         const { userId } = req.body;
+        if (!userId) return res.status(400).json({ success: false, message: "User ID is required" });
+
         // Bolt Optimization: Fetch lightweight lean object with only required field
         const reel = await Reel.findById(req.params.id).select('saves').lean();
         if (!reel) return res.status(404).json({ success: false, message: "Reel not found" });
 
         const saves = reel.saves || [];
-        const hasSaved = saves.some(id => id.toString() === userId.toString());
+        const hasSaved = saves.some(id => id && userId && id.toString() === userId.toString());
 
         // Bolt Optimization: Atomic MongoDB update avoiding full document hydration and saves
         const updatedReel = await Reel.findByIdAndUpdate(
