@@ -1,0 +1,3 @@
+## 2025-05-20 - Preserving Ternary Fallback Scopes in Category Filter Refactoring
+**Learning:** When refactoring nested array filtering and deduplication loops (e.g. `foodItem.filter().reduce()`) into helper functions, keep conditional check conditions identical to the original ternary logic (`foodItem.length > 0`) rather than checking the filtered array length. Checking the filtered sub-array causes empty search fallbacks ("No Such Data Found") to render repeatedly under every empty category header.
+**Action:** Verify that refactored filter helpers return empty arrays directly to `.map()` and preserve root dataset conditionals in JSX branch checks.
