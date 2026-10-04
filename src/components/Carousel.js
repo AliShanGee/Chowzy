@@ -7,30 +7,29 @@ import { TextPlugin } from 'gsap/TextPlugin';
 const carouselItems = [
   {
     src: "https://media.assettype.com/gulfnews%2F2024-11-18%2Fd0nwdt8n%2FWLD_190630_Fast_food__Read_Only__16ba9680d4a_original_ratio.jpg?w=1200&auto=format%2Ccompress",
-    alt: "First slide",
+    alt: "Delicious fast food burger and fries combo",
   },
   {
     src: "https://media.assettype.com/gulfnews%2F2024-11-18%2F1lcpy5my%2Fspaghetti_181921fe124_original_ratio.jpg?w=1200&auto=format%2Ccompress",
-    alt: "Second slide",
+    alt: "Fresh Italian spaghetti pasta",
   },
   {
     src: "https://media.assettype.com/gulfnews%2F2024-11-18%2F2iyyr7k5%2Fbiryani_17e19b796be_original_ratio.jpg?w=1200&auto=format%2Ccompress",
-    alt: "Third slide",
+    alt: "Flavorful aromatic biryani rice",
   },
   {
-    src:"https://images.unsplash.com/photo-1567529854970-ce2c4207e242?q=80&w=871&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    alt:"Fourth Slide"
+    src: "https://images.unsplash.com/photo-1567529854970-ce2c4207e242?q=80&w=871&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    alt: "Gourmet restaurant dinner spread",
   },
   {
-    src:"https://plus.unsplash.com/premium_photo-1673108852141-e8c3c22a4a22?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    alt:"Fourth Slide"
+    src: "https://plus.unsplash.com/premium_photo-1673108852141-e8c3c22a4a22?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    alt: "Assorted freshly prepared dishes",
   }
 ];
 
 export default function HomeCarousel() {
-  gsap.registerPlugin(TextPlugin);
-
   useEffect(() => {
+    gsap.registerPlugin(TextPlugin);
     const tl = gsap.timeline({ repeat: -1, yoyo: true });
     tl.to(".animated-text", {
       duration: 1,
@@ -42,11 +41,15 @@ export default function HomeCarousel() {
       ease: "none",
       delay: 0.5
     });
+
+    return () => {
+      tl.kill();
+    };
   }, []);
 
   return (
     <>
-      <Carousel fade interval={2500} indicators={false}>
+      <Carousel fade interval={2500} indicators={false} aria-label="Featured food banner carousel">
         {carouselItems.map((item, index) => (
           <Carousel.Item key={index}>
             <img
@@ -65,8 +68,11 @@ export default function HomeCarousel() {
                 background: 'rgba(0, 0, 0, 0.5)', 
                 borderRadius: '10px', 
                 padding: '1rem' }}>
-              <h1 style={{ background: 'linear-gradient(to right, #ff7e5f, #feb47b, #86a8e7, #7f7fd5)', WebkitBackgroundClip: 'text', color: 'transparent' }}>
-                <span className="animated-text"></span>
+              <h1
+                aria-label="Deliciously Fast, Always Fresh! Your Cravings, Delivered."
+                style={{ background: 'linear-gradient(to right, #ff7e5f, #feb47b, #86a8e7, #7f7fd5)', WebkitBackgroundClip: 'text', color: 'transparent' }}
+              >
+                <span className="animated-text" aria-hidden="true">Deliciously Fast, Always Fresh!</span>
               </h1>
             </Carousel.Caption>
           </Carousel.Item>
