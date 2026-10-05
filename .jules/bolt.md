@@ -1,0 +1,3 @@
+## 2026-04-20 - Memoizing Category Deduplication and Item Filtering in Home.js
+**Learning:** `Array.prototype.filter` with nested `findIndex` / `findIndex` / `reduce` + `some` causes O(N^2) quadratic computations on every render frame (e.g. keypresses in search bar). Replacing nested array searches with linear `Set` operations and `useMemo` for category deduplication eliminates redundant allocations and speeds up search/filter rendering.
+**Action:** When deduplicating categories or items in React render trees, pre-calculate unique sets using `useMemo` and `Set` lookup instead of running nested array iterations.
