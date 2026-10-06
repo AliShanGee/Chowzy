@@ -24,18 +24,18 @@ if (isNode) {
   }
   app.use('/uploads', express.static(uploadsPath));
   console.log(`Serving static files from: ${uploadsPath}`);
-}
 
-// Routes
-app.use('/api', require('./Routes/CreateUser'));
-app.use('/api', require('./Routes/DisplayData'));
-app.use('/api', require('./Routes/OrderData'));
-app.use('/api', require('./Routes/CartRoutes'));
-app.use('/api', require('./Routes/AdminAuth'));
-app.use('/api', require('./Routes/AdminRoutes'));
-app.use('/api', require('./Routes/AskAI'));
-app.use('/api', require('./Routes/PaymentRoutes'));
-app.use('/api', require('./Routes/ReelUserRoutes'));
+  // Routes
+  app.use('/api', require('./Routes/CreateUser'));
+  app.use('/api', require('./Routes/DisplayData'));
+  app.use('/api', require('./Routes/OrderData'));
+  app.use('/api', require('./Routes/CartRoutes'));
+  app.use('/api', require('./Routes/AdminAuth'));
+  app.use('/api', require('./Routes/AdminRoutes'));
+  app.use('/api', require('./Routes/AskAI'));
+  app.use('/api', require('./Routes/PaymentRoutes'));
+  app.use('/api', require('./Routes/ReelUserRoutes'));
+}
 
 // Default route
 app.get('/', (req, res) => {
