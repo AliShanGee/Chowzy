@@ -13,7 +13,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 describe('NotFound Component', () => {
-    it('renders 404 heading, message, icon with role="img", and CTA button with aria-label', () => {
+    it('renders 404 heading, message, icon with role="img", and CTA button with WCAG compliant aria-label', () => {
         render(<NotFound />);
 
         // Check 404 display and heading
@@ -25,7 +25,7 @@ describe('NotFound Component', () => {
         expect(icon).toBeInTheDocument();
 
         // React-Bootstrap Button with as={Link} explicitly renders role="button" on the anchor tag
-        const buttonLink = screen.getByRole('button', { name: /Return to food menu home page/i });
+        const buttonLink = screen.getByRole('button', { name: /Go Back Home to food menu/i });
         expect(buttonLink).toBeInTheDocument();
         expect(buttonLink).toHaveAttribute('href', '/');
     });

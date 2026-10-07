@@ -17,7 +17,7 @@ export default function NotFound() {
                 to="/"
                 variant="success"
                 size="lg"
-                aria-label="Return to food menu home page"
+                aria-label="Go Back Home to food menu"
             >
                 Go Back Home
             </Button>
