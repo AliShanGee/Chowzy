@@ -1,7 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
 
 const app = express();
 const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
@@ -16,6 +14,8 @@ app.use(cors({
 
 // Serve static files from uploads directory with absolute path (only in Node environment)
 if (isNode) {
+    const path = require('path');
+    const fs = require('fs');
     const uploadsPath = path.resolve(__dirname, 'uploads');
     if (!fs.existsSync(uploadsPath)) {
         fs.mkdirSync(uploadsPath, { recursive: true });

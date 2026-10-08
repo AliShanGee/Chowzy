@@ -1,10 +1,10 @@
-import 'dotenv/config';
 import app from './api/index.js';
 
 const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
 if (isNode) {
   try {
+    require('dotenv/config');
     const { serve } = require('@hono/node-server');
     const port = parseInt(process.env.PORT || '3001', 10);
     console.log('Starting server on port', port);
@@ -12,7 +12,7 @@ if (isNode) {
       serve({ fetch: app.fetch, port });
     }
   } catch (err) {
-    // Ignore if hono/node-server isn't available
+    // Ignore in non-Node environments like Cloudflare Workers
   }
 }
 
