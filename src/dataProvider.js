@@ -1,7 +1,6 @@
 import { fetchUtils } from 'react-admin';
+import { stringify } from 'query-string';
 import API_BASE_URL from './config.js';
-
-const stringifyQuery = (obj) => new URLSearchParams(obj).toString();
 
 const apiUrl = `${API_BASE_URL}/api`;
 
@@ -33,7 +32,7 @@ const dataProvider = {
             range: JSON.stringify([(page - 1) * perPage, page * perPage - 1]),
             filter: JSON.stringify(params.filter),
         };
-        const url = `${getResourceUrl(resource)}?${stringifyQuery(query)}`;
+        const url = `${getResourceUrl(resource)}?${stringify(query)}`;
 
         return httpClient(url).then(({ headers, json }) => {
             const dataArray = Array.isArray(json) ? json : [];
@@ -56,7 +55,7 @@ const dataProvider = {
         const query = {
             filter: JSON.stringify({ id: params.ids }),
         };
-        const url = `${getResourceUrl(resource)}?${stringifyQuery(query)}`;
+        const url = `${getResourceUrl(resource)}?${stringify(query)}`;
         return httpClient(url).then(({ json }) => ({
             data: Array.isArray(json) ? json.map(item => ({ ...item, id: item._id || item.id })) : [],
         }));
@@ -73,7 +72,7 @@ const dataProvider = {
                 [params.target]: params.id,
             }),
         };
-        const url = `${getResourceUrl(resource)}?${stringifyQuery(query)}`;
+        const url = `${getResourceUrl(resource)}?${stringify(query)}`;
 
         return httpClient(url).then(({ headers, json }) => {
             if (!headers.has('content-range')) {
@@ -153,7 +152,7 @@ const dataProvider = {
         const query = {
             filter: JSON.stringify({ id: params.ids }),
         };
-        return httpClient(`${getResourceUrl(resource)}?${stringifyQuery(query)}`, {
+        return httpClient(`${getResourceUrl(resource)}?${stringify(query)}`, {
             method: 'DELETE',
         }).then(({ json }) => ({ data: json }));
     },
