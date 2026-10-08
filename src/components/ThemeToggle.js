@@ -50,7 +50,6 @@ const ThemeToggle = () => {
         backgroundColor: 'transparent',
         border: 'none',
         padding: 0,
-        outline: 'none',
       }}
       onClick={toggleTheme}
       aria-label={toggleLabel}
