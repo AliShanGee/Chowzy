@@ -12,3 +12,9 @@ serve({
 });
 
 console.log(`Server running at http://localhost:${port}`);
+
+export default {
+  async fetch(request, env, ctx) {
+    return app.fetch(request, env, ctx);
+  }
+};

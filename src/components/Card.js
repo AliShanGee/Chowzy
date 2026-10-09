@@ -188,7 +188,17 @@ export default function Card(props) {
                             {expanded ? foodItem.description : `${foodItem.description.substring(0, 60)}${foodItem.description.length > 60 ? '' : ''}`}
                             {!expanded && foodItem.description && foodItem.description.length > 60 && (
                                 <span 
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-label={`Expand full description for ${foodItem.name}`}
                                     onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setExpanded(true);
+                                        }
+                                    }}
                                     style={{ color: "#28a745", cursor: "pointer", fontWeight: "bold" }}
                                 >
                                     ...
@@ -196,7 +206,17 @@ export default function Card(props) {
                             )}
                             {expanded && (
                                 <span 
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-label={`Show less description for ${foodItem.name}`}
                                     onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setExpanded(false);
+                                        }
+                                    }}
                                     style={{ color: "#28a745", cursor: "pointer", fontWeight: "bold", marginLeft: "5px", fontSize: "0.75rem" }}
                                 >
                                     (less)
@@ -210,6 +230,7 @@ export default function Card(props) {
                                     <select 
                                         className="me-2 p-1 bg-success text-white rounded-pill border-0 px-3 shadow-sm" 
                                         style={{ outline: "none", cursor: "pointer", fontSize: "0.85rem", appearance: "none" }}
+                                        aria-label={`Quantity for ${foodItem.name}`}
                                         onChange={(e) => setQty(e.target.value)}
                                     >
                                         {Array.from(Array(6), (e, i) => (
@@ -220,6 +241,7 @@ export default function Card(props) {
                                         className="p-1 bg-success text-white rounded-pill border-0 px-3 shadow-sm" 
                                         style={{ outline: "none", cursor: "pointer", fontSize: "0.85rem", appearance: "none" }}
                                         ref={priceRef} 
+                                        aria-label={`Portion size for ${foodItem.name}`}
                                         onChange={(e) => setSize(e.target.value)}
                                     >
                                         {priceOptions.map((data) => (
@@ -237,6 +259,7 @@ export default function Card(props) {
                             className={'btn btn-success w-100 mt-2 py-3'} 
                             style={{ borderRadius: "16px", fontWeight: "700", letterSpacing: "0.5px" }}
                             onClick={handleAddToCart} 
+                            aria-label={`Add ${foodItem.name} to cart`}
                             text="ADD TO CART"
                         />
                     </BootstrapCard.Body>
