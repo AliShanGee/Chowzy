@@ -1,20 +1,29 @@
 let redis = null;
 let client = null;
 
-try {
-    redis = require('redis');
-    client = redis.createClient({
-        url: process.env.REDIS_URL || 'redis://localhost:6379'
-    });
+const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
-    client.on('error', (err) => {
-        // Suppress repeated connection logs to avoid console noise when offline
-        if (err.code !== 'ECONNREFUSED') {
-            console.log('Redis Client Error', err);
-        }
-    });
-} catch (e) {
-    // Fallback mock client if redis module is not installed (e.g. in serverless/workers environments)
+if (isNode) {
+    try {
+        redis = require('redis');
+        client = redis.createClient({
+            url: process.env.REDIS_URL || 'redis://localhost:6379'
+        });
+
+        client.on('error', (err) => {
+            // Suppress repeated connection logs to avoid console noise when offline
+            if (err.code !== 'ECONNREFUSED') {
+                console.log('Redis Client Error', err);
+            }
+        });
+    } catch (e) {
+        // Fallback mock client if redis module loading fails
+        client = null;
+    }
+}
+
+if (!client) {
+    // Fallback mock client for non-Node runtimes (e.g., Cloudflare Workers)
     client = {
         isOpen: false,
         get: async () => null,
