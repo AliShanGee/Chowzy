@@ -6,13 +6,18 @@ const Order = require('../models/Orders');
 const User = require('../models/User');
 const Cart = require('../models/Cart');
 const Reel = require('../models/Reel');
-const multer = require('multer');
+let multer;
+try {
+    multer = require('multer');
+} catch (e) {
+    console.warn('multer module not loaded');
+}
 const path = require('path');
 const fs = require('fs');
 const { client } = require('../redis');
 
 // Configure Multer storage
-const storage = multer.diskStorage({
+const storage = multer && multer.diskStorage ? multer.diskStorage({
     destination: function (req, file, cb) {
         const uploadDir = path.join(__dirname, '..', 'uploads', 'reels');
         if (!fs.existsSync(uploadDir)) {
@@ -23,9 +28,9 @@ const storage = multer.diskStorage({
     filename: function (req, file, cb) {
         cb(null, Date.now() + '-' + file.originalname);
     }
-});
+}) : null;
 
-const upload = multer({ 
+const upload = multer && storage ? multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
         if (file.mimetype.startsWith('video/')) {
@@ -34,7 +39,7 @@ const upload = multer({
             cb(new Error('Only video files are allowed!'), false);
         }
     }
-});
+}) : { single: () => (req, res, next) => next() };
 
 // Helper for sending list response with Content-Range
 const sendListResponse = (res, data, total) => {

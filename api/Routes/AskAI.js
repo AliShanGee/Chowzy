@@ -1,6 +1,15 @@
 const express = require('express');
 const path = require('path');
-const { Annotation, END, START, StateGraph } = require('@langchain/langgraph');
+let Annotation, END, START, StateGraph;
+try {
+  const langgraph = require('@langchain/langgraph');
+  Annotation = langgraph.Annotation;
+  END = langgraph.END;
+  START = langgraph.START;
+  StateGraph = langgraph.StateGraph;
+} catch (e) {
+  console.warn('@langchain/langgraph is not installed or failed to load.');
+}
 const FoodItem = require('../models/FoodItem');
 
 const router = express.Router();
