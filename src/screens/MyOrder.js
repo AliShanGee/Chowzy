@@ -3,11 +3,13 @@ import Footer from '../components/Footer.js';
 import API_BASE_URL from '../config.js';
 import { useNavigate } from 'react-router-dom';
 import { Store } from 'react-notifications-component';
+import { useTheme } from 'next-themes';
 
 export default function MyOrder() {
   const [orders, setOrders] = useState([]);
   const navigate = useNavigate();
   const notificationShown = useRef(false);
+  const { theme } = useTheme();
 
   const fetchMyOrder = async () => {
     let userEmail = '';
@@ -127,15 +129,52 @@ export default function MyOrder() {
     <div className="orderhistory-container">
       <div className="container my-4">
         <div className="d-flex align-items-center mb-4">
-          <button className="btn btn-secondary me-3" onClick={() => navigate(-1)}>
+          <button
+            type="button"
+            className="btn btn-secondary me-3"
+            onClick={() => navigate(-1)}
+            aria-label="Go back to previous page"
+            title="Go back to previous page"
+          >
             &larr; Back
           </button>
           <h3 className="m-0" style={{ color: 'var(--text-color, white)' }}>My Orders</h3>
         </div>
 
         {orders.length === 0 ? (
-          <div className="text-center text-white">
-            <h5>No past orders found.</h5>
+          <div
+            className="card text-center p-5 shadow border-0 my-4"
+            style={{
+              backgroundColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
+              borderRadius: '1rem',
+              color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
+              border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.08)'
+            }}
+          >
+            <div className="card-body">
+              <div className="display-1 mb-3" role="img" aria-label="Order history clipboard">
+                📦
+              </div>
+              <h4 className="fw-bold mb-2">No Past Orders Found</h4>
+              <p
+                className="mb-4"
+                style={{
+                  maxWidth: '420px',
+                  margin: '0 auto',
+                  color: theme === 'dark' ? '#9ca3af' : '#6b7280'
+                }}
+              >
+                Looks like you haven't placed any orders yet. Explore our menu to find delicious food to order!
+              </p>
+              <button
+                type="button"
+                className="btn btn-success btn-lg px-4 py-2 rounded-pill shadow-sm"
+                onClick={() => navigate('/')}
+                aria-label="Browse food menu"
+              >
+                Browse Foods
+              </button>
+            </div>
           </div>
         ) : (
           <div className="row">
