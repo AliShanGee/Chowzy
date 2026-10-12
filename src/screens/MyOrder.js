@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Footer from '../components/Footer.js';
 import API_BASE_URL from '../config.js';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Store } from 'react-notifications-component';
 
 export default function MyOrder() {
@@ -127,15 +127,35 @@ export default function MyOrder() {
     <div className="orderhistory-container">
       <div className="container my-4">
         <div className="d-flex align-items-center mb-4">
-          <button className="btn btn-secondary me-3" onClick={() => navigate(-1)}>
-            &larr; Back
+          <button
+            type="button"
+            className="btn btn-secondary me-3"
+            onClick={() => navigate(-1)}
+            aria-label="Go back to previous page"
+          >
+            <span aria-hidden="true">&larr;</span> Back
           </button>
           <h3 className="m-0" style={{ color: 'var(--text-color, white)' }}>My Orders</h3>
         </div>
 
         {orders.length === 0 ? (
-          <div className="text-center text-white">
-            <h5>No past orders found.</h5>
+          <div className="text-center py-5 my-4 card shadow-sm border-0 order-card mx-auto" style={{ maxWidth: '500px' }}>
+            <div className="card-body p-4">
+              <span className="display-4 d-block mb-3" role="img" aria-label="Package icon">
+                📦
+              </span>
+              <h4 className="fw-bold mb-2">No Past Orders Found</h4>
+              <p className="opacity-75 mb-4">
+                Looks like you haven't placed any orders yet. Discover our fresh meals and place your first order!
+              </p>
+              <Link
+                to="/"
+                className="btn btn-success px-4 py-2 rounded-pill fw-semibold"
+                aria-label="Explore food menu to place an order"
+              >
+                Explore Food Menu
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="row">
