@@ -1,6 +1,16 @@
 const express = require('express');
 const path = require('path');
-const { Annotation, END, START, StateGraph } = require('@langchain/langgraph');
+let Annotation, END, START, StateGraph;
+try {
+  const lg = require('@langchain/langgraph');
+  Annotation = lg.Annotation;
+  END = lg.END;
+  START = lg.START;
+  StateGraph = lg.StateGraph;
+} catch (e) {
+  console.warn('@langchain/langgraph module is not available in current environment:', e.message);
+}
+
 const FoodItem = require('../models/FoodItem');
 
 const router = express.Router();
@@ -32,14 +42,14 @@ const MODEL_CANDIDATES = [
 let activeModelName = MODEL_CANDIDATES[0] || null;
 let globalAiCooldownUntil = 0;
 
-const FoodAssistantState = Annotation.Root({
+const FoodAssistantState = Annotation ? Annotation.Root({
   prompt: Annotation(),
   classification: Annotation(),
   menuItems: Annotation(),
   matchedItem: Annotation(),
   matchedItems: Annotation(),
   response: Annotation(),
-});
+}) : null;
 
 function normalizeText(value = '') {
   return value.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
@@ -660,15 +670,18 @@ async function writeReply(state) {
   }
 }
 
-const foodAssistantGraph = new StateGraph(FoodAssistantState)
-  .addNode('classify_query', classifyQuery)
-  .addNode('load_menu_context', loadMenuContext)
-  .addNode('write_reply', writeReply)
-  .addEdge(START, 'classify_query')
-  .addEdge('classify_query', 'load_menu_context')
-  .addEdge('load_menu_context', 'write_reply')
-  .addEdge('write_reply', END)
-  .compile();
+let foodAssistantGraph = null;
+if (StateGraph && FoodAssistantState) {
+  foodAssistantGraph = new StateGraph(FoodAssistantState)
+    .addNode('classify_query', classifyQuery)
+    .addNode('load_menu_context', loadMenuContext)
+    .addNode('write_reply', writeReply)
+    .addEdge(START, 'classify_query')
+    .addEdge('classify_query', 'load_menu_context')
+    .addEdge('load_menu_context', 'write_reply')
+    .addEdge('write_reply', END)
+    .compile();
+}
 
 router.post('/ask', async (req, res) => {
   const prompt = typeof req.body?.prompt === 'string' ? req.body.prompt.trim() : '';
@@ -678,8 +691,22 @@ router.post('/ask', async (req, res) => {
   }
 
   try {
-    const result = await foodAssistantGraph.invoke({ prompt });
-    return res.json({ response: result.response });
+    let responseText;
+    if (foodAssistantGraph) {
+      const result = await foodAssistantGraph.invoke({ prompt });
+      responseText = result.response;
+    } else {
+      const state = { prompt };
+      const classRes = await classifyQuery(state);
+      state.classification = classRes.classification;
+      const menuRes = await loadMenuContext(state);
+      state.menuItems = menuRes.menuItems;
+      state.matchedItem = menuRes.matchedItem;
+      state.matchedItems = menuRes.matchedItems;
+      const replyRes = await writeReply(state);
+      responseText = replyRes.response;
+    }
+    return res.json({ response: responseText });
   } catch (error) {
     console.error('Food assistant route error:', error);
     return res.status(500).json({
