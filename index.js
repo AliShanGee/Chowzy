@@ -6,9 +6,9 @@ const port = parseInt(process.env.PORT || '3001', 10);
 
 console.log('Starting server on port', port);
 
-if (app && typeof app.fetch === 'function') {
+if (app) {
   serve({
-    fetch: app.fetch,
+    fetch: app.fetch || app,
     port,
   });
 }
@@ -16,10 +16,5 @@ if (app && typeof app.fetch === 'function') {
 console.log(`Server running at http://localhost:${port}`);
 
 export default {
-  async fetch(request, env, ctx) {
-    if (app && typeof app.fetch === 'function') {
-      return app.fetch(request, env, ctx);
-    }
-    return new Response('OK', { status: 200 });
-  }
+  fetch: app?.fetch || app,
 };

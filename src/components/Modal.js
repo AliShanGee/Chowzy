@@ -26,7 +26,7 @@ const OVERLAY_STYLES = {
 export default function Modal({ children, onClose }) {
   return ReactDom.createPortal(
     <>
-      <div style={OVERLAY_STYLES} onClick={onClose} />
+      <div style={OVERLAY_STYLES} onClick={onClose} aria-hidden="true" />
       <div style={MODAL_STYLES} role="dialog" aria-modal="true">
         <button
           type="button"
