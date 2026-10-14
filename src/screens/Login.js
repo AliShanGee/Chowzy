@@ -14,6 +14,7 @@ import useUserStore from '../store/useUserStore';
 export default function Login() {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const titleRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatchCart();
@@ -27,6 +28,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     // Check for admin login attempt
     if (credentials.email === "alishan1@gmail.com") {
@@ -122,6 +124,8 @@ export default function Login() {
           text: error.message || "An error occurred during login. Please try again.",
         });
       }
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -191,9 +195,9 @@ export default function Login() {
             style={{ padding: 0, borderRadius: '0.3rem', borderWidth: '5px', borderStyle: 'solid' }}
           >
             <div className="p-4 rounded-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', height: '100%' }}>
-              <h2 className="text-center mb-4" ref={titleRef}>
+              <h2 className="text-center mb-4" ref={titleRef} aria-label="Login">
                 {'Login'.split('').map((char, index) => (
-                  <span key={index} style={{ display: 'inline-block' }}>
+                  <span key={index} style={{ display: 'inline-block' }} aria-hidden="true">
                     {char}
                   </span>
                 ))}
@@ -209,6 +213,7 @@ export default function Login() {
                     name="email"
                     value={credentials.email}
                     onChange={onChange}
+                    autoComplete="email"
                   />
                 </Form.Group>
 
@@ -223,17 +228,37 @@ export default function Login() {
                       name="password"
                       value={credentials.password}
                       onChange={onChange}
+                      autoComplete="current-password"
                     />
-                    <Button variant="light" onClick={togglePasswordVisibility} className="border-0" style={{ cursor: 'pointer', backgroundColor: 'white' }}>
-                      <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
+                    <Button
+                      type="button"
+                      variant="light"
+                      onClick={togglePasswordVisibility}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      title={showPassword ? "Hide password" : "Show password"}
+                      className="border-0"
+                      style={{ cursor: 'pointer', backgroundColor: 'white' }}
+                    >
+                      <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"} aria-hidden="true"></i>
                     </Button>
                   </InputGroup>
                 </Form.Group>
 
-                <Button variant="primary" type="submit" className="w-100 rounded-pill">
-                  Login
-                </Button>
-                <Link to="/signup" className='m-3 btn btn-danger'>I'm a new user</Link>
+                <div className="d-flex flex-column gap-2">
+                  <Button variant="primary" type="submit" className="w-100 rounded-pill" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Logging in...
+                      </>
+                    ) : (
+                      "Login"
+                    )}
+                  </Button>
+                  <Link to="/signup" className="w-100 btn btn-outline-secondary rounded-pill text-center">
+                    I'm a new user
+                  </Link>
+                </div>
               </Form>
             </div>
           </motion.div>
