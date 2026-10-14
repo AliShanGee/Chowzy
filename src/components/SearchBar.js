@@ -12,8 +12,10 @@ const SearchBar = ({ items, onSearch }) => {
 
   const getFilteredItems = (inputValue) => {
     if (!inputValue) return items.slice(0, 10);
+    // Bolt Optimization: Pre-calculate lowercased query outside the filter loop
+    const lowerQuery = inputValue.toLowerCase();
     return items.filter((item) =>
-      item && item.name && item.name.toLowerCase().includes(inputValue.toLowerCase())
+      item && item.name && item.name.toLowerCase().includes(lowerQuery)
     ).slice(0, 10);
   };
 
@@ -39,21 +41,40 @@ const SearchBar = ({ items, onSearch }) => {
     },
   });
 
+  // Bolt Optimization: Replace dynamic RegExp creation with linear indexOf substring matching
+  // to avoid O(N) regex compilation overhead on every keystroke and prevent crashes on regex special characters.
   const highlightMatch = (text, query) => {
     if (!text) return '';
     if (!query) return text;
-    const parts = text.split(new RegExp(`(${query})`, 'gi'));
-    return (
-      <span>
-        {parts.map((part, i) => 
-          part.toLowerCase() === query.toLowerCase() ? (
-            <span key={i} style={{ backgroundColor: '#ffeb3b', fontWeight: 'bold', borderRadius: '2px' }}>{part}</span>
-          ) : (
-            <span key={i}>{part}</span>
-          )
-        )}
-      </span>
-    );
+
+    const lowerText = text.toLowerCase();
+    const lowerQuery = query.toLowerCase();
+    const queryLen = query.length;
+
+    if (!queryLen) return text;
+
+    const parts = [];
+    let lastIndex = 0;
+    let matchIndex = lowerText.indexOf(lowerQuery, lastIndex);
+
+    while (matchIndex !== -1) {
+      if (matchIndex > lastIndex) {
+        parts.push(text.slice(lastIndex, matchIndex));
+      }
+      parts.push(
+        <span key={matchIndex} style={{ backgroundColor: '#ffeb3b', fontWeight: 'bold', borderRadius: '2px' }}>
+          {text.slice(matchIndex, matchIndex + queryLen)}
+        </span>
+      );
+      lastIndex = matchIndex + queryLen;
+      matchIndex = lowerText.indexOf(lowerQuery, lastIndex);
+    }
+
+    if (lastIndex < text.length) {
+      parts.push(text.slice(lastIndex));
+    }
+
+    return <span>{parts}</span>;
   };
 
   return (
