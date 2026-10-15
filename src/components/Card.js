@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import BootstrapCard from "react-bootstrap/Card";
 import { useDispatchCart } from "./ContextReducer";
 import IconSlideButton from "./IconSlideButton";
@@ -60,8 +60,7 @@ function Card(props) {
     };
 
     let options = props.options || DEFAULT_OPTIONS;
-    // Memoize options array to avoid key extraction on every render
-    let priceOptions = useMemo(() => Object.keys(options), [options]);
+    let priceOptions = Object.keys(options);
     let foodItem = props.foodItem;
 
     const handleAddToCart = async () => {
@@ -252,4 +251,16 @@ function Card(props) {
     );
 }
 
-export default React.memo(Card);
+// Custom comparator ensures Card skips re-rendering when parent re-renders unless item properties actually change
+function arePropsEqual(prevProps, nextProps) {
+  return (
+    prevProps.foodItem?._id === nextProps.foodItem?._id &&
+    prevProps.foodItem?.name === nextProps.foodItem?.name &&
+    prevProps.foodItem?.img === nextProps.foodItem?.img &&
+    prevProps.foodItem?.description === nextProps.foodItem?.description &&
+    prevProps.foodItem?.rating === nextProps.foodItem?.rating &&
+    prevProps.options === nextProps.options
+  );
+}
+
+export default React.memo(Card, arePropsEqual);
