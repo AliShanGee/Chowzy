@@ -128,20 +128,34 @@ const ReelVideo = ({ reel, userId, handleLike, handleSave }) => {
                 textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
                 zIndex: 10
             }}>
-                <div className="action-item" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => handleLike(reel._id)}>
+                <button
+                    type="button"
+                    className="action-item btn p-0 border-0 text-white"
+                    style={{ background: 'transparent', textAlign: 'center', cursor: 'pointer' }}
+                    onClick={() => handleLike(reel._id)}
+                    aria-label={`${reel.likes && reel.likes.includes(userId) ? 'Unlike' : 'Like'} ${reel.title}, ${reel.likes ? reel.likes.length : 0} likes`}
+                    aria-pressed={!!(reel.likes && reel.likes.includes(userId))}
+                >
                     {reel.likes && reel.likes.includes(userId) ? 
-                        <FaHeart size={30} color="red" /> : 
-                        <FaRegHeart size={30} />
+                        <FaHeart size={30} color="red" aria-hidden="true" /> :
+                        <FaRegHeart size={30} aria-hidden="true" />
                     }
                     <div style={{ fontSize: '12px' }}>{reel.likes ? reel.likes.length : 0}</div>
-                </div>
-                <div className="action-item" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => handleSave(reel._id)}>
+                </button>
+                <button
+                    type="button"
+                    className="action-item btn p-0 border-0 text-white"
+                    style={{ background: 'transparent', textAlign: 'center', cursor: 'pointer' }}
+                    onClick={() => handleSave(reel._id)}
+                    aria-label={`${reel.saves && reel.saves.includes(userId) ? 'Unsave' : 'Save'} ${reel.title}`}
+                    aria-pressed={!!(reel.saves && reel.saves.includes(userId))}
+                >
                     {reel.saves && reel.saves.includes(userId) ? 
-                        <FaBookmark size={25} color="#FFE13C" /> : 
-                        <FaRegBookmark size={25} />
+                        <FaBookmark size={25} color="#FFE13C" aria-hidden="true" /> :
+                        <FaRegBookmark size={25} aria-hidden="true" />
                     }
                     <div style={{ fontSize: '12px' }}>Save</div>
-                </div>
+                </button>
             </div>
             <div className="reel-info" style={{
                 position: 'absolute',
