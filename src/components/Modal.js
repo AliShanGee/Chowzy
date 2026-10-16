@@ -10,7 +10,9 @@ const MODAL_STYLES = {
   padding: '50px',
   zIndex: 1000,
   height: '90%',
-  width: '90%'
+  width: '90%',
+  display: 'flex',
+  flexDirection: 'column'
 }
 
 const OVERLAY_STYLES = {
@@ -24,14 +26,25 @@ const OVERLAY_STYLES = {
 }
 
 export default function Modal({ children, onClose }) {
+  const target = document.getElementById('root') || document.body
   return ReactDom.createPortal(
     <>
-      <div style={OVERLAY_STYLES} />
-      <div style={MODAL_STYLES}>
-        <button className='btn bg-danger fs-4' style={{ marginLeft: "90%", marginTop: "-35px" }} onClick={onClose}> X </button>
+      <div style={OVERLAY_STYLES} onClick={onClose} aria-hidden="true" />
+      <div style={MODAL_STYLES} role="dialog" aria-modal="true" aria-label="Modal dialog">
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-35px', marginBottom: '10px' }}>
+          <button
+            type="button"
+            className="btn bg-danger text-white fs-4"
+            aria-label="Close modal"
+            title="Close modal"
+            onClick={onClose}
+          >
+            &times;
+          </button>
+        </div>
         {children}
       </div>
     </>,
-    document.getElementById('root')
+    target
   )
 }
