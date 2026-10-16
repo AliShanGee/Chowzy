@@ -1,13 +1,11 @@
 const mongoose = require("mongoose");
-require("dotenv").config();
 
-// It's a good practice to hide your credentials, you can use environment variables for this.
 const mongoURL = process.env.MONGODB_URI;
 
 const mongoDB = async () => {
   if (!mongoURL) {
     console.error("Error: MONGODB_URI environment variable is not defined!");
-    return; // Don't crash immediately, but log the error
+    return;
   }
   try {
     console.log("Attempting to connect to MongoDB...");
@@ -65,8 +63,9 @@ const mongoDB = async () => {
       );
     }
     console.error("Full error details:", error);
-    // Exit process with failure
-    process.exit(1);
+    if (typeof process !== 'undefined' && typeof process.exit === 'function') {
+      process.exit(1);
+    }
   }
 };
 
