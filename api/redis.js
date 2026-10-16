@@ -1,19 +1,34 @@
-const redis = require('redis');
+const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
-const client = redis.createClient({
-    url: process.env.REDIS_URL || 'redis://localhost:6379'
-});
+let client = {
+    isOpen: false,
+    connect: async () => {},
+    get: async () => null,
+    set: async () => {},
+    on: () => {}
+};
 
-client.on('error', (err) => {
-    // Suppress repeated connection logs to avoid console noise when offline
-    if (err.code !== 'ECONNREFUSED') {
-        console.log('Redis Client Error', err);
+if (isNode) {
+    try {
+        const redis = require('redis');
+        const redisClient = redis.createClient({
+            url: process.env.REDIS_URL || 'redis://localhost:6379'
+        });
+        redisClient.on('error', (err) => {
+            if (err.code !== 'ECONNREFUSED') {
+                console.log('Redis Client Error', err);
+            }
+        });
+        client = redisClient;
+    } catch (e) {
+        console.warn('Failed to initialize native Redis client');
     }
-});
+}
 
 const connectRedis = async () => {
+    if (!isNode) return;
     try {
-        if (!client.isOpen) {
+        if (client && !client.isOpen) {
             await client.connect();
             console.log('Connected to Redis');
         }

@@ -1,0 +1,3 @@
+## 2026-10-16 - Accessible Custom Modal Portals
+**Learning:** React portals rendering modal dialogs directly into `#root` or `document.body` require explicit `role="dialog"`, `aria-modal="true"`, an `aria-label` description, backdrop overlay click handling (`onClick={onClose}`), and flexible layout positioning rather than hardcoded percentage margins (e.g. `marginLeft: "90%"`) to maintain screen reader context and responsive dismissability across desktop and mobile screen sizes.
+**Action:** Always provide dialog ARIA attributes, flexbox overlay alignment, and backdrop dismissal when constructing custom modal portal components.
