@@ -3,16 +3,27 @@ const isNode = typeof process !== 'undefined' && process.release && process.rele
 let client;
 
 if (isNode) {
-    const redis = require('redis');
-    client = redis.createClient({
-        url: process.env.REDIS_URL || 'redis://localhost:6379'
-    });
+    try {
+        const redis = require('redis');
+        client = redis.createClient({
+            url: process.env.REDIS_URL || 'redis://localhost:6379'
+        });
 
-    client.on('error', (err) => {
-        if (err.code !== 'ECONNREFUSED') {
-            console.log('Redis Client Error', err);
-        }
-    });
+        client.on('error', (err) => {
+            if (err.code !== 'ECONNREFUSED') {
+                console.log('Redis Client Error', err);
+            }
+        });
+    } catch (e) {
+        client = {
+            isOpen: false,
+            get: async () => null,
+            set: async () => null,
+            del: async () => null,
+            connect: async () => {},
+            on: () => {}
+        };
+    }
 } else {
     client = {
         isOpen: false,
@@ -25,7 +36,7 @@ if (isNode) {
 }
 
 const connectRedis = async () => {
-    if (!isNode) return;
+    if (!isNode || !client.connect) return;
     try {
         if (!client.isOpen) {
             await client.connect();
