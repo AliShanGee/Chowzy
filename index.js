@@ -1,14 +1,28 @@
 import 'dotenv/config';
-import { serve } from '@hono/node-server';
 import app from './api/index.js';
 
-const port = parseInt(process.env.PORT || '3001', 10);
+const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
-console.log('Starting server on port', port);
+if (isNode) {
+  const port = parseInt(process.env.PORT || '3001', 10);
+  console.log('Starting server on port', port);
 
-serve({
-  fetch: app.fetch,
-  port,
-});
+  import('@hono/node-server').then(({ serve }) => {
+    serve({
+      fetch: app.fetch || app,
+      port,
+    });
+    console.log(`Server running at http://localhost:${port}`);
+  }).catch((err) => {
+    console.error('Failed to start @hono/node-server:', err);
+  });
+}
 
-console.log(`Server running at http://localhost:${port}`);
+export default {
+  async fetch(request, env, ctx) {
+    if (typeof app.fetch === 'function') {
+      return app.fetch(request, env, ctx);
+    }
+    return new Response('API App Ready', { status: 200 });
+  }
+};
