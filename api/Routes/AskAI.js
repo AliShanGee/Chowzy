@@ -1,7 +1,14 @@
 const express = require('express');
 const path = require('path');
-const { Annotation, END, START, StateGraph } = require('@langchain/langgraph');
 const FoodItem = require('../models/FoodItem');
+
+let langgraph = null;
+try {
+  langgraph = require('@langchain/langgraph');
+} catch (e) {
+  console.warn('@langchain/langgraph not loaded:', e.message);
+}
+const { Annotation, END, START, StateGraph } = langgraph || {};
 
 const router = express.Router();
 
@@ -660,15 +667,22 @@ async function writeReply(state) {
   }
 }
 
-const foodAssistantGraph = new StateGraph(FoodAssistantState)
-  .addNode('classify_query', classifyQuery)
-  .addNode('load_menu_context', loadMenuContext)
-  .addNode('write_reply', writeReply)
-  .addEdge(START, 'classify_query')
-  .addEdge('classify_query', 'load_menu_context')
-  .addEdge('load_menu_context', 'write_reply')
-  .addEdge('write_reply', END)
-  .compile();
+let foodAssistantGraph = null;
+if (StateGraph && Annotation) {
+  try {
+    foodAssistantGraph = new StateGraph(FoodAssistantState)
+      .addNode('classify_query', classifyQuery)
+      .addNode('load_menu_context', loadMenuContext)
+      .addNode('write_reply', writeReply)
+      .addEdge(START, 'classify_query')
+      .addEdge('classify_query', 'load_menu_context')
+      .addEdge('load_menu_context', 'write_reply')
+      .addEdge('write_reply', END)
+      .compile();
+  } catch (e) {
+    console.warn('Failed to initialize StateGraph:', e.message);
+  }
+}
 
 router.post('/ask', async (req, res) => {
   const prompt = typeof req.body?.prompt === 'string' ? req.body.prompt.trim() : '';
@@ -678,8 +692,14 @@ router.post('/ask', async (req, res) => {
   }
 
   try {
-    const result = await foodAssistantGraph.invoke({ prompt });
-    return res.json({ response: result.response });
+    if (foodAssistantGraph) {
+      const result = await foodAssistantGraph.invoke({ prompt });
+      return res.json({ response: result.response });
+    }
+    const classificationRes = await classifyQuery({ prompt });
+    const menuRes = await loadMenuContext({ prompt, classification: classificationRes.classification });
+    const replyRes = await writeReply({ prompt, ...classificationRes, ...menuRes });
+    return res.json({ response: replyRes.response });
   } catch (error) {
     console.error('Food assistant route error:', error);
     return res.status(500).json({
