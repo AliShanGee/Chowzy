@@ -1,6 +1,13 @@
 import { fetchUtils } from 'react-admin';
-import { stringify } from 'query-string';
 import API_BASE_URL from './config.js';
+
+const stringify = (obj) => {
+    if (!obj) return '';
+    return Object.keys(obj)
+        .filter((key) => obj[key] !== undefined && obj[key] !== null)
+        .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(typeof obj[key] === 'object' ? JSON.stringify(obj[key]) : obj[key])}`)
+        .join('&');
+};
 
 const apiUrl = `${API_BASE_URL}/api`;
 
