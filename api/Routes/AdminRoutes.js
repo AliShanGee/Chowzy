@@ -6,35 +6,46 @@ const Order = require('../models/Orders');
 const User = require('../models/User');
 const Cart = require('../models/Cart');
 const Reel = require('../models/Reel');
-const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { client } = require('../redis');
 
-// Configure Multer storage
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadDir = path.join(__dirname, '..', 'uploads', 'reels');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
+const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
-const upload = multer({ 
-    storage: storage,
-    fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith('video/')) {
-            cb(null, true);
-        } else {
-            cb(new Error('Only video files are allowed!'), false);
-        }
+let upload = {
+    single: () => (req, res, next) => next()
+};
+
+if (isNode) {
+    try {
+        const multer = require('multer');
+        const storage = multer.diskStorage({
+            destination: function (req, file, cb) {
+                const uploadDir = path.join(__dirname, '..', 'uploads', 'reels');
+                if (!fs.existsSync(uploadDir)) {
+                    fs.mkdirSync(uploadDir, { recursive: true });
+                }
+                cb(null, uploadDir);
+            },
+            filename: function (req, file, cb) {
+                cb(null, Date.now() + '-' + file.originalname);
+            }
+        });
+
+        upload = multer({
+            storage: storage,
+            fileFilter: (req, file, cb) => {
+                if (file.mimetype.startsWith('video/')) {
+                    cb(null, true);
+                } else {
+                    cb(new Error('Only video files are allowed!'), false);
+                }
+            }
+        });
+    } catch (err) {
+        console.warn("Multer diskStorage initialization skipped:", err.message);
     }
-});
+}
 
 // Helper for sending list response with Content-Range
 const sendListResponse = (res, data, total) => {
