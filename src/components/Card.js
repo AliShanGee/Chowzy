@@ -7,7 +7,10 @@ import { useTheme } from "next-themes";
 import { Rating, ThinStar } from '@smastrom/react-rating';
 import '@smastrom/react-rating/style.css';
 
-export default function Card(props) {
+const SPRING_CONFIG = { stiffness: 100, damping: 30, restDelta: 0.001 };
+const DEFAULT_OPTIONS = {};
+
+function Card(props) {
     let dispatch = useDispatchCart();
     const { theme } = useTheme();
     const [qty, setQty] = useState(1);
@@ -19,9 +22,8 @@ export default function Card(props) {
     const x = useMotionValue(0);
     const y = useMotionValue(0);
 
-    const springConfig = { stiffness: 100, damping: 30, restDelta: 0.001 };
-    const mouseXSpring = useSpring(x, springConfig);
-    const mouseYSpring = useSpring(y, springConfig);
+    const mouseXSpring = useSpring(x, SPRING_CONFIG);
+    const mouseYSpring = useSpring(y, SPRING_CONFIG);
 
     const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["14deg", "-14deg"]);
     const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-18deg", "18deg"]);
@@ -54,7 +56,7 @@ export default function Card(props) {
         y.set(0);
     };
 
-    let options = props.options || {};
+    let options = props.options || DEFAULT_OPTIONS;
     let priceOptions = Object.keys(options);
     let foodItem = props.foodItem;
 
@@ -245,3 +247,5 @@ export default function Card(props) {
         </div>
     );
 }
+
+export default React.memo(Card);
