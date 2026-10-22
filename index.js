@@ -1,22 +1,33 @@
-import 'dotenv/config';
-import app from './api/index.js';
+let app;
+try {
+  app = require('./api/index.js');
+} catch (e) {
+  // Ignored in non-Node environments
+}
 
 const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
-if (isNode && process.env.NODE_ENV !== 'test') {
-  import('@hono/node-server').then(({ serve }) => {
-    const port = parseInt(process.env.PORT || '3001', 10);
-    console.log('Starting server on port', port);
-    if (app && app.fetch) {
-      serve({
-        fetch: app.fetch,
-        port,
-      });
-      console.log(`Server running at http://localhost:${port}`);
+if (isNode) {
+  try {
+    require('dotenv').config();
+  } catch (e) {
+    // dotenv optional
+  }
+
+  if (process.env.NODE_ENV !== 'test') {
+    try {
+      const { serve } = require('@hono/node-server');
+      const port = parseInt(process.env.PORT || '3001', 10);
+      if (app && app.fetch) {
+        serve({
+          fetch: app.fetch,
+          port,
+        });
+      }
+    } catch (err) {
+      // Ignored if @hono/node-server is not available
     }
-  }).catch(err => {
-    console.error('Failed to load @hono/node-server:', err);
-  });
+  }
 }
 
 export default {
@@ -27,6 +38,6 @@ export default {
     if (typeof app === 'function') {
       return app(request, env, ctx);
     }
-    return new Response('Not Found', { status: 404 });
+    return new Response('GoFood API', { status: 200 });
   }
 };
