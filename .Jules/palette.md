@@ -1,0 +1,3 @@
+## 2026-10-05 - Accessible Modal Close Button & Backdrop Dismissal
+**Learning:** Raw ASCII text like ' X ' in modal close buttons lacks clear semantic meaning for screen readers and can visually look unpolished. Adding explicit `type="button"`, `aria-label="Close modal"`, `role="dialog"`, `aria-modal="true"`, and backdrop overlay `onClick` handles enhances modal accessibility and UX across assistive technologies.
+**Action:** Always include semantic ARIA attributes (`role="dialog"`, `aria-modal="true"`, `aria-label="Close modal"`), `type="button"`, and backdrop click-to-dismiss when building custom portal modal components.
