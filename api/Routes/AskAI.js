@@ -1,7 +1,13 @@
 const express = require('express');
 const path = require('path');
-const { Annotation, END, START, StateGraph } = require('@langchain/langgraph');
 const FoodItem = require('../models/FoodItem');
+
+let Annotation, END, START, StateGraph;
+try {
+  ({ Annotation, END, START, StateGraph } = require('@langchain/langgraph'));
+} catch (e) {
+  console.warn('LangGraph module failed to load:', e.message);
+}
 
 const router = express.Router();
 
@@ -32,14 +38,14 @@ const MODEL_CANDIDATES = [
 let activeModelName = MODEL_CANDIDATES[0] || null;
 let globalAiCooldownUntil = 0;
 
-const FoodAssistantState = Annotation.Root({
+const FoodAssistantState = Annotation ? Annotation.Root({
   prompt: Annotation(),
   classification: Annotation(),
   menuItems: Annotation(),
   matchedItem: Annotation(),
   matchedItems: Annotation(),
   response: Annotation(),
-});
+}) : null;
 
 function normalizeText(value = '') {
   return value.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
@@ -660,15 +666,18 @@ async function writeReply(state) {
   }
 }
 
-const foodAssistantGraph = new StateGraph(FoodAssistantState)
-  .addNode('classify_query', classifyQuery)
-  .addNode('load_menu_context', loadMenuContext)
-  .addNode('write_reply', writeReply)
-  .addEdge(START, 'classify_query')
-  .addEdge('classify_query', 'load_menu_context')
-  .addEdge('load_menu_context', 'write_reply')
-  .addEdge('write_reply', END)
-  .compile();
+let foodAssistantGraph = null;
+if (StateGraph && Annotation) {
+  foodAssistantGraph = new StateGraph(FoodAssistantState)
+    .addNode('classify_query', classifyQuery)
+    .addNode('load_menu_context', loadMenuContext)
+    .addNode('write_reply', writeReply)
+    .addEdge(START, 'classify_query')
+    .addEdge('classify_query', 'load_menu_context')
+    .addEdge('load_menu_context', 'write_reply')
+    .addEdge('write_reply', END)
+    .compile();
+}
 
 router.post('/ask', async (req, res) => {
   const prompt = typeof req.body?.prompt === 'string' ? req.body.prompt.trim() : '';
@@ -678,8 +687,15 @@ router.post('/ask', async (req, res) => {
   }
 
   try {
-    const result = await foodAssistantGraph.invoke({ prompt });
-    return res.json({ response: result.response });
+    if (foodAssistantGraph) {
+      const result = await foodAssistantGraph.invoke({ prompt });
+      return res.json({ response: result.response });
+    } else {
+      const fallbackClass = keywordFallbackClassification(prompt);
+      const menuContext = await loadMenuContext({ prompt, classification: fallbackClass });
+      const reply = buildGroundedReply({ prompt, classification: fallbackClass, ...menuContext });
+      return res.json({ response: reply });
+    }
   } catch (error) {
     console.error('Food assistant route error:', error);
     return res.status(500).json({
