@@ -127,15 +127,36 @@ export default function MyOrder() {
     <div className="orderhistory-container">
       <div className="container my-4">
         <div className="d-flex align-items-center mb-4">
-          <button className="btn btn-secondary me-3" onClick={() => navigate(-1)}>
+          <button
+            type="button"
+            className="btn btn-secondary me-3"
+            onClick={() => navigate(-1)}
+            aria-label="Go back to previous page"
+          >
             &larr; Back
           </button>
           <h3 className="m-0" style={{ color: 'var(--text-color, white)' }}>My Orders</h3>
         </div>
 
         {orders.length === 0 ? (
-          <div className="text-center text-white">
-            <h5>No past orders found.</h5>
+          <div className="card text-center p-4 border-0 shadow-sm rounded-4 my-4 bg-dark text-white">
+            <div className="card-body">
+              <div style={{ fontSize: '3rem' }} className="mb-2" role="img" aria-label="Decorative package icon">
+                📦
+              </div>
+              <h4 className="fw-bold mb-2">No Past Orders Found</h4>
+              <p className="text-secondary mb-3">
+                Looks like you haven't placed any orders yet. Discover our delicious menu and satisfy your cravings!
+              </p>
+              <button
+                type="button"
+                className="btn btn-success px-4 py-2 rounded-pill fw-semibold"
+                onClick={() => navigate('/')}
+                aria-label="Browse foods menu"
+              >
+                Browse Foods
+              </button>
+            </div>
           </div>
         ) : (
           <div className="row">
