@@ -1,0 +1,3 @@
+## 2025-05-18 - Atomic Mongoose Upserts & Non-Overlapping Path Updates
+**Learning:** When refactoring sequential `findOne` + `create`/`findOneAndUpdate` operations into an atomic `findOneAndUpdate({ email }, ..., { upsert: true })` in MongoDB, specifying the same field paths in both `$set` and `$setOnInsert` causes MongoDB to throw a `ConflictingUpdateOperators` exception (`Updating the path 'x' would create a conflict...`).
+**Action:** Build `$set` and `$setOnInsert` update objects dynamically so that fields updated when present are assigned exclusively to `$set`, and fallback default fields are assigned exclusively to `$setOnInsert`.
