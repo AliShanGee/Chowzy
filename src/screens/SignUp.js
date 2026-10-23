@@ -41,6 +41,7 @@ export default function SignUp() {
 
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const titleRef = useRef(null);
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
   const addressInputRef = useRef(null);
@@ -54,8 +55,8 @@ export default function SignUp() {
         icon: "warning",
         title: "Phone Required",
         text: "Please enter phone number"
-      })
-      return
+      });
+      return;
     }
 
     if (!credentials.geolocation || credentials.geolocation.trim() === "") {
@@ -66,6 +67,8 @@ export default function SignUp() {
       });
       return;
     }
+
+    setIsSubmitting(true);
 
     try {
 
@@ -114,6 +117,10 @@ export default function SignUp() {
         title: 'Signup Error',
         text: "An unexpected error occurred."
       });
+
+    } finally {
+
+      setIsSubmitting(false);
 
     }
   };
@@ -264,37 +271,41 @@ export default function SignUp() {
 
           <div className="p-4 rounded-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
 
-            <h2 className="text-center mb-4" ref={titleRef}>
+            <h2 className="text-center mb-4" ref={titleRef} aria-label="Sign Up">
               {'Sign Up'.split('').map((char, index) => (
-                <span key={index}>{char}</span>
+                <span key={index} aria-hidden="true">{char}</span>
               ))}
             </h2>
 
             <Form onSubmit={handleSubmit}>
 
-              <Form.Group className="mb-3">
+              <Form.Group className="mb-3" controlId="signUpName">
                 <Form.Label>Name</Form.Label>
                 <Form.Control
                   type="text"
                   placeholder="Enter your name"
                   name="name"
+                  autoComplete="name"
                   value={credentials.name}
                   onChange={onChange}
+                  required
                 />
               </Form.Group>
 
-              <Form.Group className="mb-3">
+              <Form.Group className="mb-3" controlId="signUpEmail">
                 <Form.Label>Email</Form.Label>
                 <Form.Control
                   type="email"
                   placeholder="Enter email"
                   name="email"
+                  autoComplete="email"
                   value={credentials.email}
                   onChange={onChange}
+                  required
                 />
               </Form.Group>
 
-              <Form.Group className="mb-3">
+              <Form.Group className="mb-3" controlId="signUpPhone">
                 <Form.Label>Phone Number</Form.Label>
 
                 <PhoneInput
@@ -312,7 +323,7 @@ export default function SignUp() {
 
               </Form.Group>
 
-              <Form.Group className="mb-2">
+              <Form.Group className="mb-2" controlId="signUpPassword">
 
                 <Form.Label>Password</Form.Label>
 
@@ -322,16 +333,20 @@ export default function SignUp() {
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
                     name="password"
+                    autoComplete="new-password"
                     value={credentials.password}
                     onChange={onChange}
+                    required
                   />
 
                   <Button
+                    type="button"
                     variant="light"
                     onClick={togglePasswordVisibility}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                     style={{ border: '1px solid #ced4da', borderLeft: 'none' }}
                   >
-                    <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
+                    <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"} aria-hidden="true"></i>
                   </Button>
 
                 </InputGroup>
@@ -340,7 +355,7 @@ export default function SignUp() {
 
               </Form.Group>
 
-              <Form.Group className="mb-3">
+              <Form.Group className="mb-3" controlId="signUpAddress">
 
                 <Form.Label>Address</Form.Label>
 
@@ -351,19 +366,23 @@ export default function SignUp() {
                     type="text"
                     placeholder="Enter address"
                     name="geolocation"
+                    autoComplete="street-address"
                     value={credentials.geolocation}
                     onChange={onChange}
+                    required
                   />
 
                   <Button
+                    type="button"
                     variant="outline-secondary"
                     onClick={handleGetLocation}
                     disabled={isFetchingLocation}
+                    aria-label="Fetch current location address"
                   >
 
                     {isFetchingLocation
-                      ? <span className="spinner-border spinner-border-sm"></span>
-                      : <i className="bi bi-geo-alt"></i>}
+                      ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                      : <i className="bi bi-geo-alt" aria-hidden="true"></i>}
 
                   </Button>
 
@@ -372,8 +391,15 @@ export default function SignUp() {
               </Form.Group>
 
               <div className="d-flex gap-2 mt-2">
-                <Button variant="success" type="submit" className="flex-grow-1">
-                  Create Account
+                <Button variant="success" type="submit" className="flex-grow-1" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Creating Account...
+                    </>
+                  ) : (
+                    "Create Account"
+                  )}
                 </Button>
 
                 <Link to="/login" className="btn btn-danger">
