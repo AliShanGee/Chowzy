@@ -96,29 +96,47 @@ export default function Home() {
             );
             const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+            // Pre-calculate lowercased search term to prevent redundant string lowercasing inside render loops
+            const searchLower = search.toLowerCase();
 
             return (
               <>
                 {currentCategories.map((data) => {
+                  // BOLT OPTIMIZATION: Use a Set for single-pass O(N) filtering & deduplication
+                  // replacing O(K^2) array `.reduce` with `.some` checks inside render loops.
+                  const seenNames = new Set();
+                  const categoryItems = foodItem.length > 0
+                    ? foodItem.filter((item) => {
+                        if (
+                          item.name &&
+                          item.CategoryName === data.CategoryName &&
+                          item.name.toLowerCase().includes(searchLower) &&
+                          !seenNames.has(item.name)
+                        ) {
+                          seenNames.add(item.name);
+                          return true;
+                        }
+                        return false;
+                      })
+                    : [];
+
                   return (
                     <div className='row mb-3' key={data._id}>
                       <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
-                    </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
+                      {foodItem.length > 0 ? (
+                        categoryItems.map(filterItems => {
+                          return (
+                            <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                              <Card foodItem={filterItems} options={filterItems.options[0]} />
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div>No Such Data Found</div>
+                      )}
                     </div>
                   );
                 })}
