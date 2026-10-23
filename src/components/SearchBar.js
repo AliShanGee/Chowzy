@@ -12,8 +12,9 @@ const SearchBar = ({ items, onSearch }) => {
 
   const getFilteredItems = (inputValue) => {
     if (!inputValue) return items.slice(0, 10);
+    const lowerInput = inputValue.toLowerCase();
     return items.filter((item) =>
-      item && item.name && item.name.toLowerCase().includes(inputValue.toLowerCase())
+      item && item.name && item.name.toLowerCase().includes(lowerInput)
     ).slice(0, 10);
   };
 
@@ -39,21 +40,38 @@ const SearchBar = ({ items, onSearch }) => {
     },
   });
 
+  // Bolt Optimization: Replace RegExp creation with linear indexOf substring matching
+  // This avoids RegExp instantiation per item on every render and prevents SyntaxError crashes when queries contain regex special characters
   const highlightMatch = (text, query) => {
     if (!text) return '';
     if (!query) return text;
-    const parts = text.split(new RegExp(`(${query})`, 'gi'));
-    return (
-      <span>
-        {parts.map((part, i) => 
-          part.toLowerCase() === query.toLowerCase() ? (
-            <span key={i} style={{ backgroundColor: '#ffeb3b', fontWeight: 'bold', borderRadius: '2px' }}>{part}</span>
-          ) : (
-            <span key={i}>{part}</span>
-          )
-        )}
-      </span>
-    );
+    const lowerText = text.toLowerCase();
+    const lowerQuery = query.toLowerCase();
+    const queryLen = query.length;
+    if (queryLen === 0) return text;
+
+    const parts = [];
+    let start = 0;
+    let index = lowerText.indexOf(lowerQuery, start);
+
+    while (index !== -1) {
+      if (index > start) {
+        parts.push(text.slice(start, index));
+      }
+      parts.push(
+        <span key={index} style={{ backgroundColor: '#ffeb3b', fontWeight: 'bold', borderRadius: '2px' }}>
+          {text.slice(index, index + queryLen)}
+        </span>
+      );
+      start = index + queryLen;
+      index = lowerText.indexOf(lowerQuery, start);
+    }
+
+    if (start < text.length) {
+      parts.push(text.slice(start));
+    }
+
+    return <span>{parts}</span>;
   };
 
   return (
