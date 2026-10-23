@@ -7,7 +7,9 @@ import { useTheme } from "next-themes";
 import { Rating, ThinStar } from '@smastrom/react-rating';
 import '@smastrom/react-rating/style.css';
 
-export default function Card(props) {
+const DEFAULT_OPTIONS = {};
+
+function Card(props) {
     let dispatch = useDispatchCart();
     const { theme } = useTheme();
     const [qty, setQty] = useState(1);
@@ -54,7 +56,7 @@ export default function Card(props) {
         y.set(0);
     };
 
-    let options = props.options || {};
+    let options = props.options || DEFAULT_OPTIONS;
     let priceOptions = Object.keys(options);
     let foodItem = props.foodItem;
 
@@ -245,3 +247,21 @@ export default function Card(props) {
         </div>
     );
 }
+
+// Custom comparator to avoid unnecessary card re-renders when parent state updates
+function arePropsEqual(prevProps, nextProps) {
+    if (prevProps.foodItem === nextProps.foodItem && prevProps.options === nextProps.options) {
+        return true;
+    }
+    if (!prevProps.foodItem || !nextProps.foodItem) return false;
+    return (
+        prevProps.foodItem._id === nextProps.foodItem._id &&
+        prevProps.foodItem.name === nextProps.foodItem.name &&
+        prevProps.foodItem.img === nextProps.foodItem.img &&
+        prevProps.foodItem.description === nextProps.foodItem.description &&
+        prevProps.foodItem.rating === nextProps.foodItem.rating &&
+        prevProps.options === nextProps.options
+    );
+}
+
+export default React.memo(Card, arePropsEqual);
