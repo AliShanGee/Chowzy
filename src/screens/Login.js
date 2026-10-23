@@ -14,6 +14,7 @@ import useUserStore from '../store/useUserStore';
 export default function Login() {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const titleRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatchCart();
@@ -27,34 +28,35 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Check for admin login attempt
-    if (credentials.email === "alishan1@gmail.com") {
-      try {
-        const adminResponse = await fetch(`${API_BASE_URL}/api/admin/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: credentials.email, password: credentials.password })
-        });
-
-        const adminJson = await adminResponse.json();
-        if (adminJson.success) {
-          localStorage.setItem("admin_auth", adminJson.authToken);
-          await Swal.fire({
-            icon: 'success',
-            title: 'Logged in as Admin!',
-            showConfirmButton: false,
-            timer: 1500
-          });
-          navigate('/admin');
-          return;
-        }
-      } catch (error) {
-        console.error("Admin login check failed:", error);
-      }
-    }
+    setIsSubmitting(true);
 
     try {
+      // Check for admin login attempt
+      if (credentials.email === "alishan1@gmail.com") {
+        try {
+          const adminResponse = await fetch(`${API_BASE_URL}/api/admin/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: credentials.email, password: credentials.password })
+          });
+
+          const adminJson = await adminResponse.json();
+          if (adminJson.success) {
+            localStorage.setItem("admin_auth", adminJson.authToken);
+            await Swal.fire({
+              icon: 'success',
+              title: 'Logged in as Admin!',
+              showConfirmButton: false,
+              timer: 1500
+            });
+            navigate('/admin');
+            return;
+          }
+        } catch (error) {
+          console.error("Admin login check failed:", error);
+        }
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/login`, {
         method: 'POST',
         headers: {
@@ -122,6 +124,8 @@ export default function Login() {
           text: error.message || "An error occurred during login. Please try again.",
         });
       }
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -191,9 +195,9 @@ export default function Login() {
             style={{ padding: 0, borderRadius: '0.3rem', borderWidth: '5px', borderStyle: 'solid' }}
           >
             <div className="p-4 rounded-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', height: '100%' }}>
-              <h2 className="text-center mb-4" ref={titleRef}>
+        <h2 className="text-center mb-4" ref={titleRef} aria-label="Login">
                 {'Login'.split('').map((char, index) => (
-                  <span key={index} style={{ display: 'inline-block' }}>
+            <span key={index} className="letter" style={{ display: 'inline-block' }} aria-hidden="true">
                     {char}
                   </span>
                 ))}
@@ -207,6 +211,7 @@ export default function Login() {
                     className="rounded-pill"
                     style={{ backgroundColor: 'white', border: '1px solid #ced4da' }}
                     name="email"
+                    autoComplete="email"
                     value={credentials.email}
                     onChange={onChange}
                   />
@@ -221,17 +226,32 @@ export default function Login() {
                       className="border-0"
                       style={{ backgroundColor: 'white' }}
                       name="password"
+                      autoComplete="current-password"
                       value={credentials.password}
                       onChange={onChange}
                     />
-                    <Button variant="light" onClick={togglePasswordVisibility} className="border-0" style={{ cursor: 'pointer', backgroundColor: 'white' }}>
-                      <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
+                    <Button
+                      type="button"
+                      variant="light"
+                      onClick={togglePasswordVisibility}
+                      className="border-0"
+                      style={{ cursor: 'pointer', backgroundColor: 'white' }}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"} aria-hidden="true"></i>
                     </Button>
                   </InputGroup>
                 </Form.Group>
 
-                <Button variant="primary" type="submit" className="w-100 rounded-pill">
-                  Login
+                <Button variant="primary" type="submit" className="w-100 rounded-pill" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Logging in...
+                    </>
+                  ) : (
+                    "Login"
+                  )}
                 </Button>
                 <Link to="/signup" className='m-3 btn btn-danger'>I'm a new user</Link>
               </Form>
