@@ -4,6 +4,9 @@ import Carousel from "react-bootstrap/Carousel";
 import { gsap } from 'gsap';
 import { TextPlugin } from 'gsap/TextPlugin';
 
+// Register GSAP plugin at module scope to avoid re-registering on every render
+gsap.registerPlugin(TextPlugin);
+
 const carouselItems = [
   {
     src: "https://media.assettype.com/gulfnews%2F2024-11-18%2Fd0nwdt8n%2FWLD_190630_Fast_food__Read_Only__16ba9680d4a_original_ratio.jpg?w=1200&auto=format%2Ccompress",
@@ -28,8 +31,6 @@ const carouselItems = [
 ];
 
 export default function HomeCarousel() {
-  gsap.registerPlugin(TextPlugin);
-
   useEffect(() => {
     const tl = gsap.timeline({ repeat: -1, yoyo: true });
     tl.to(".animated-text", {
@@ -42,6 +43,11 @@ export default function HomeCarousel() {
       ease: "none",
       delay: 0.5
     });
+
+    // Cleanup timeline animation on unmount to prevent memory leaks and CPU usage
+    return () => {
+      tl.kill();
+    };
   }, []);
 
   return (

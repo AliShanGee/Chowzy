@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -46,6 +46,41 @@ export default function Home() {
     });
   }, []);
 
+  // Bolt Optimization: Memoize unique categories with Set lookup (O(N) vs previous O(N^2) findIndex)
+  const uniqueCategories = useMemo(() => {
+    if (!foodCat || foodCat.length === 0) return [];
+    const seen = new Set();
+    return foodCat.filter((cat) => {
+      if (!cat || !cat.CategoryName || seen.has(cat.CategoryName)) return false;
+      seen.add(cat.CategoryName);
+      return true;
+    });
+  }, [foodCat]);
+
+  // Bolt Optimization: Pre-calculate lowercased search query once per render and deduplicate items in single-pass O(N) Set lookup
+  const getFilteredCategoryItems = (categoryName) => {
+    if (!foodItem || foodItem.length === 0) return [];
+    const lowerSearch = search.toLowerCase();
+    const seenNames = new Set();
+    const filtered = [];
+
+    for (let i = 0; i < foodItem.length; i++) {
+      const item = foodItem[i];
+      if (
+        item &&
+        item.name &&
+        item.CategoryName === categoryName &&
+        (!lowerSearch || item.name.toLowerCase().includes(lowerSearch))
+      ) {
+        if (!seenNames.has(item.name)) {
+          seenNames.add(item.name);
+          filtered.push(item);
+        }
+      }
+    }
+    return filtered;
+  };
+
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
       {theme !== 'dark' && (
@@ -89,11 +124,8 @@ export default function Home() {
           </div>
         {
           (() => {
-            if (foodCat.length === 0) return "";
-            
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
+            if (uniqueCategories.length === 0) return "";
+
             const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -106,19 +138,15 @@ export default function Home() {
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
-                    </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
+                      {foodItem.length > 0 ? (
+                        getFilteredCategoryItems(data.CategoryName).map(filterItems => (
+                          <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                            <Card foodItem={filterItems} options={filterItems.options[0]} />
+                          </div>
+                        ))
+                      ) : (
+                        <div>No Such Data Found</div>
+                      )}
                     </div>
                   );
                 })}
