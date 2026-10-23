@@ -1,14 +1,15 @@
-import 'dotenv/config';
-import { serve } from '@hono/node-server';
-import app from './api/index.js';
+import { Hono } from 'hono';
 
-const port = parseInt(process.env.PORT || '3001', 10);
+const app = new Hono();
 
-console.log('Starting server on port', port);
+app.get('*', (c) => c.text('Hello World!'));
 
-serve({
-  fetch: app.fetch,
-  port,
-});
+const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
-console.log(`Server running at http://localhost:${port}`);
+if (isNode) {
+  import('dotenv/config').then(() => {
+    import('./api/index.js');
+  });
+}
+
+export default app;
