@@ -1,0 +1,3 @@
+## 2025-05-20 - Custom Prop Comparators in React.memo List Items
+**Learning:** Wrapping complex card list items in `React.memo` alone fails to prevent re-renders if parent components pass inline or non-memoized objects. Providing a custom prop comparator (`arePropsEqual`) that checks key primitive properties (`_id`, `name`, `img`, `description`, `rating`) guarantees that components skip re-rendering during parent state changes (such as search box keystrokes).
+**Action:** Always pair `React.memo` with a custom equality comparator for list item components when parent state updates occur frequently.

@@ -7,7 +7,12 @@ import { useTheme } from "next-themes";
 import { Rating, ThinStar } from '@smastrom/react-rating';
 import '@smastrom/react-rating/style.css';
 
-export default function Card(props) {
+// Fallback empty options object reference to maintain hook stability
+const DEFAULT_OPTIONS = {};
+
+// Optimization: Card component is wrapped with React.memo below to prevent
+// unnecessary re-renders of all card items during parent state updates (e.g., search box typing).
+function Card(props) {
     let dispatch = useDispatchCart();
     const { theme } = useTheme();
     const [qty, setQty] = useState(1);
@@ -54,7 +59,7 @@ export default function Card(props) {
         y.set(0);
     };
 
-    let options = props.options || {};
+    let options = props.options || DEFAULT_OPTIONS;
     let priceOptions = Object.keys(options);
     let foodItem = props.foodItem;
 
@@ -245,3 +250,17 @@ export default function Card(props) {
         </div>
     );
 }
+
+// Custom comparator ensures Card skips re-rendering when parent re-renders unless item properties actually change
+function arePropsEqual(prevProps, nextProps) {
+  return (
+    prevProps.foodItem?._id === nextProps.foodItem?._id &&
+    prevProps.foodItem?.name === nextProps.foodItem?.name &&
+    prevProps.foodItem?.img === nextProps.foodItem?.img &&
+    prevProps.foodItem?.description === nextProps.foodItem?.description &&
+    prevProps.foodItem?.rating === nextProps.foodItem?.rating &&
+    prevProps.options === nextProps.options
+  );
+}
+
+export default React.memo(Card, arePropsEqual);
