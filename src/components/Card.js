@@ -13,6 +13,7 @@ export default function Card(props) {
     const [qty, setQty] = useState(1);
     const [size, setSize] = useState("");
     const [expanded, setExpanded] = useState(false);
+    const [added, setAdded] = useState(false);
     const priceRef = useRef();
 
     // Tilt Effect Setup
@@ -68,6 +69,8 @@ export default function Card(props) {
             size: size,
             img: props.foodItem.img
         });
+        setAdded(true);
+        setTimeout(() => setAdded(false), 1500);
     };
 
     let finalPrice = qty * parseInt(options[size]);
@@ -237,7 +240,8 @@ export default function Card(props) {
                             className={'btn btn-success w-100 mt-2 py-3'} 
                             style={{ borderRadius: "16px", fontWeight: "700", letterSpacing: "0.5px" }}
                             onClick={handleAddToCart} 
-                            text="ADD TO CART"
+                            text={added ? "ADDED! ✓" : "ADD TO CART"}
+                            aria-label={added ? `${props.foodItem?.name || 'Item'} added to cart` : `Add ${props.foodItem?.name || 'item'} to cart`}
                         />
                     </BootstrapCard.Body>
                 </BootstrapCard>
