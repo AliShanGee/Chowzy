@@ -59,6 +59,10 @@ export default function MyOrder() {
             });
         }
 
+        // Bolt Optimization: Construct deterministic IDs for active order batches based on order ID and batch index.
+        // This keeps React keys stable across the periodic 12s polling requests, preventing full unmounting/remounting of active order DOM nodes.
+        const activeOrderId = _id || id || userEmail || 'active';
+
         const activeBatch = order_data
             .slice(0)
             .reverse()
@@ -67,12 +71,13 @@ export default function MyOrder() {
               const date = dateObj ? dateObj.order_date : 'Unknown Date';
               const items = group.filter(item => !item.order_date);
               const total = items.reduce((sum, item) => sum + (item.price || 0), 0);
+              const batchIndex = order_data.length - 1 - index;
 
               return {
                 order_date: date,
                 items,
                 total,
-                _id: Math.random().toString(36).substr(2, 9),
+                _id: `${activeOrderId}_batch_${batchIndex}`,
                 delivery_status: delivery_status || 'pending', 
                 delivery_date: delivery_date,
                 delivery_time: delivery_time
