@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Footer from '../components/Footer.js';
 import API_BASE_URL from '../config.js';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Store } from 'react-notifications-component';
 
 export default function MyOrder() {
@@ -127,15 +127,24 @@ export default function MyOrder() {
     <div className="orderhistory-container">
       <div className="container my-4">
         <div className="d-flex align-items-center mb-4">
-          <button className="btn btn-secondary me-3" onClick={() => navigate(-1)}>
+          <button type="button" className="btn btn-secondary me-3" onClick={() => navigate(-1)} aria-label="Go back">
             &larr; Back
           </button>
           <h3 className="m-0" style={{ color: 'var(--text-color, white)' }}>My Orders</h3>
         </div>
 
         {orders.length === 0 ? (
-          <div className="text-center text-white">
-            <h5>No past orders found.</h5>
+          <div className="card text-center p-5 shadow-sm border-0 rounded-4 my-4" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
+            <div className="mb-3 display-4">
+              <span role="img" aria-label="Decorative package icon">📦</span>
+            </div>
+            <h4 className="fw-bold text-dark mb-2">No Past Orders Found</h4>
+            <p className="text-muted mb-4">You haven't placed any food orders yet.</p>
+            <div>
+              <Link to="/" className="btn btn-success px-4 py-2 rounded-pill fw-semibold" aria-label="Browse food menu">
+                Browse Foods
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="row">
