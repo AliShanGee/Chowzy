@@ -1,22 +1,25 @@
 import React, { useEffect } from 'react';
-import Navbar from './components/Navbar.js';
-import Home from './screens/Home.js';
-import Login from './screens/Login.js';
-import SignUp from './screens/SignUp.js';
-import MyOrder from './screens/MyOrder.js';
-import Reels from './screens/Reels.js';
-import NotFound from './screens/NotFound.js';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import { CartProvider, useDispatchCart } from './components/ContextReducer.js';
-import Cart from './screens/cart.js';
-import AdminPanel from './screens/AdminPanel.js';
 import { ThemeProvider } from 'next-themes';
 import { ReactNotifications } from 'react-notifications-component';
 import 'react-notifications-component/dist/theme.css';
-import API_BASE_URL from './config.js';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+import Navbar from './components/Navbar.js';
+import Home from './screens/Home.js';
+import { CartProvider, useDispatchCart } from './components/ContextReducer.js';
+import API_BASE_URL from './config.js';
 import FloatingReelButton from './components/FloatingReelButton.js';
 import useUserStore from './store/useUserStore';
+
+// Lazy load non-critical route components to split code bundles and accelerate initial page load time
+const Login = React.lazy(() => import('./screens/Login.js'));
+const SignUp = React.lazy(() => import('./screens/SignUp.js'));
+const MyOrder = React.lazy(() => import('./screens/MyOrder.js'));
+const Reels = React.lazy(() => import('./screens/Reels.js'));
+const Cart = React.lazy(() => import('./screens/cart.js'));
+const AdminPanel = React.lazy(() => import('./screens/AdminPanel.js'));
+const NotFound = React.lazy(() => import('./screens/NotFound.js'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -65,19 +68,27 @@ const AppContent = () => {
       <ReactNotifications />
       {!isAdminRoute && <Navbar />}
       {user && !isAdminRoute && !isReelsPage && <FloatingReelButton />}
-      <Routes>
-        <Route exact path="/" element={<Home />} />
-        <Route exact path="/login" element={<Login />} />
-        <Route exact path="/signup" element={<SignUp />} />
-        <Route exact path="/myOrder" element={<MyOrder />} />
-        <Route exact path="/orderhistory" element={<MyOrder />} />
-        <Route exact path="/reels" element={<Reels />} />
-        <Route exact path="/cart" element={<Cart />} />
-        <Route path="/admin/*" element={
-          localStorage.getItem("admin_auth") ? <AdminPanel /> : <Navigate to="/login" />
-        } />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <React.Suspense fallback={
+        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
+          <div className="spinner-border text-success" role="status">
+            <span className="visually-hidden">Loading page...</span>
+          </div>
+        </div>
+      }>
+        <Routes>
+          <Route exact path="/" element={<Home />} />
+          <Route exact path="/login" element={<Login />} />
+          <Route exact path="/signup" element={<SignUp />} />
+          <Route exact path="/myOrder" element={<MyOrder />} />
+          <Route exact path="/orderhistory" element={<MyOrder />} />
+          <Route exact path="/reels" element={<Reels />} />
+          <Route exact path="/cart" element={<Cart />} />
+          <Route path="/admin/*" element={
+            localStorage.getItem("admin_auth") ? <AdminPanel /> : <Navigate to="/login" />
+          } />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </React.Suspense>
     </div>
   );
 };

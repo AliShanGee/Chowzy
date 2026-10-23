@@ -1,0 +1,3 @@
+## 2025-05-18 - Route-based Code Splitting with React.lazy
+**Learning:** Monolithic single-page React apps bundling heavy administrative interfaces (`react-admin`, `@mui`, `recharts`) incur massive initial JavaScript download overhead (~1.77 MB gzipped main bundle) for standard users.
+**Action:** Use `React.lazy` and `React.Suspense` for non-primary route components (`AdminPanel`, `Reels`, `Cart`, `MyOrder`, `Login`, `SignUp`) while leaving the main route (`Home`) statically imported to achieve immediate ~78% initial bundle size reduction without adding external dependencies or breaking navigation.
