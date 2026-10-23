@@ -80,21 +80,25 @@ const Chatbot = () => {
           }
         `}
       </style>
-      <div style={{
-        position: 'fixed',
-        bottom: '20px',
-        [position]: '20px',
-        width: '350px',
-        height: '500px',
-        backgroundColor: '#f5f8fb',
-        border: '1px solid #ccc',
-        borderRadius: '10px',
-        display: 'flex',
-        flexDirection: 'column',
-        zIndex: 1000,
-        fontFamily: 'Helvetica Neue',
-        transition: 'right 0.3s ease, left 0.3s ease'
-      }}>
+      <div
+        role="region"
+        aria-label="AI Food Assistant"
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          [position]: '20px',
+          width: '350px',
+          height: '500px',
+          backgroundColor: '#f5f8fb',
+          border: '1px solid #ccc',
+          borderRadius: '10px',
+          display: 'flex',
+          flexDirection: 'column',
+          zIndex: 1000,
+          fontFamily: 'Helvetica Neue',
+          transition: 'right 0.3s ease, left 0.3s ease'
+        }}
+      >
         <div style={{
           backgroundColor: '#EF6C00',
           color: '#fff',
@@ -105,17 +109,17 @@ const Chatbot = () => {
           alignItems: 'center'
         }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <img src="/logo192.png" alt="Logo" style={{ width: '30px', height: '30px', marginRight: '10px' }} />
+            <img src="/logo192.png" alt="Chowzy Logo" style={{ width: '30px', height: '30px', marginRight: '10px' }} />
             <span>Food Assistant</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Button variant="link" onClick={moveLeft} style={{ color: '#fff', padding: '0 5px' }}>
-              <FiChevronLeft size={20} />
+            <Button variant="link" onClick={moveLeft} aria-label="Move chatbot to left position" title="Move left" style={{ color: '#fff', padding: '0 5px' }}>
+              <FiChevronLeft size={20} aria-hidden="true" />
             </Button>
-            <Button variant="link" onClick={moveRight} style={{ color: '#fff', padding: '0 5px' }}>
-              <FiChevronRight size={20} />
+            <Button variant="link" onClick={moveRight} aria-label="Move chatbot to right position" title="Move right" style={{ color: '#fff', padding: '0 5px' }}>
+              <FiChevronRight size={20} aria-hidden="true" />
             </Button>
-            <Button variant="link" onClick={() => setShowHistory(true)} style={{ color: '#fff', padding: 0 }}>
+            <Button variant="link" onClick={() => setShowHistory(true)} aria-label="View chat history" style={{ color: '#fff', padding: 0 }}>
               History
             </Button>
           </div>
@@ -174,12 +178,13 @@ const Chatbot = () => {
             <Form.Control
               type="text"
               placeholder="Ask about menu, prices, ingredients, or AI..."
+              aria-label="Ask chatbot assistant"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               style={{ flex: 1, marginRight: '10px' }}
             />
-            <Button onClick={handleSend} disabled={loading} style={{ backgroundColor: '#EF6C00', borderColor: '#EF6C00' }}>
+            <Button type="button" onClick={handleSend} disabled={loading} aria-label="Send message to food assistant" style={{ backgroundColor: '#EF6C00', borderColor: '#EF6C00' }}>
               Send
             </Button>
           </div>
