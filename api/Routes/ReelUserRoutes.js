@@ -25,7 +25,8 @@ router.get('/getreels', async (req, res) => {
             return res.json({ success: true, reels: JSON.parse(cachedReels), source: 'cache' });
         }
 
-        const reels = await Reel.find({}).sort({ date: -1 });
+        // Bolt Optimization: Append .lean() to bypass Mongoose document hydration overhead
+        const reels = await Reel.find({}).sort({ date: -1 }).lean();
         
         if (client.isOpen) {
             try {
