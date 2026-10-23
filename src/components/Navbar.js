@@ -51,30 +51,57 @@ function NavScrollExample() {
   const [search, setSearch] = useState(''); // Add search state for the carousel
 
   useLayoutEffect(() => {
-    // No need to manually fetch user from localStorage here anymore, Zustand handles it
-    // ... remaining logic
+    if (!navbarRef.current) return;
 
     // Add hover animations to nav links
     const links = navbarRef.current.querySelectorAll('.nav-link');
+    const linkEnterHandlers = [];
+    const linkLeaveHandlers = [];
 
-    links.forEach(link => {
-      link.addEventListener('mouseenter', () => {
+    links.forEach((link, idx) => {
+      const onMouseEnter = () => {
         gsap.to(link, { scale: 1.1, duration: 0.3, ease: 'power1.out' });
-      });
-      link.addEventListener('mouseleave', () => {
+      };
+      const onMouseLeave = () => {
         gsap.to(link, { scale: 1, duration: 0.3, ease: 'power1.out' });
-      });
+      };
+
+      linkEnterHandlers[idx] = onMouseEnter;
+      linkLeaveHandlers[idx] = onMouseLeave;
+
+      link.addEventListener('mouseenter', onMouseEnter);
+      link.addEventListener('mouseleave', onMouseLeave);
     });
 
     // Add hover animation to the logo
     const logo = logoRef.current;
-    logo.addEventListener('mouseenter', () => {
-      gsap.to(logo.children, { y: -5, stagger: 0.05, duration: 0.2, ease: 'power1.out' });
-    });
-    logo.addEventListener('mouseleave', () => {
-      gsap.to(logo.children, { y: 0, stagger: { from: "end", amount: 0.05 }, duration: 0.2, ease: 'power1.in' });
-    });
+    const onLogoEnter = () => {
+      if (logo && logo.children) {
+        gsap.to(logo.children, { y: -5, stagger: 0.05, duration: 0.2, ease: 'power1.out' });
+      }
+    };
+    const onLogoLeave = () => {
+      if (logo && logo.children) {
+        gsap.to(logo.children, { y: 0, stagger: { from: "end", amount: 0.05 }, duration: 0.2, ease: 'power1.in' });
+      }
+    };
 
+    if (logo) {
+      logo.addEventListener('mouseenter', onLogoEnter);
+      logo.addEventListener('mouseleave', onLogoLeave);
+    }
+
+    // Return cleanup function to remove event listeners on unmount/re-render to avoid memory leaks
+    return () => {
+      links.forEach((link, idx) => {
+        if (linkEnterHandlers[idx]) link.removeEventListener('mouseenter', linkEnterHandlers[idx]);
+        if (linkLeaveHandlers[idx]) link.removeEventListener('mouseleave', linkLeaveHandlers[idx]);
+      });
+      if (logo) {
+        logo.removeEventListener('mouseenter', onLogoEnter);
+        logo.removeEventListener('mouseleave', onLogoLeave);
+      }
+    };
   }, [location]); // Re-run on location change to update user state if needed
 
   // Play animation when cart items change

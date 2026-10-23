@@ -27,10 +27,12 @@ const carouselItems = [
   }
 ];
 
-export default function HomeCarousel() {
-  gsap.registerPlugin(TextPlugin);
+// Register GSAP plugin once at module scope rather than inside component renders
+gsap.registerPlugin(TextPlugin);
 
+export default function HomeCarousel() {
   useEffect(() => {
+    // Create GSAP animation timeline for title text
     const tl = gsap.timeline({ repeat: -1, yoyo: true });
     tl.to(".animated-text", {
       duration: 1,
@@ -42,6 +44,11 @@ export default function HomeCarousel() {
       ease: "none",
       delay: 0.5
     });
+
+    // Cleanup GSAP timeline on unmount to prevent memory leaks and unmounted DOM updates
+    return () => {
+      tl.kill();
+    };
   }, []);
 
   return (
