@@ -1,0 +1,3 @@
+## 2025-02-18 - Route-level code splitting for heavy admin and media bundles
+**Learning:** Top-level synchronous imports of route screens in `App.js` force all heavy route dependencies (such as `react-admin` and `recharts` from `AdminPanel`) to be bundled into the main JS payload. This creates a monolithic 1.78 MB bundle downloaded by every visitor on initial load.
+**Action:** Use `React.lazy()` dynamic imports wrapped in `<Suspense>` at the `App.js` route definition level to split route components into separate chunks, deferring heavy screen payloads until navigated to and cutting the initial main bundle size down to ~359 kB.
