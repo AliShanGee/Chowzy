@@ -26,12 +26,26 @@ const OVERLAY_STYLES = {
 export default function Modal({ children, onClose }) {
   return ReactDom.createPortal(
     <>
-      <div style={OVERLAY_STYLES} />
-      <div style={MODAL_STYLES}>
-        <button className='btn bg-danger fs-4' style={{ marginLeft: "90%", marginTop: "-35px" }} onClick={onClose}> X </button>
+      <div
+        style={OVERLAY_STYLES}
+        onClick={onClose}
+        role="presentation"
+        aria-hidden="true"
+      />
+      <div style={MODAL_STYLES} role="dialog" aria-modal="true">
+        <button
+          type="button"
+          className='btn bg-danger text-white fs-4'
+          style={{ marginLeft: "90%", marginTop: "-35px" }}
+          onClick={onClose}
+          aria-label="Close modal"
+          title="Close modal"
+        >
+          &times;
+        </button>
         {children}
       </div>
     </>,
-    document.getElementById('root')
+    document.getElementById('root') || document.body
   )
 }
