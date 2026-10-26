@@ -1,11 +1,13 @@
-import app from './api/index.js';
-
 const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
+
+let app;
 
 if (isNode) {
   (async () => {
     try {
       await import('dotenv/config');
+      const apiModule = await import('./api/index.js');
+      app = apiModule.default || apiModule;
       const { serve } = await import('@hono/node-server');
       const port = parseInt(process.env.PORT || '3001', 10);
       if (app && typeof app.fetch === 'function') {
