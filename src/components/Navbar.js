@@ -142,13 +142,23 @@ function NavScrollExample() {
               :
               <div className='d-flex align-items-center'>
                 <ThemeToggle />
-                <div style={{ cursor: 'pointer', width: "100px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", marginRight: "10px" }} onClick={toggleChatbot}>
-                  <Lottie
-                    animationData={helloChatBotAnimation}
-                    loop={true}
-                    autoplay={true}
-                  />
-                </div>
+                <button
+                  type="button"
+                  onClick={toggleChatbot}
+                  aria-label="Toggle AI Food Assistant chatbot"
+                  aria-expanded={showChatbot}
+                  title="Chat with AI Assistant"
+                  className="border-0 bg-transparent p-0 me-2 d-flex align-items-center"
+                  style={{ width: "100px", height: "58px", overflow: "hidden" }}
+                >
+                  <span style={{ width: "100%", height: "100%", pointerEvents: 'none' }}>
+                    <Lottie
+                      animationData={helloChatBotAnimation}
+                      loop={true}
+                      autoplay={true}
+                    />
+                  </span>
+                </button>
                 <Link className="btn bg-white text-success mx-2 d-flex align-items-center" to="/cart" style={{ textDecoration: 'none' }}>
                   <div style={{ width: "30px", height: "30px" }}>
                     <Lottie
@@ -203,11 +213,7 @@ function NavScrollExample() {
         </Container>
       </Navbar>
       {location.pathname === '/' && <Carousel search={search} setSearch={setSearch} />}
-      {showChatbot &&
-        <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000 }}>
-          <Chatbot />
-        </div>
-      }
+      {showChatbot && <Chatbot onClose={() => setShowChatbot(false)} />}
     </>
   );
 }

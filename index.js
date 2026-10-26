@@ -1,14 +1,33 @@
-import 'dotenv/config';
-import { serve } from '@hono/node-server';
-import app from './api/index.js';
+const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
-const port = parseInt(process.env.PORT || '3001', 10);
+let app;
 
-console.log('Starting server on port', port);
+if (isNode) {
+  (async () => {
+    try {
+      await import('dotenv/config');
+      const apiModule = await import('./api/index.js');
+      app = apiModule.default || apiModule;
+      const { serve } = await import('@hono/node-server');
+      const port = parseInt(process.env.PORT || '3001', 10);
+      if (app && typeof app.fetch === 'function') {
+        serve({
+          fetch: app.fetch,
+          port,
+        });
+        console.log(`Server running at http://localhost:${port}`);
+      }
+    } catch (err) {
+      // Node server fallback
+    }
+  })();
+}
 
-serve({
-  fetch: app.fetch,
-  port,
-});
-
-console.log(`Server running at http://localhost:${port}`);
+export default {
+  async fetch(request, env, ctx) {
+    if (app && typeof app.fetch === 'function') {
+      return app.fetch(request, env, ctx);
+    }
+    return new Response('Chowzy API Service', { status: 200 });
+  }
+};

@@ -4,7 +4,7 @@ import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import ChatHistory from './ChatHistory.js';
 import API_BASE_URL from '../config';
 
-const Chatbot = () => {
+const Chatbot = ({ onClose }) => {
   const [messages, setMessages] = useState([
     { user: false, message: 'Hello! I\'m your food assistant. I can help with menu items, prices, ingredients, ordering help, and basic AI questions. Try prompts like:\n- "List all menu items"\n- "Give only food item which price 100"\n- "Show food items under 200"\n- "What are the ingredients in Veg Pizza?"\n- "Which category has Chicken Biryani?"\n- "Recommend the best starters"\n- "What is AI?"' }
   ]);
@@ -80,21 +80,25 @@ const Chatbot = () => {
           }
         `}
       </style>
-      <div style={{
-        position: 'fixed',
-        bottom: '20px',
-        [position]: '20px',
-        width: '350px',
-        height: '500px',
-        backgroundColor: '#f5f8fb',
-        border: '1px solid #ccc',
-        borderRadius: '10px',
-        display: 'flex',
-        flexDirection: 'column',
-        zIndex: 1000,
-        fontFamily: 'Helvetica Neue',
-        transition: 'right 0.3s ease, left 0.3s ease'
-      }}>
+      <div
+        role="region"
+        aria-label="AI Food Assistant"
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          [position]: '20px',
+          width: '350px',
+          height: '500px',
+          backgroundColor: '#f5f8fb',
+          border: '1px solid #ccc',
+          borderRadius: '10px',
+          display: 'flex',
+          flexDirection: 'column',
+          zIndex: 1000,
+          fontFamily: 'Helvetica Neue',
+          transition: 'right 0.3s ease, left 0.3s ease'
+        }}
+      >
         <div style={{
           backgroundColor: '#EF6C00',
           color: '#fff',
@@ -105,28 +109,64 @@ const Chatbot = () => {
           alignItems: 'center'
         }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <img src="/logo192.png" alt="Logo" style={{ width: '30px', height: '30px', marginRight: '10px' }} />
-            <span>Food Assistant</span>
+            <img src="/logo192.png" alt="" aria-hidden="true" style={{ width: '30px', height: '30px', marginRight: '10px' }} />
+            <span style={{ fontWeight: 'bold' }}>Food Assistant</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Button variant="link" onClick={moveLeft} style={{ color: '#fff', padding: '0 5px' }}>
-              <FiChevronLeft size={20} />
+            <Button
+              type="button"
+              variant="link"
+              onClick={moveLeft}
+              aria-label="Move chatbot to left side"
+              title="Move chatbot to left side"
+              style={{ color: '#fff', padding: '0 5px' }}
+            >
+              <FiChevronLeft size={20} aria-hidden="true" />
             </Button>
-            <Button variant="link" onClick={moveRight} style={{ color: '#fff', padding: '0 5px' }}>
-              <FiChevronRight size={20} />
+            <Button
+              type="button"
+              variant="link"
+              onClick={moveRight}
+              aria-label="Move chatbot to right side"
+              title="Move chatbot to right side"
+              style={{ color: '#fff', padding: '0 5px' }}
+            >
+              <FiChevronRight size={20} aria-hidden="true" />
             </Button>
-            <Button variant="link" onClick={() => setShowHistory(true)} style={{ color: '#fff', padding: 0 }}>
+            <Button
+              type="button"
+              variant="link"
+              onClick={() => setShowHistory(true)}
+              aria-label="View chat history"
+              title="View chat history"
+              style={{ color: '#fff', padding: '0 5px', textDecoration: 'none' }}
+            >
               History
             </Button>
+            {onClose && (
+              <Button
+                type="button"
+                variant="link"
+                onClick={onClose}
+                aria-label="Close chatbot window"
+                title="Close chatbot window"
+                style={{ color: '#fff', padding: '0 0 0 5px', fontSize: '1.25rem', lineHeight: 1, textDecoration: 'none' }}
+              >
+                &times;
+              </Button>
+            )}
           </div>
         </div>
-        <div style={{
-          flex: 1,
-          padding: '10px',
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
+        <div
+          aria-live="polite"
+          style={{
+            flex: 1,
+            padding: '10px',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+        >
           <ListGroup variant="flush">
             {messages.map((msg, index) => (
               <ListGroup.Item key={index} style={{
@@ -173,13 +213,21 @@ const Chatbot = () => {
           <div style={{ display: 'flex' }}>
             <Form.Control
               type="text"
+              aria-label="Ask AI food assistant"
               placeholder="Ask about menu, prices, ingredients, or AI..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               style={{ flex: 1, marginRight: '10px' }}
             />
-            <Button onClick={handleSend} disabled={loading} style={{ backgroundColor: '#EF6C00', borderColor: '#EF6C00' }}>
+            <Button
+              type="button"
+              onClick={handleSend}
+              disabled={loading}
+              aria-label="Send message to AI assistant"
+              title="Send message"
+              style={{ backgroundColor: '#EF6C00', borderColor: '#EF6C00' }}
+            >
               Send
             </Button>
           </div>
