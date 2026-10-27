@@ -94,7 +94,12 @@ const CustomOptionsInput = ({ source }) => {
                             setRows(newRows);
                         }}
                     />
-                    <IconButton color="error" onClick={() => setRows(rows.filter((_, i) => i !== index))}>
+                    <IconButton
+                        color="error"
+                        aria-label={`Remove pricing option ${index + 1}`}
+                        title={`Remove pricing option ${index + 1}`}
+                        onClick={() => setRows(rows.filter((_, i) => i !== index))}
+                    >
                         <DeleteIcon />
                     </IconButton>
                 </Box>
