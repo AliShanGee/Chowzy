@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -18,6 +18,48 @@ export default function Home() {
   const [foodItem,setFoodItem] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
+
+  // Memoize unique categories to eliminate O(C^2) filter/findIndex on every render
+  const uniqueCategories = useMemo(() => {
+    const seen = new Set();
+    return foodCat.filter((cat) => {
+      if (!cat || !cat.CategoryName || seen.has(cat.CategoryName)) {
+        return false;
+      }
+      seen.add(cat.CategoryName);
+      return true;
+    });
+  }, [foodCat]);
+
+  // Pre-process and memoize filtered and deduplicated food items grouped by category name.
+  // Replaces O(C * M * K) filtering loops, repeated lower-case string conversions,
+  // and quadratic array spreading ([...unique, item]) on every render with an O(M) map build.
+  const filteredItemsByCategory = useMemo(() => {
+    const searchLower = search.trim().toLowerCase();
+    const map = new Map();
+
+    for (let i = 0; i < foodItem.length; i++) {
+      const item = foodItem[i];
+      if (!item || !item.name || !item.CategoryName) continue;
+
+      if (searchLower && !item.name.toLowerCase().includes(searchLower)) {
+        continue;
+      }
+
+      let catData = map.get(item.CategoryName);
+      if (!catData) {
+        catData = { items: [], seenNames: new Set() };
+        map.set(item.CategoryName, catData);
+      }
+
+      if (!catData.seenNames.has(item.name)) {
+        catData.seenNames.add(item.name);
+        catData.items.push(item);
+      }
+    }
+
+    return map;
+  }, [foodItem, search]);
 
   const loadData = async ()=>{
     try {
@@ -91,34 +133,30 @@ export default function Home() {
           (() => {
             if (foodCat.length === 0) return "";
             
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
             const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
             const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
             return (
               <>
                 {currentCategories.map((data) => {
+                  const catData = filteredItemsByCategory.get(data.CategoryName);
+                  const matchingItems = catData ? catData.items : [];
+
                   return (
                     <div className='row mb-3' key={data._id}>
                       <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
                         {data.CategoryName}
                       </div>
                       <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
-                    </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
+                      {foodItem.length > 0 ? (
+                        matchingItems.map(filterItems => (
+                          <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                            <Card foodItem={filterItems} options={filterItems.options[0]} />
+                          </div>
+                        ))
+                      ) : (
+                        <div>No Such Data Found</div>
+                      )}
                     </div>
                   );
                 })}
