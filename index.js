@@ -1,14 +1,32 @@
-import 'dotenv/config';
-import { serve } from '@hono/node-server';
-import app from './api/index.js';
+const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
-const port = parseInt(process.env.PORT || '3001', 10);
+export default {
+  async fetch(request, env, ctx) {
+    try {
+      const { default: app } = await import('./api/index.js');
+      if (app && typeof app.fetch === 'function') {
+        return await app.fetch(request, env, ctx);
+      }
+      return new Response('chowzy API running', { status: 200 });
+    } catch (err) {
+      return new Response(`Server error: ${err.message}`, { status: 500 });
+    }
+  }
+};
 
-console.log('Starting server on port', port);
-
-serve({
-  fetch: app.fetch,
-  port,
-});
-
-console.log(`Server running at http://localhost:${port}`);
+if (isNode && typeof require !== 'undefined' && require.main === module) {
+  (async () => {
+    try {
+      await import('dotenv/config');
+      const { serve } = await import('@hono/node-server');
+      const { default: app } = await import('./api/index.js');
+      const port = parseInt(process.env.PORT || '3001', 10);
+      if (app && typeof app.fetch === 'function') {
+        serve({ fetch: app.fetch, port });
+        console.log(`Server running at http://localhost:${port}`);
+      }
+    } catch (err) {
+      console.error('Node server start error:', err);
+    }
+  })();
+}
