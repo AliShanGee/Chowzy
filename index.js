@@ -14,19 +14,20 @@ export default {
   }
 };
 
-if (isNode && typeof require !== 'undefined' && require.main === module) {
+if (isNode) {
   (async () => {
     try {
       await import('dotenv/config');
       const { serve } = await import('@hono/node-server');
-      const { default: app } = await import('./api/index.js');
+      const apiModule = await import('./api/index.js');
+      const app = apiModule.default || apiModule;
       const port = parseInt(process.env.PORT || '3001', 10);
       if (app && typeof app.fetch === 'function') {
         serve({ fetch: app.fetch, port });
         console.log(`Server running at http://localhost:${port}`);
       }
     } catch (err) {
-      console.error('Node server start error:', err);
+      // Ignored when not running as primary Node server
     }
   })();
 }
