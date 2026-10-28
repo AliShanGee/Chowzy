@@ -11,30 +11,44 @@ const path = require('path');
 const fs = require('fs');
 const { client } = require('../redis');
 
-// Configure Multer storage
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadDir = path.join(__dirname, '..', 'uploads', 'reels');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
+const isNode = typeof process !== 'undefined' && process.release && process.release.name === 'node';
 
-const upload = multer({ 
-    storage: storage,
-    fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith('video/')) {
-            cb(null, true);
-        } else {
-            cb(new Error('Only video files are allowed!'), false);
-        }
+// Configure Multer storage with isNode check
+let upload = {
+    single: () => (req, res, next) => next()
+};
+
+if (isNode) {
+    try {
+        const storage = multer.diskStorage({
+            destination: function (req, file, cb) {
+                const uploadDir = path.join(__dirname, '..', 'uploads', 'reels');
+                if (fs.existsSync && !fs.existsSync(uploadDir)) {
+                    try {
+                        fs.mkdirSync(uploadDir, { recursive: true });
+                    } catch (e) {}
+                }
+                cb(null, uploadDir);
+            },
+            filename: function (req, file, cb) {
+                cb(null, Date.now() + '-' + file.originalname);
+            }
+        });
+
+        upload = multer({
+            storage: storage,
+            fileFilter: (req, file, cb) => {
+                if (file.mimetype.startsWith('video/')) {
+                    cb(null, true);
+                } else {
+                    cb(new Error('Only video files are allowed!'), false);
+                }
+            }
+        });
+    } catch (e) {
+        // Fallback for non-Node environments
     }
-});
+}
 
 // Helper for sending list response with Content-Range
 const sendListResponse = (res, data, total) => {
@@ -493,7 +507,7 @@ router.delete('/reels/:id', async (req, res) => {
         const reel = await Reel.findById(req.params.id);
         if (reel && reel.videoUrl && reel.videoUrl.startsWith('/uploads/')) {
             const filePath = path.join(__dirname, '..', reel.videoUrl);
-            if (fs.existsSync(filePath)) {
+            if (fs.existsSync && fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
             }
         }
@@ -534,4 +548,3 @@ router.delete('/reels', async (req, res) => {
 });
 
 module.exports = router;
-
