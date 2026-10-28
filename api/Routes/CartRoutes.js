@@ -10,19 +10,12 @@ router.post('/updatecart', async (req, res) => {
     }
 
     try {
-        let cart = await Cart.findOne({ email });
-        if (cart) {
-            // Update existing cart
-            cart.items = cartData;
-            cart.date = Date.now();
-            await cart.save();
-        } else {
-            // Create new cart
-            await Cart.create({
-                email,
-                items: cartData
-            });
-        }
+        // Bolt Optimization: Atomic update with upsert: true reduces DB roundtrips from 2 to 1 and prevents race conditions
+        await Cart.findOneAndUpdate(
+            { email },
+            { items: cartData, date: Date.now() },
+            { upsert: true, new: true }
+        ).lean();
         res.status(200).json({ success: true, message: "Cart updated successfully" });
     } catch (error) {
         console.error("Error updating cart:", error.message);
@@ -38,7 +31,8 @@ router.post('/getcart', async (req, res) => {
     }
 
     try {
-        const cart = await Cart.findOne({ email });
+        // Bolt Optimization: .lean() bypasses Mongoose document hydration for faster plain JS object retrieval
+        const cart = await Cart.findOne({ email }).lean();
         if (!cart) {
             return res.status(200).json({ success: true, cartData: [] });
         }
@@ -52,7 +46,8 @@ router.post('/getcart', async (req, res) => {
 // Admin route to get all user carts
 router.get('/admin/allcarts', async (req, res) => {
     try {
-        const carts = await Cart.find({});
+        // Bolt Optimization: .lean() bypasses Mongoose document hydration for list queries
+        const carts = await Cart.find({}).lean();
         res.status(200).json({ success: true, carts });
     } catch (error) {
         console.error("Error fetching all carts:", error.message);
