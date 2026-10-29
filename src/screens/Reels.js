@@ -218,12 +218,13 @@ const Reels = () => {
             await queryClient.cancelQueries({ queryKey: ['reels'] });
             const previousReels = queryClient.getQueryData(['reels']);
 
-            if (previousReels) {
+            if (previousReels && userId) {
+                const targetUserId = String(userId);
                 queryClient.setQueryData(['reels'], (oldReels) =>
                     oldReels ? oldReels.map((reel) => {
-                        if (reel._id === reelId) {
+                        if (String(reel._id) === String(reelId)) {
                             const likes = reel.likes ? [...reel.likes] : [];
-                            const index = likes.indexOf(userId);
+                            const index = likes.findIndex((id) => String(id) === targetUserId);
                             if (index === -1) {
                                 likes.push(userId);
                             } else {
@@ -232,7 +233,7 @@ const Reels = () => {
                             return { ...reel, likes };
                         }
                         return reel;
-                    }) : []
+                    }) : oldReels
                 );
             }
 
@@ -247,8 +248,8 @@ const Reels = () => {
             if (data?.success && data?.likes) {
                 queryClient.setQueryData(['reels'], (oldReels) =>
                     oldReels ? oldReels.map((reel) =>
-                        reel._id === reelId ? { ...reel, likes: data.likes } : reel
-                    ) : []
+                        String(reel._id) === String(reelId) ? { ...reel, likes: data.likes } : reel
+                    ) : oldReels
                 );
             }
         }
@@ -268,12 +269,13 @@ const Reels = () => {
             await queryClient.cancelQueries({ queryKey: ['reels'] });
             const previousReels = queryClient.getQueryData(['reels']);
 
-            if (previousReels) {
+            if (previousReels && userId) {
+                const targetUserId = String(userId);
                 queryClient.setQueryData(['reels'], (oldReels) =>
                     oldReels ? oldReels.map((reel) => {
-                        if (reel._id === reelId) {
+                        if (String(reel._id) === String(reelId)) {
                             const saves = reel.saves ? [...reel.saves] : [];
-                            const index = saves.indexOf(userId);
+                            const index = saves.findIndex((id) => String(id) === targetUserId);
                             if (index === -1) {
                                 saves.push(userId);
                             } else {
@@ -282,7 +284,7 @@ const Reels = () => {
                             return { ...reel, saves };
                         }
                         return reel;
-                    }) : []
+                    }) : oldReels
                 );
             }
 
@@ -297,8 +299,8 @@ const Reels = () => {
             if (data?.success && data?.saves) {
                 queryClient.setQueryData(['reels'], (oldReels) =>
                     oldReels ? oldReels.map((reel) =>
-                        reel._id === reelId ? { ...reel, saves: data.saves } : reel
-                    ) : []
+                        String(reel._id) === String(reelId) ? { ...reel, saves: data.saves } : reel
+                    ) : oldReels
                 );
             }
         }

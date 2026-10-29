@@ -49,20 +49,16 @@ router.get('/getreels', async (req, res) => {
 router.post('/reels/:id/like', async (req, res) => {
     try {
         const { userId } = req.body;
-        if (!userId) return res.status(400).json({ success: false, message: "userId is required" });
-
-        const reel = await Reel.findById(req.params.id, 'likes').lean();
+        const reel = await Reel.findById(req.params.id);
         if (!reel) return res.status(404).json({ success: false, message: "Reel not found" });
 
-        const stringUserId = String(userId);
-        const hasLiked = reel.likes && reel.likes.some(id => id && id.toString() === stringUserId);
-        const updateOp = hasLiked ? { $pull: { likes: userId } } : { $addToSet: { likes: userId } };
-
-        const updatedReel = await Reel.findByIdAndUpdate(
-            req.params.id,
-            updateOp,
-            { new: true, select: 'likes' }
-        ).lean();
+        const index = reel.likes.indexOf(userId);
+        if (index === -1) {
+            reel.likes.push(userId);
+        } else {
+            reel.likes.splice(index, 1);
+        }
+        await reel.save();
 
         // Invalidate Redis cache
         if (client.isOpen) {
@@ -76,7 +72,7 @@ router.post('/reels/:id/like', async (req, res) => {
             }
         }
 
-        res.json({ success: true, likes: updatedReel ? updatedReel.likes : [] });
+        res.json({ success: true, likes: reel.likes });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -86,22 +82,17 @@ router.post('/reels/:id/like', async (req, res) => {
 router.post('/reels/:id/save', async (req, res) => {
     try {
         const { userId } = req.body;
-        if (!userId) return res.status(400).json({ success: false, message: "userId is required" });
-
-        const reel = await Reel.findById(req.params.id, 'saves').lean();
+        const reel = await Reel.findById(req.params.id);
         if (!reel) return res.status(404).json({ success: false, message: "Reel not found" });
 
-        const stringUserId = String(userId);
-        const hasSaved = reel.saves && reel.saves.some(id => id && id.toString() === stringUserId);
-        const updateOp = hasSaved ? { $pull: { saves: userId } } : { $addToSet: { saves: userId } };
-
-        const updatedReel = await Reel.findByIdAndUpdate(
-            req.params.id,
-            updateOp,
-            { new: true, select: 'saves' }
-        ).lean();
-
-        res.json({ success: true, saves: updatedReel ? updatedReel.saves : [] });
+        const index = reel.saves.indexOf(userId);
+        if (index === -1) {
+            reel.saves.push(userId);
+        } else {
+            reel.saves.splice(index, 1);
+        }
+        await reel.save();
+        res.json({ success: true, saves: reel.saves });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
