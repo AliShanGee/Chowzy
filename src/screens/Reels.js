@@ -204,6 +204,7 @@ const Reels = () => {
         refetchOnMount: true
     });
 
+    // Optimistic updates for like mutation (0ms UI latency, no redundant GET /api/getreels network calls)
     const likeMutation = useMutation({
         mutationFn: async (reelId) => {
             const response = await fetch(`${API_BASE_URL}/api/reels/${reelId}/like`, {
@@ -213,11 +214,47 @@ const Reels = () => {
             });
             return response.json();
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['reels'] });
+        onMutate: async (reelId) => {
+            await queryClient.cancelQueries({ queryKey: ['reels'] });
+            const previousReels = queryClient.getQueryData(['reels']);
+
+            if (previousReels) {
+                queryClient.setQueryData(['reels'], (oldReels) =>
+                    oldReels ? oldReels.map((reel) => {
+                        if (reel._id === reelId) {
+                            const likes = reel.likes ? [...reel.likes] : [];
+                            const index = likes.indexOf(userId);
+                            if (index === -1) {
+                                likes.push(userId);
+                            } else {
+                                likes.splice(index, 1);
+                            }
+                            return { ...reel, likes };
+                        }
+                        return reel;
+                    }) : []
+                );
+            }
+
+            return { previousReels };
+        },
+        onError: (err, reelId, context) => {
+            if (context?.previousReels) {
+                queryClient.setQueryData(['reels'], context.previousReels);
+            }
+        },
+        onSuccess: (data, reelId) => {
+            if (data?.success && data?.likes) {
+                queryClient.setQueryData(['reels'], (oldReels) =>
+                    oldReels ? oldReels.map((reel) =>
+                        reel._id === reelId ? { ...reel, likes: data.likes } : reel
+                    ) : []
+                );
+            }
         }
     });
 
+    // Optimistic updates for save mutation (0ms UI latency, no redundant GET /api/getreels network calls)
     const saveMutation = useMutation({
         mutationFn: async (reelId) => {
             const response = await fetch(`${API_BASE_URL}/api/reels/${reelId}/save`, {
@@ -227,8 +264,43 @@ const Reels = () => {
             });
             return response.json();
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['reels'] });
+        onMutate: async (reelId) => {
+            await queryClient.cancelQueries({ queryKey: ['reels'] });
+            const previousReels = queryClient.getQueryData(['reels']);
+
+            if (previousReels) {
+                queryClient.setQueryData(['reels'], (oldReels) =>
+                    oldReels ? oldReels.map((reel) => {
+                        if (reel._id === reelId) {
+                            const saves = reel.saves ? [...reel.saves] : [];
+                            const index = saves.indexOf(userId);
+                            if (index === -1) {
+                                saves.push(userId);
+                            } else {
+                                saves.splice(index, 1);
+                            }
+                            return { ...reel, saves };
+                        }
+                        return reel;
+                    }) : []
+                );
+            }
+
+            return { previousReels };
+        },
+        onError: (err, reelId, context) => {
+            if (context?.previousReels) {
+                queryClient.setQueryData(['reels'], context.previousReels);
+            }
+        },
+        onSuccess: (data, reelId) => {
+            if (data?.success && data?.saves) {
+                queryClient.setQueryData(['reels'], (oldReels) =>
+                    oldReels ? oldReels.map((reel) =>
+                        reel._id === reelId ? { ...reel, saves: data.saves } : reel
+                    ) : []
+                );
+            }
         }
     });
 
