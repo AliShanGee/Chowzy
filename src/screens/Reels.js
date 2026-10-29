@@ -9,6 +9,10 @@ const ReelVideo = ({ reel, userId, handleLike, handleSave }) => {
     const videoRef = useRef(null);
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
+
+    const isLiked = Boolean(reel.likes && reel.likes.includes(userId));
+    const isSaved = Boolean(reel.saves && reel.saves.includes(userId));
+    const likeCount = reel.likes ? reel.likes.length : 0;
     
     const isYouTube = reel.videoUrl.includes('youtube.com') || reel.videoUrl.includes('youtu.be');
     
@@ -128,20 +132,34 @@ const ReelVideo = ({ reel, userId, handleLike, handleSave }) => {
                 textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
                 zIndex: 10
             }}>
-                <div className="action-item" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => handleLike(reel._id)}>
-                    {reel.likes && reel.likes.includes(userId) ? 
-                        <FaHeart size={30} color="red" /> : 
-                        <FaRegHeart size={30} />
+                <button
+                    type="button"
+                    className="action-item bg-transparent border-0 text-white p-0 d-flex flex-column align-items-center"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleLike(reel._id)}
+                    aria-label={isLiked ? `Unlike reel (${likeCount} likes)` : `Like reel (${likeCount} likes)`}
+                    aria-pressed={isLiked}
+                >
+                    {isLiked ?
+                        <FaHeart size={30} color="red" aria-hidden="true" /> :
+                        <FaRegHeart size={30} aria-hidden="true" />
                     }
-                    <div style={{ fontSize: '12px' }}>{reel.likes ? reel.likes.length : 0}</div>
-                </div>
-                <div className="action-item" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => handleSave(reel._id)}>
-                    {reel.saves && reel.saves.includes(userId) ? 
-                        <FaBookmark size={25} color="#FFE13C" /> : 
-                        <FaRegBookmark size={25} />
+                    <span style={{ fontSize: '12px' }}>{likeCount}</span>
+                </button>
+                <button
+                    type="button"
+                    className="action-item bg-transparent border-0 text-white p-0 d-flex flex-column align-items-center"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleSave(reel._id)}
+                    aria-label={isSaved ? "Remove from saved reels" : "Save reel"}
+                    aria-pressed={isSaved}
+                >
+                    {isSaved ?
+                        <FaBookmark size={25} color="#FFE13C" aria-hidden="true" /> :
+                        <FaRegBookmark size={25} aria-hidden="true" />
                     }
-                    <div style={{ fontSize: '12px' }}>Save</div>
-                </div>
+                    <span style={{ fontSize: '12px' }}>Save</span>
+                </button>
             </div>
             <div className="reel-info" style={{
                 position: 'absolute',
