@@ -1,0 +1,3 @@
+## 2026-10-30 - Memoized Category Deduplication and Item Grouping in Home Screen
+**Learning:** Performing array deduplication with `filter` and `findIndex` ($O(C^2)$) and item grouping with quadratic array spreading `[...unique, item]` inside inline JSX functions on every render frame causes severe frame drops and garbage collection pauses during frequent user interactions (like typing in search inputs).
+**Action:** Pre-compute deduplicated categories using `Set` in `useMemo` ($O(C)$) and group/filter items into a `Map<string, FoodItem[]>` in a single pass ($O(M)$), enabling $O(1)$ category lookup during render.
