@@ -73,14 +73,16 @@ const SearchBar = ({ items, onSearch }) => {
           ...(isOpen ? { borderColor: '#007bff' } : {})
         }}
       >
-        <span style={{ fontSize: '24px', color: '#007bff', marginLeft: '10px' }}>
+        <span style={{ fontSize: '24px', color: '#007bff', marginLeft: '10px' }} aria-hidden="true">
           <IoSearchOutline />
         </span>
         
         <input
-          {...getInputProps()}
+          {...getInputProps({
+            'aria-label': 'Search food items',
+            placeholder: 'What are you craving today?'
+          })}
           className="form-control"
-          placeholder="What are you craving today?"
           style={{
             border: 'none',
             fontSize: '18px',
@@ -93,6 +95,9 @@ const SearchBar = ({ items, onSearch }) => {
 
         {inputValue && (
           <button
+            type="button"
+            aria-label="Clear search input"
+            title="Clear search"
             onClick={() => {
               setInputValue('');
               onSearch('');
@@ -111,11 +116,14 @@ const SearchBar = ({ items, onSearch }) => {
             onMouseOver={(e) => e.currentTarget.style.color = '#dc3545'}
             onMouseOut={(e) => e.currentTarget.style.color = '#999'}
           >
-            <IoCloseCircleOutline />
+            <IoCloseCircleOutline aria-hidden="true" />
           </button>
         )}
         
         <button
+          type="button"
+          aria-label="Search food items"
+          onClick={() => onSearch(inputValue || '')}
           className="btn btn-primary"
           style={{
             borderRadius: '40px',
