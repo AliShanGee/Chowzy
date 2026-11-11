@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Footer from '../components/Footer.js'
@@ -18,6 +18,54 @@ export default function Home() {
   const [foodItem,setFoodItem] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
+
+  // Bolt Optimization: Deduplicate categories in O(C) and memoize pagination slices
+  const uniqueCategories = useMemo(() => {
+    const seen = new Set();
+    const result = [];
+    for (const cat of foodCat) {
+      if (cat && cat.CategoryName && !seen.has(cat.CategoryName)) {
+        seen.add(cat.CategoryName);
+        result.push(cat);
+      }
+    }
+    return result;
+  }, [foodCat]);
+
+  const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
+  const currentCategories = useMemo(() => {
+    return uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  }, [uniqueCategories, currentPage]);
+
+  // Bolt Optimization: Pre-index and deduplicate items per category in O(N) time with Map/Set,
+  // avoiding inline O(C * N^2) nested filtering and quadratic reduce allocations on every render frame
+  const filteredItemsByCategory = useMemo(() => {
+    const categoryMap = new Map();
+    const seenItemNamesByCategory = new Map();
+    const lowerSearch = search.toLowerCase();
+
+    for (const item of foodItem) {
+      if (!item || !item.name || !item.CategoryName) continue;
+      if (lowerSearch && !item.name.toLowerCase().includes(lowerSearch)) continue;
+
+      let seenNames = seenItemNamesByCategory.get(item.CategoryName);
+      if (!seenNames) {
+        seenNames = new Set();
+        seenItemNamesByCategory.set(item.CategoryName, seenNames);
+      }
+
+      if (!seenNames.has(item.name)) {
+        seenNames.add(item.name);
+        let list = categoryMap.get(item.CategoryName);
+        if (!list) {
+          list = [];
+          categoryMap.set(item.CategoryName, list);
+        }
+        list.push(item);
+      }
+    }
+    return categoryMap;
+  }, [foodItem, search]);
 
   const loadData = async ()=>{
     try {
@@ -87,52 +135,40 @@ export default function Home() {
               <span className="badge rounded-pill bg-light text-dark me-2 p-2" style={{cursor: 'pointer'}}>50% off foods</span>
             </div> */}
           </div>
-        {
-          (() => {
-            if (foodCat.length === 0) return "";
-            
-            const uniqueCategories = foodCat.filter((cat, index, self) => 
-              index === self.findIndex(c => c.CategoryName === cat.CategoryName)
-            );
-            const totalPages = Math.ceil(uniqueCategories.length / itemsPerPage);
-            const currentCategories = uniqueCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-            return (
-              <>
-                {currentCategories.map((data) => {
-                  return (
-                    <div className='row mb-3' key={data._id}>
-                      <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
-                        {data.CategoryName}
-                      </div>
-                      <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
-              {foodItem.length > 0
-              ? foodItem.filter((item) => item.name && (item.CategoryName === data.CategoryName) && (item.name.toLowerCase().includes(search.toLowerCase()))) 
-                .reduce((unique, item) => {
-                  return unique.some(i => i.name === item.name) ? unique : [...unique, item];
-                }, [])
-                .map(filterItems => {
-                  return (
-                    <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
-                      <Card foodItem={filterItems} options={filterItems.options[0]} />
+        {/* Bolt Optimization: Memoize category deduplication & food item indexing in O(N) */}
+        {foodCat.length > 0 && (() => {
+          return (
+            <>
+              {currentCategories.map((data) => {
+                const categoryItems = filteredItemsByCategory.get(data.CategoryName) || [];
+                return (
+                  <div className='row mb-3' key={data._id}>
+                    <div className="fs-3 m-3 fw-bold" style={{ color: theme === 'dark' ? '#fff' : '#1a1a1a', transition: 'color 0.3s ease' }}>
+                      {data.CategoryName}
                     </div>
-                  )
-                })
-              : <div>No Such Data Found</div>}
-                    </div>
-                  );
-                })}
-                {totalPages > 1 && (
-                  <Page
-                    totalPages={totalPages}
-                    currentPage={currentPage}
-                    onPageChange={setCurrentPage}
-                  />
-                )}
-              </>
-            );
-          })()
-        }
+                    <hr className={theme === 'dark' ? 'bg-light' : 'bg-dark'} style={{ opacity: 0.1, margin: '0 1rem' }} />
+                    {categoryItems.length > 0 ? (
+                      categoryItems.map(filterItems => (
+                        <div key={filterItems._id} className='col-12 col-md-6 col-lg-3 mb-3'>
+                          <Card foodItem={filterItems} options={filterItems.options[0]} />
+                        </div>
+                      ))
+                    ) : (
+                      <div>No Such Data Found</div>
+                    )}
+                  </div>
+                );
+              })}
+              {totalPages > 1 && (
+                <Page
+                  totalPages={totalPages}
+                  currentPage={currentPage}
+                  onPageChange={setCurrentPage}
+                />
+              )}
+            </>
+          );
+        })()}
         </div>
         <Footer/>
       </div>
